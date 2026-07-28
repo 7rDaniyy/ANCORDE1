@@ -421,9 +421,8 @@
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 100px;
-            height: 10px;
             width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: var(--success);
             border: 2px solid var(--bg-user-bar);
@@ -1648,6 +1647,8 @@
                         chanEl.className = `channel-item context-voice-channel ${activeChannelId === chanId ? 'active' : ''}`;
                         chanEl.dataset.id = chanId;
                         chanEl.innerHTML = `<i class="fa-solid fa-volume-high"></i> ${chan.name}`;
+                        
+                        // НАПРЯМУЮ ЗАПРАШИВАЕМ РАЗРЕШЕНИЕ ПРИ КЛИКЕ ПОЛЬЗОВАТЕЛЯ
                         chanEl.addEventListener('click', () => connectVoiceChannel(chanId, chan.name));
 
                         const usersContainer = document.createElement('div');
@@ -1850,7 +1851,14 @@
            6. WEBRTC И ГОЛОСОВАЯ СЦЕНА (VOICE STAGE) С КАРТОЧКАМИ УЧАСТНИКОВ
            ========================================================================== */
         function initPeerJS() {
-            peer = new Peer(currentUser.uid);
+            peer = new Peer(currentUser.uid, {
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
 
             peer.on('call', (call) => {
                 call.answer(localStream);
@@ -1859,9 +1867,12 @@
                 });
                 peerCalls[call.peer] = call;
             });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS Error:", err);
+            });
         }
 
-        // Генератор красивого мягкого цвета фона на основе имени пользователя
         function getAvatarToneColor(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -1905,7 +1916,6 @@
             unsubscribeStagePeers = onSnapshot(voiceRoomRef, (snapshot) => {
                 voiceStageGrid.innerHTML = '';
 
-                // 1. Рендерим карточки всех участников
                 snapshot.forEach(docSnap => {
                     const pData = docSnap.data();
                     const pUid = docSnap.id;
@@ -1931,7 +1941,6 @@
                     voiceStageGrid.appendChild(card);
                 });
 
-                // 2. Рендерим карточку "Пригласить в голосовой чат" (Соразмерный блок)
                 const inviteCard = document.createElement('div');
                 inviteCard.className = 'voice-stage-card invite-card';
                 inviteCard.innerHTML = `
@@ -1942,7 +1951,6 @@
                 `;
                 voiceStageGrid.appendChild(inviteCard);
 
-                // Перепривязываем локальный поток, если камера или шеринг активны
                 if (localStream && (isCameraOn || isScreenSharing)) {
                     handleRemoteStream(currentUser.uid, localStream);
                 }
@@ -1967,29 +1975,55 @@
             }
         }
 
+        // ПОДКЛЮЧЕНИЕ К ГОЛОСОВОМУ КАНАЛУ (С ПРЯМЫМ СБРОСОМ ОЧЕРЕДИ ДЛЯ ВЫЗОВА ЗАПРОСА)
         async function connectVoiceChannel(channelId, channelName) {
-            try {
-                if (currentVoiceChannelId === channelId) {
-                    showVoiceStage(channelName);
-                    return;
-                }
+            // Проверка защищенного соединения (HTTPS)
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                alert("Ошибка безопасности: Доступ к микрофону заблокирован браузером, так как сайт открыт не по HTTPS протоколу!");
+                return;
+            }
 
-                const voiceBar = document.getElementById('voice-connected-bar');
-                voiceBar.style.display = 'flex';
-                document.getElementById('voice-channel-name-display').innerText = `${channelName}`;
-
-                setVoiceStatus('connecting', 'Подключение...');
-
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                currentVoiceChannelId = channelId;
-
+            if (currentVoiceChannelId === channelId) {
                 showVoiceStage(channelName);
-                setVoiceStatus('connecting', 'Установление соединения...');
+                return;
+            }
 
-                setTimeout(() => {
-                    setVoiceStatus('connected', 'Подключен', Math.floor(15 + Math.random() * 15));
-                }, 800);
+            // Включаем AudioContext в ответ на клик пользователя
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }
 
+            const voiceBar = document.getElementById('voice-connected-bar');
+            voiceBar.style.display = 'flex';
+            document.getElementById('voice-channel-name-display').innerText = `${channelName}`;
+            setVoiceStatus('connecting', 'Запрос микрофона...');
+
+            try {
+                // ВЫЗЫВАЕМ ПОЛУЧЕНИЕ ПОТОКА ПРЯМО В ТЕКУЩЕМ ОБРАБОТЧИКЕ КЛИКА
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            } catch (err) {
+                console.error("Ошибка микрофона:", err);
+                setVoiceStatus('disconnected', 'Заблокировано');
+
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    alert("Вы запретили доступ к микрофону! Нажмите на иконку 'Замка' слева в адресной строке и переключите 'Микрофон' в значение 'Разрешить'.");
+                } else {
+                    alert("Не удалось запустить микрофон: " + err.message);
+                }
+                return;
+            }
+
+            currentVoiceChannelId = channelId;
+            showVoiceStage(channelName);
+            setVoiceStatus('connecting', 'Соединение...');
+
+            setTimeout(() => {
+                setVoiceStatus('connected', 'Подключен', Math.floor(15 + Math.random() * 15));
+            }, 800);
+
+            try {
                 const voiceRoomRef = collection(db, "servers", activeServerId, "channels", channelId, "voice_peers");
 
                 await setDoc(doc(voiceRoomRef, currentUser.uid), {
@@ -2014,10 +2048,8 @@
                         }
                     });
                 });
-
-            } catch (err) {
-                setVoiceStatus('disconnected', 'Отключен');
-                alert("Ошибка доступа к микрофону: " + err.message);
+            } catch (firestoreErr) {
+                console.error("Ошибка сохранения статуса:", firestoreErr);
             }
         }
 
@@ -2036,7 +2068,6 @@
             }
         }
 
-        // Вспомогательный метод для подмены трека у собеседников без разрыва соединения
         function replaceVideoTrackForPeers(newTrack) {
             Object.values(peerCalls).forEach(call => {
                 const sender = call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
@@ -2048,7 +2079,6 @@
             });
         }
 
-        // Логика Мута и Наушников
         async function syncAudioStates() {
             if (isDeafened) {
                 isMuted = true;
@@ -2076,11 +2106,10 @@
         document.getElementById('stage-btn-mute').addEventListener('click', () => { isMuted = !isMuted; syncAudioStates(); });
         document.getElementById('stage-btn-deafen').addEventListener('click', () => { isDeafened = !isDeafened; syncAudioStates(); });
 
-        // Включение Камеры
         async function toggleCamera() {
             try {
                 if (!isCameraOn) {
-                    if (isScreenSharing) await stopScreenShare(); // Выключаем демонстрацию, если включена
+                    if (isScreenSharing) await stopScreenShare();
 
                     const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     const videoTrack = camStream.getVideoTracks()[0];
@@ -2133,7 +2162,6 @@
 
             if (!isScreenSharing) {
                 try {
-                    // Запрашиваем захват экрана у браузера
                     screenStream = await navigator.mediaDevices.getDisplayMedia({
                         video: { cursor: "always" },
                         audio: false
@@ -2142,7 +2170,6 @@
                     const screenTrack = screenStream.getVideoTracks()[0];
 
                     if (isCameraOn) {
-                        // Если камера включена, отключаем её трек
                         if (localStream) {
                             localStream.getVideoTracks().forEach(t => t.stop());
                         }
@@ -2159,23 +2186,19 @@
                         localStream = screenStream;
                     }
 
-                    // Подменяем трек у подключенных пользователей
                     replaceVideoTrackForPeers(screenTrack);
-
-                    // Отображаем экран локально в своей карточке
                     handleRemoteStream(currentUser.uid, screenStream);
 
                     isScreenSharing = true;
                     document.getElementById('btn-voice-screenshare').classList.add('active');
                     document.getElementById('stage-btn-screenshare').classList.add('active');
 
-                    // Отслеживаем системное завершение демонстрации (например, через плашку браузера)
                     screenTrack.onended = () => {
                         stopScreenShare();
                     };
 
                 } catch (err) {
-                    console.error("Ошибка захвата экрана:", err);
+                    console.error("Ошибка доступа к экрану:", err);
                 }
             } else {
                 stopScreenShare();
