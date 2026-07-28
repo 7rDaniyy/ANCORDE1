@@ -1,0 +1,940 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancorde</title>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+         /* ==========================================================================
+        1. ПЕРЕМЕННЫЕ И ТЕМАТИЗАЦИЯ (ТЕМНАЯ / СВЕТЛАЯ)
+        ========================================================================== */
+         :root {
+             /* Dark Theme (Default) */
+             --bg-servers: #1e1f22;
+             --bg-channels: #2b2d31;
+             --bg-chat: #313338;
+             --bg-user-bar: #232428;
+             --bg-card: #111214;
+             --bg-hover: #35373c;
+             --bg-active: #404249;
+             --bg-input: #383a40;
+             --text-main: #f2f3f5;
+             --text-muted: #949ba4;
+             --accent: #5865f2;
+             --accent-hover: #4752c4;
+             --border-color: #1f2023;
+             --danger: #da373c;
+             --shadow: rgba(0, 0, 0, 0.4);
+         }
+
+         [data-theme="light"] {
+             /* Light Theme Overrides */
+             --bg-servers: #e3e5e8;
+             --bg-channels: #f2f3f5;
+             --bg-chat: #ffffff;
+             --bg-user-bar: #ebedef;
+             --bg-card: #e3e5e8;
+             --bg-hover: #e0e2e5;
+             --bg-active: #d7d9dc;
+             --bg-input: #e3e5e8;
+             --text-main: #060607;
+             --text-muted: #4e5058;
+             --border-color: #d0d2d6;
+             --shadow: rgba(0, 0, 0, 0.1);
+         }
+
+         * {
+             box-sizing: border-box;
+             margin: 0;
+             padding: 0;
+             font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+             user-select: none;
+         }
+
+         body, html {
+             height: 100%;
+             width: 100%;
+             overflow: hidden;
+             background-color: var(--bg-chat);
+             color: var(--text-main);
+         }
+
+         /* ==========================================================================
+        2. ЭКРАН АВТОРИЗАЦИИ / РЕГИСТРАЦИИ
+        ========================================================================== */
+         #auth-screen {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100vw;
+             height: 100vh;
+             background-color: var(--bg-chat);
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             z-index: 9999;
+         }
+
+         .auth-card {
+             background: var(--bg-channels);
+             padding: 32px;
+             border-radius: 8px;
+             box-shadow: 0 8px 16px var(--shadow);
+             width: 400px;
+             display: flex;
+             flex-direction: column;
+             gap: 16px;
+         }
+
+             .auth-card h2 {
+                 text-align: center;
+                 color: var(--text-main);
+             }
+
+             .auth-card input {
+                 width: 100%;
+                 padding: 10px;
+                 background: var(--bg-input);
+                 border: 1px solid var(--border-color);
+                 color: var(--text-main);
+                 border-radius: 4px;
+                 outline: none;
+             }
+
+         .btn {
+             background: var(--accent);
+             color: white;
+             border: none;
+             padding: 10px;
+             border-radius: 4px;
+             cursor: pointer;
+             font-weight: bold;
+             transition: background 0.2s;
+         }
+
+             .btn:hover {
+                 background: var(--accent-hover);
+             }
+
+         .btn-google {
+             background: #4285f4;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 10px;
+         }
+
+             .btn-google:hover {
+                 background: #357ae8;
+             }
+
+         .auth-toggle {
+             text-align: center;
+             font-size: 12px;
+             color: var(--text-muted);
+             cursor: pointer;
+         }
+
+             .auth-toggle span {
+                 color: var(--accent);
+                 text-decoration: underline;
+             }
+
+         /* ==========================================================================
+        3. ОСНОВНОЙ ИНТЕРФЕЙС ПРИЛОЖЕНИЯ
+        ========================================================================== */
+         #app-container {
+             display: none;
+             height: 100vh;
+             width: 100vw;
+             flex-direction: row;
+         }
+
+         /* Панель серверов */
+         .servers-bar {
+             width: 72px;
+             background: var(--bg-servers);
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             padding: 12px 0;
+             gap: 8px;
+         }
+
+         .server-icon {
+             width: 48px;
+             height: 48px;
+             border-radius: 50%;
+             background: var(--bg-channels);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             transition: all 0.2s;
+             color: var(--text-main);
+             font-weight: bold;
+         }
+
+             .server-icon:hover {
+                 border-radius: 16px;
+                 background: var(--accent);
+                 color: white;
+             }
+
+         /* Панель каналов */
+         .channels-bar {
+             width: 240px;
+             background: var(--bg-channels);
+             display: flex;
+             flex-direction: column;
+             justify-content: space-between;
+         }
+
+         .server-header {
+             height: 48px;
+             border-bottom: 1px solid var(--border-color);
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             padding: 0 16px;
+             font-weight: bold;
+             color: var(--text-main);
+         }
+
+         .channels-list {
+             flex: 1;
+             padding: 12px 8px;
+             overflow-y: auto;
+         }
+
+         .channel-category {
+             font-size: 12px;
+             color: var(--text-muted);
+             text-transform: uppercase;
+             margin: 12px 0 4px 8px;
+             font-weight: bold;
+         }
+
+         .channel-item {
+             padding: 6px 8px;
+             border-radius: 4px;
+             color: var(--text-muted);
+             cursor: pointer;
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             margin-bottom: 2px;
+         }
+
+             .channel-item:hover {
+                 background: var(--bg-hover);
+                 color: var(--text-main);
+             }
+
+             .channel-item.active {
+                 background: var(--bg-active);
+                 color: var(--text-main);
+             }
+
+         /* Панель пользователя снизу */
+         .user-bar {
+             height: 52px;
+             background: var(--bg-user-bar);
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             padding: 0 8px;
+         }
+
+         .user-info {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             cursor: pointer;
+             padding: 4px;
+             border-radius: 4px;
+         }
+
+             .user-info:hover {
+                 background: var(--bg-hover);
+             }
+
+         .avatar {
+             width: 32px;
+             height: 32px;
+             border-radius: 50%;
+             background: var(--accent);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white;
+             font-size: 14px;
+         }
+
+         .user-details {
+             display: flex;
+             flex-direction: column;
+             font-size: 12px;
+         }
+
+             .user-details .name {
+                 color: var(--text-main);
+                 font-weight: bold;
+             }
+
+             .user-details .tag {
+                 color: var(--text-muted);
+             }
+
+         .user-controls {
+             display: flex;
+             gap: 4px;
+         }
+
+         .icon-btn {
+             width: 32px;
+             height: 32px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             border-radius: 4px;
+             color: var(--text-muted);
+             cursor: pointer;
+         }
+
+             .icon-btn:hover {
+                 background: var(--bg-hover);
+                 color: var(--text-main);
+             }
+
+             .icon-btn.active {
+                 color: var(--danger);
+             }
+
+         /* Чат зона */
+         .chat-area {
+             flex: 1;
+             background: var(--bg-chat);
+             display: flex;
+             flex-direction: column;
+         }
+
+         .chat-header {
+             height: 48px;
+             border-bottom: 1px solid var(--border-color);
+             display: flex;
+             align-items: center;
+             padding: 0 16px;
+             gap: 8px;
+             font-weight: bold;
+         }
+
+         .messages-container {
+             flex: 1;
+             padding: 16px;
+             overflow-y: auto;
+             display: flex;
+             flex-direction: column;
+             gap: 16px;
+         }
+
+         .message-item {
+             display: flex;
+             gap: 16px;
+         }
+
+         .message-content {
+             display: flex;
+             flex-direction: column;
+         }
+
+         .message-header {
+             display: flex;
+             align-items: baseline;
+             gap: 8px;
+         }
+
+         .message-author {
+             font-weight: bold;
+             color: var(--text-main);
+             font-size: 14px;
+         }
+
+         .message-time {
+             font-size: 10px;
+             color: var(--text-muted);
+         }
+
+         .message-text {
+             color: var(--text-main);
+             font-size: 14px;
+             margin-top: 4px;
+             user-select: text;
+         }
+
+         .chat-input-area {
+             padding: 0 16px 24px 16px;
+         }
+
+         .chat-input {
+             width: 100%;
+             background: var(--bg-input);
+             border: none;
+             border-radius: 8px;
+             padding: 12px 16px;
+             color: var(--text-main);
+             outline: none;
+         }
+
+         /* Список пользователей справа */
+         .members-bar {
+             width: 240px;
+             background: var(--bg-channels);
+             padding: 16px 8px;
+             display: flex;
+             flex-direction: column;
+             gap: 8px;
+         }
+
+         .member-item {
+             display: flex;
+             align-items: center;
+             gap: 8px;
+             padding: 6px 8px;
+             border-radius: 4px;
+             cursor: pointer;
+         }
+
+             .member-item:hover {
+                 background: var(--bg-hover);
+             }
+
+         /* ==========================================================================
+        4. КОНТЕКСТНЫЕ МЕНЮ (ПКМ)
+        ========================================================================== */
+         .context-menu {
+             position: fixed;
+             background: var(--bg-card);
+             border: 1px solid var(--border-color);
+             border-radius: 4px;
+             box-shadow: 0 4px 12px var(--shadow);
+             padding: 6px;
+             min-width: 180px;
+             display: none;
+             z-index: 10000;
+             flex-direction: column;
+             gap: 2px;
+         }
+
+         .menu-item {
+             padding: 8px 12px;
+             font-size: 13px;
+             color: var(--text-main);
+             border-radius: 2px;
+             cursor: pointer;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+         }
+
+             .menu-item:hover {
+                 background: var(--accent);
+                 color: white;
+             }
+
+             .menu-item.danger:hover {
+                 background: var(--danger);
+                 color: white;
+             }
+
+         .menu-separator {
+             height: 1px;
+             background: var(--border-color);
+             margin: 4px 0;
+         }
+
+         .menu-sub-panel {
+             padding: 8px 12px;
+             display: flex;
+             flex-direction: column;
+             gap: 4px;
+             font-size: 12px;
+             color: var(--text-muted);
+         }
+
+             .menu-sub-panel select, .menu-sub-panel input {
+                 width: 100%;
+                 background: var(--bg-input);
+                 color: var(--text-main);
+                 border: 1px solid var(--border-color);
+                 padding: 4px;
+                 border-radius: 2px;
+             }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+         ЭКРАН АВТОРИЗАЦИИ / РЕГИСТРАЦИИ
+         ========================================================================== -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 id="auth-title">С возвращением!</h2>
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-password" placeholder="Пароль">
+
+            <button class="btn" id="btn-submit-auth">Войти</button>
+            <button class="btn btn-google" id="btn-google-auth">
+                <i class="fa-brands fa-google"></i> Войти через Google
+            </button>
+
+            <div class="auth-toggle" id="auth-toggle">
+                Нужен аккаунт? <span id="auth-toggle-btn">Зарегистрироваться</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         ОСНОВНОЕ ПРИЛОЖЕНИЕ
+         ========================================================================== -->
+    <div id="app-container">
+
+        <!-- Панель серверов -->
+        <div class="servers-bar">
+            <div class="server-icon" id="btn-dm-server" title="Личные сообщения">
+                <i class="fa-brands fa-discord"></i>
+            </div>
+            <div class="menu-separator" style="width: 32px;"></div>
+            <div class="server-icon context-server" data-server-id="srv_main" data-server-name="Основной Сервер">
+                ANC
+            </div>
+            <div class="server-icon" id="btn-add-server" style="color: #23a55a;">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+        </div>
+
+        <!-- Панель каналов -->
+        <div class="channels-bar">
+            <div>
+                <div class="server-header context-server" data-server-id="srv_main" data-server-name="Основной Сервер">
+                    <span id="current-server-title">Основной Сервер</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+
+                <div class="channels-list">
+                    <div class="channel-category">Текстовые каналы</div>
+                    <div class="channel-item active" data-channel-id="chan_general" data-channel-name="общий-чат">
+                        <i class="fa-solid fa-hashtag"></i> общий-чат
+                    </div>
+
+                    <div class="channel-category">Голосовые каналы</div>
+                    <div class="channel-item context-voice" data-channel-id="voice_general" data-channel-name="Основной голос">
+                        <i class="fa-solid fa-volume-high"></i> Основной голос
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панель профиля и настроек снизу -->
+            <div class="user-bar">
+                <div class="user-info context-user" id="my-profile-bar" data-user-id="me">
+                    <div class="avatar" id="my-avatar">U</div>
+                    <div class="user-details">
+                        <div class="name" id="my-name">Загрузка...</div>
+                        <div class="tag" id="my-tag">#0000</div>
+                    </div>
+                </div>
+
+                <div class="user-controls">
+                    <div class="icon-btn context-audio-mute" id="btn-mute" title="Выключить микрофон (ПКМ — настройки)">
+                        <i class="fa-solid fa-microphone"></i>
+                    </div>
+                    <div class="icon-btn context-audio-deafen" id="btn-deafen" title="Выключить звук (ПКМ — настройки)">
+                        <i class="fa-solid fa-headphones"></i>
+                    </div>
+                    <div class="icon-btn" id="btn-toggle-theme" title="Сменить тему">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Зона чата -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <i class="fa-solid fa-hashtag" style="color: var(--text-muted);"></i>
+                <span id="current-channel-title">общий-чат</span>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+                <!-- Сообщения подгружаются из БД -->
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Написать в #общий-чат">
+            </div>
+        </div>
+
+        <!-- Список участников -->
+        <div class="members-bar">
+            <div class="channel-category">Участники — 1</div>
+            <div class="member-item context-user" data-user-id="user_demo" data-user-name="DemoUser">
+                <div class="avatar" style="background: #23a55a;">D</div>
+                <span style="font-size: 14px; color: var(--text-main);">DemoUser</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================================
+         5. КОНТЕКСТНЫЕ МЕНЮ (ПКМ)
+         ========================================================================== -->
+    <!-- Меню Пользователя -->
+    <div class="context-menu" id="menu-user">
+        <div class="menu-item" onclick="alert('Открытие профиля...')">Профиль</div>
+        <div class="menu-item" onclick="alert('ЛС открыты')">Написать в ЛС</div>
+        <div class="menu-sub-panel">
+            <span>Громкость пользователя:</span>
+            <input type="range" min="0" max="200" value="100">
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item danger" onclick="alert('Заблокирован')">Заблокировать</div>
+    </div>
+
+    <!-- Меню Сервера -->
+    <div class="context-menu" id="menu-server">
+        <div class="menu-item" onclick="alert('Настройки сервера')">Настройки сервера</div>
+        <div class="menu-item" onclick="alert('Создание канала...')">Создать канал</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item danger" onclick="alert('Покинул сервер')">Покинуть сервер</div>
+    </div>
+
+    <!-- Меню Голосового Канала -->
+    <div class="context-menu" id="menu-voice">
+        <div class="menu-item" onclick="alert('Подключение к голосу...')">Подключиться</div>
+        <div class="menu-item" onclick="alert('Настройки канала')">Настройки канала</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item danger" onclick="alert('Отключить всех')">Отключить всех</div>
+    </div>
+
+    <!-- Меню Настройки Аудио (Мут / Наушники) -->
+    <div class="context-menu" id="menu-audio">
+        <div class="menu-sub-panel">
+            <span>Устройство ввода (Микрофон)</span>
+            <select id="mic-select">
+                <option>По умолчанию (Микрофон)</option>
+            </select>
+        </div>
+        <div class="menu-sub-panel">
+            <span>Устройство вывода (Динамики)</span>
+            <select id="speaker-select">
+                <option>По умолчанию (Динамики)</option>
+            </select>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-sub-panel">
+            <span>Громкость микрофона</span>
+            <input type="range" min="0" max="100" value="100">
+        </div>
+        <div class="menu-sub-panel">
+            <span>Громкость звука</span>
+            <input type="range" min="0" max="100" value="100">
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" onclick="alert('Переход в полный раздел «Настройка голоса»')">
+            <b>Настройка голоса</b>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         6. FIREBASE SDK (JS v9 Modules) & ЛОГИКА
+         ========================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            onSnapshot,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Твоя Firebase Конфигурация
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMmbo4_R6dYU_81Dm8-MMyU9OgW_7Ynco",
+            authDomain: "ancorde-8c414.firebaseapp.com",
+            projectId: "ancorde-8c414",
+            storageBucket: "ancorde-8c414.firebasestorage.app",
+            messagingSenderId: "171771099327",
+            appId: "1:171771099327:web:6305a40d64b55cec242e0a",
+            measurementId: "G-6ZYWGQ7Z7B"
+        };
+
+        // Инициализация Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Переменные состояния
+        let currentUser = null;
+        let isRegisterMode = false;
+        let activeChannelId = 'chan_general';
+
+        // Элементы интерфейса
+        const authScreen = document.getElementById('auth-screen');
+        const appContainer = document.getElementById('app-container');
+        const authTitle = document.getElementById('auth-title');
+        const authEmail = document.getElementById('auth-email');
+        const authPassword = document.getElementById('auth-password');
+        const btnSubmitAuth = document.getElementById('btn-submit-auth');
+        const btnGoogleAuth = document.getElementById('btn-google-auth');
+        const authToggleBtn = document.getElementById('auth-toggle-btn');
+
+        /* ==========================================================================
+           7. АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ
+           ========================================================================== */
+
+        // Переключение Режима (Вход / Регистрация)
+        authToggleBtn.addEventListener('click', () => {
+            isRegisterMode = !isRegisterMode;
+            authTitle.innerText = isRegisterMode ? "Создать аккаунт" : "С возвращением!";
+            btnSubmitAuth.innerText = isRegisterMode ? "Зарегистрироваться" : "Войти";
+            authToggleBtn.innerText = isRegisterMode ? "Войти" : "Зарегистрироваться";
+        });
+
+        // Авторизация по Email / Password
+        btnSubmitAuth.addEventListener('click', async () => {
+            const email = authEmail.value;
+            const password = authPassword.value;
+
+            if (!email || !password) return alert("Заполните все поля");
+
+            try {
+                if (isRegisterMode) {
+                    const res = await createUserWithEmailAndPassword(auth, email, password);
+                    // Сохраняем профиль нового пользователя в БД
+                    await setDoc(doc(db, "users", res.user.uid), {
+                        uid: res.user.uid,
+                        username: email.split('@')[0],
+                        tag: "#" + Math.floor(1000 + Math.random() * 9000),
+                        createdAt: serverTimestamp()
+                    });
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (err) {
+                alert("Ошибка: " + err.message);
+            }
+        });
+
+        // Авторизация через Google
+        btnGoogleAuth.addEventListener('click', async () => {
+            try {
+                const res = await signInWithPopup(auth, googleProvider);
+                const userRef = doc(db, "users", res.user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        uid: res.user.uid,
+                        username: res.user.displayName || "User",
+                        tag: "#" + Math.floor(1000 + Math.random() * 9000),
+                        createdAt: serverTimestamp()
+                    });
+                }
+            } catch (err) {
+                alert("Ошибка Google Auth: " + err.message);
+            }
+        });
+
+        // Слушатель состояния авторизации
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                authScreen.style.display = 'none';
+                appContainer.style.display = 'flex';
+
+                // Загрузка профиля пользователя
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    document.getElementById('my-name').innerText = data.username;
+                    document.getElementById('my-tag').innerText = data.tag;
+                    document.getElementById('my-avatar').innerText = data.username[0].toUpperCase();
+                }
+
+                // Подключение к сообщениям чата
+                loadMessages(activeChannelId);
+            } else {
+                authScreen.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        });
+
+        /* ==========================================================================
+           8. ЧАТ И БАЗА ДАННЫХ (FIRESTORE)
+           ========================================================================== */
+        const chatInput = document.getElementById('chat-input');
+        const messagesContainer = document.getElementById('messages-container');
+
+        // Отправка сообщения
+        chatInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                const text = chatInput.value.trim();
+                chatInput.value = '';
+
+                const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+                const userData = userSnap.data();
+
+                await addDoc(collection(db, "channels", activeChannelId, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: userData ? userData.username : "Аноним",
+                    text: text,
+                    timestamp: serverTimestamp()
+                });
+            }
+        });
+
+        // Подгрузка сообщений в реальном времени
+        function loadMessages(channelId) {
+            const q = query(
+                collection(db, "channels", channelId, "messages"),
+                orderBy("timestamp", "asc")
+            );
+
+            onSnapshot(q, (snapshot) => {
+                messagesContainer.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const msg = doc.data();
+                    const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...';
+
+                    const msgHtml = `
+                <div class="message-item">
+                  <div class="avatar">${msg.senderName ? msg.senderName[0].toUpperCase() : 'U'}</div>
+                  <div class="message-content">
+                    <div class="message-header">
+                      <span class="message-author">${msg.senderName}</span>
+                      <span class="message-time">${time}</span>
+                    </div>
+                    <div class="message-text">${msg.text}</div>
+                  </div>
+                </div>
+              `;
+                    messagesContainer.insertAdjacentHTML('beforeend', msgHtml);
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        /* ==========================================================================
+           9. СМЕНА ТЕМЫ И УПРАВЛЕНИЕ МУТОМ
+           ========================================================================== */
+        const themeBtn = document.getElementById('btn-toggle-theme');
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', 'light');
+            }
+        });
+
+        // Кнопки Mute / Deafen
+        const btnMute = document.getElementById('btn-mute');
+        const btnDeafen = document.getElementById('btn-deafen');
+
+        btnMute.addEventListener('click', (e) => {
+            if (e.button === 0) btnMute.classList.toggle('active');
+        });
+
+        btnDeafen.addEventListener('click', (e) => {
+            if (e.button === 0) btnDeafen.classList.toggle('active');
+        });
+
+        /* ==========================================================================
+           10. ЛОГИКА КАСТОМНЫХ КОНТЕКСТНЫХ МЕНЮ (ПКМ)
+           ========================================================================== */
+        const menus = {
+            user: document.getElementById('menu-user'),
+            server: document.getElementById('menu-server'),
+            voice: document.getElementById('menu-voice'),
+            audio: document.getElementById('menu-audio')
+        };
+
+        function hideAllMenus() {
+            Object.values(menus).forEach(m => m.style.display = 'none');
+        }
+
+        function showMenu(menu, e) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideAllMenus();
+
+            menu.style.display = 'flex';
+
+            // Позиционирование ПКМ меню относительно экрана
+            let x = e.clientX;
+            let y = e.clientY;
+
+            if (x + menu.offsetWidth > window.innerWidth) x -= menu.offsetWidth;
+            if (y + menu.offsetHeight > window.innerHeight) y -= menu.offsetHeight;
+
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+        }
+
+        // Закрытие ПКМ при клике в любое место
+        window.addEventListener('click', hideAllMenus);
+
+        // Слушатели событий ПКМ на элементы
+        document.addEventListener('contextmenu', (e) => {
+            const target = e.target;
+
+            // ПКМ на пользователя
+            if (target.closest('.context-user')) {
+                showMenu(menus.user, e);
+                return;
+            }
+
+            // ПКМ на сервер
+            if (target.closest('.context-server')) {
+                showMenu(menus.server, e);
+                return;
+            }
+
+            // ПКМ на голосовой чат
+            if (target.closest('.context-voice')) {
+                showMenu(menus.voice, e);
+                return;
+            }
+
+            // ПКМ на кнопки аудио (Мут или Наушники)
+            if (target.closest('.context-audio-mute') || target.closest('.context-audio-deafen')) {
+                showMenu(menus.audio, e);
+                return;
+            }
+
+            // По умолчанию стандартный контекстный браузерный блокируем внутри приложения
+            e.preventDefault();
+        });
+
+    </script>
+</body>
+</html>
