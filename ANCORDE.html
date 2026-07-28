@@ -88,19 +88,17 @@
             gap: 16px;
         }
 
-            .auth-card h2 {
-                text-align: center;
-            }
+        .auth-card h2 { text-align: center; }
 
-            .auth-card input {
-                width: 100%;
-                padding: 10px;
-                background: var(--bg-input);
-                border: 1px solid var(--border-color);
-                color: var(--text-main);
-                border-radius: 4px;
-                outline: none;
-            }
+        .auth-card input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            outline: none;
+        }
 
         .btn {
             background: var(--accent);
@@ -113,13 +111,9 @@
             transition: background 0.2s;
         }
 
-            .btn:hover {
-                background: var(--accent-hover);
-            }
+        .btn:hover { background: var(--accent-hover); }
 
-        .btn-danger {
-            background: var(--danger);
-        }
+        .btn-danger { background: var(--danger); }
 
         .btn-google {
             background: #4285f4;
@@ -136,10 +130,10 @@
             cursor: pointer;
         }
 
-            .auth-toggle span {
-                color: var(--accent);
-                text-decoration: underline;
-            }
+        .auth-toggle span {
+            color: var(--accent);
+            text-decoration: underline;
+        }
 
         /* ОСНОВНОЕ ПРИЛОЖЕНИЕ */
         #app-container {
@@ -176,11 +170,11 @@
             position: relative;
         }
 
-            .server-icon:hover, .server-icon.active {
-                border-radius: 16px;
-                background: var(--accent);
-                color: white;
-            }
+        .server-icon:hover, .server-icon.active {
+            border-radius: 16px;
+            background: var(--accent);
+            color: white;
+        }
 
         /* Каналы */
         .channels-bar {
@@ -205,9 +199,7 @@
             flex-shrink: 0;
         }
 
-            .server-header:hover {
-                background: var(--bg-hover);
-            }
+        .server-header:hover { background: var(--bg-hover); }
 
         .channels-list {
             flex: 1;
@@ -229,18 +221,14 @@
             cursor: pointer;
         }
 
-            .channel-category:hover {
-                color: var(--text-main);
-            }
+        .channel-category:hover { color: var(--text-main); }
 
-            .channel-category i.category-arrow {
-                transition: transform 0.2s;
-                margin-right: 4px;
-            }
+        .channel-category i.category-arrow {
+            transition: transform 0.2s;
+            margin-right: 4px;
+        }
 
-            .channel-category.collapsed i.category-arrow {
-                transform: rotate(-90deg);
-            }
+        .channel-category.collapsed i.category-arrow { transform: rotate(-90deg); }
 
         .channel-item {
             padding: 6px 8px;
@@ -253,15 +241,15 @@
             margin-bottom: 2px;
         }
 
-            .channel-item:hover {
-                background: var(--bg-hover);
-                color: var(--text-main);
-            }
+        .channel-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
 
-            .channel-item.active {
-                background: var(--bg-active);
-                color: var(--text-main);
-            }
+        .channel-item.active {
+            background: var(--bg-active);
+            color: var(--text-main);
+        }
 
         /* Список участников ВНУТРИ голосового канала */
         .voice-channel-users {
@@ -282,10 +270,10 @@
             color: var(--text-muted);
         }
 
-            .voice-user-row:hover {
-                background: var(--bg-hover);
-                color: var(--text-main);
-            }
+        .voice-user-row:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
 
         .voice-user-info {
             display: flex;
@@ -340,17 +328,9 @@
             gap: 6px;
         }
 
-        .voice-status-text {
-            color: var(--success);
-        }
-
-            .voice-status-text.connecting {
-                color: var(--warning);
-            }
-
-            .voice-status-text.disconnected {
-                color: var(--danger);
-            }
+        .voice-status-text { color: var(--success); }
+        .voice-status-text.connecting { color: var(--warning); }
+        .voice-status-text.disconnected { color: var(--danger); }
 
         .voice-ping {
             font-size: 11px;
@@ -388,19 +368,15 @@
             transition: background 0.2s;
         }
 
-            .voice-action-btn:hover {
-                background: var(--bg-active);
-            }
-
-            .voice-action-btn.active {
-                background: var(--accent);
-                color: white;
-            }
-
-            .voice-action-btn.danger {
-                background: var(--danger);
-                color: white;
-            }
+        .voice-action-btn:hover { background: var(--bg-active); }
+        .voice-action-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+        .voice-action-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
 
         /* Профиль пользователя снизу */
         .user-bar {
@@ -424,13 +400,9 @@
             flex: 1;
         }
 
-            .user-info:hover {
-                background: var(--bg-hover);
-            }
+        .user-info:hover { background: var(--bg-hover); }
 
-        .avatar-container {
-            position: relative;
-        }
+        .avatar-container { position: relative; }
 
         .avatar {
             width: 32px;
@@ -449,8 +421,9 @@
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 10px;
+            width: 100px;
             height: 10px;
+            width: 10px;
             border-radius: 50%;
             background: var(--success);
             border: 2px solid var(--bg-user-bar);
@@ -463,17 +436,15 @@
             overflow: hidden;
         }
 
-            .user-details .name {
-                color: var(--text-main);
-                font-weight: bold;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
+        .user-details .name {
+            color: var(--text-main);
+            font-weight: bold;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
 
-            .user-details .tag {
-                color: var(--text-muted);
-            }
+        .user-details .tag { color: var(--text-muted); }
 
         .user-controls {
             display: flex;
@@ -491,14 +462,12 @@
             cursor: pointer;
         }
 
-            .icon-btn:hover {
-                background: var(--bg-hover);
-                color: var(--text-main);
-            }
+        .icon-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
 
-            .icon-btn.active {
-                color: var(--danger);
-            }
+        .icon-btn.active { color: var(--danger); }
 
         /* Чат и Область Голосовой Сцены */
         .chat-area {
@@ -576,10 +545,10 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-            .voice-stage-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 32px rgba(0,0,0,0.7);
-            }
+        .voice-stage-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+        }
 
         .voice-stage-avatar {
             width: 90px;
@@ -602,6 +571,7 @@
             object-fit: cover;
             position: absolute;
             inset: 0;
+            z-index: 1;
         }
 
         /* Полупрозрачный никнейм снизу слева */
@@ -645,10 +615,10 @@
             transition: background 0.2s, transform 0.1s;
         }
 
-            .invite-card-btn:hover {
-                background: var(--accent-hover);
-                transform: scale(1.02);
-            }
+        .invite-card-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+        }
 
         /* Плавающая панель управления внизу сцены */
         .voice-stage-controls {
@@ -682,23 +652,19 @@
             transition: background 0.2s;
         }
 
-            .stage-btn:hover {
-                background: var(--bg-active);
-            }
+        .stage-btn:hover { background: var(--bg-active); }
 
-            .stage-btn.active {
-                background: var(--accent);
-                color: white;
-            }
+        .stage-btn.active {
+            background: var(--accent);
+            color: white;
+        }
 
-            .stage-btn.danger {
-                background: var(--danger);
-                color: white;
-            }
+        .stage-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
 
-                .stage-btn.danger:hover {
-                    background: #b82e32;
-                }
+        .stage-btn.danger:hover { background: #b82e32; }
 
         /* Обычный чат */
         .messages-container {
@@ -718,14 +684,12 @@
             margin-top: 8px;
         }
 
-            .message-item:hover {
-                background: rgba(0, 0, 0, 0.08);
-            }
+        .message-item:hover { background: rgba(0, 0, 0, 0.08); }
 
-            .message-item.compact {
-                margin-top: 0;
-                padding-left: 56px;
-            }
+        .message-item.compact {
+            margin-top: 0;
+            padding-left: 56px;
+        }
 
         .message-content {
             display: flex;
@@ -800,10 +764,10 @@
             cursor: pointer;
         }
 
-            .file-upload-btn:hover {
-                color: var(--text-main);
-                background: var(--bg-hover);
-            }
+        .file-upload-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-hover);
+        }
 
         /* Список участников */
         .members-bar {
@@ -824,9 +788,7 @@
             cursor: pointer;
         }
 
-            .member-item:hover {
-                background: var(--bg-hover);
-            }
+        .member-item:hover { background: var(--bg-hover); }
 
         .you-badge {
             font-size: 11px;
@@ -861,15 +823,15 @@
             position: relative;
         }
 
-            .menu-item:hover {
-                background: var(--accent);
-                color: white;
-            }
+        .menu-item:hover {
+            background: var(--accent);
+            color: white;
+        }
 
-            .menu-item.danger:hover {
-                background: var(--danger);
-                color: white;
-            }
+        .menu-item.danger:hover {
+            background: var(--danger);
+            color: white;
+        }
 
         .menu-separator {
             height: 1px;
@@ -877,9 +839,7 @@
             margin: 4px 0;
         }
 
-        .has-submenu:hover > .submenu {
-            display: flex;
-        }
+        .has-submenu:hover > .submenu { display: flex; }
 
         .submenu {
             position: absolute;
@@ -917,19 +877,17 @@
             gap: 16px;
         }
 
-            .modal h3 {
-                color: var(--text-main);
-            }
+        .modal h3 { color: var(--text-main); }
 
-            .modal input, .modal select {
-                width: 100%;
-                padding: 10px;
-                background: var(--bg-input);
-                border: 1px solid var(--border-color);
-                color: var(--text-main);
-                border-radius: 4px;
-                outline: none;
-            }
+        .modal input, .modal select {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+            outline: none;
+        }
 
         .modal-actions {
             display: flex;
@@ -949,10 +907,10 @@
             margin: auto;
         }
 
-            .empty-state i {
-                font-size: 48px;
-                opacity: 0.4;
-            }
+        .empty-state i {
+            font-size: 48px;
+            opacity: 0.4;
+        }
 
         .chat-welcome-banner {
             margin-top: auto;
@@ -962,15 +920,15 @@
             gap: 8px;
         }
 
-            .chat-welcome-banner h2 {
-                font-size: 28px;
-                font-weight: 800;
-            }
+        .chat-welcome-banner h2 {
+            font-size: 28px;
+            font-weight: 800;
+        }
 
-            .chat-welcome-banner p {
-                color: var(--text-muted);
-                font-size: 14px;
-            }
+        .chat-welcome-banner p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -1382,6 +1340,7 @@
         let isDeafened = false;
         let isCameraOn = false;
         let isScreenSharing = false;
+        let screenStream = null;
 
         // Элементы
         const authScreen = document.getElementById('auth-screen');
@@ -1557,11 +1516,11 @@
             hideVoiceStage();
 
             messagesContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-comments"></i>
-                        <div>Выберите собеседника из списка слева или нажмите "+", чтобы начать диалог!</div>
-                    </div>
-                `;
+                <div class="empty-state">
+                    <i class="fa-solid fa-comments"></i>
+                    <div>Выберите собеседника из списка слева или нажмите "+", чтобы начать диалог!</div>
+                </div>
+            `;
         }
 
         function loadServers() {
@@ -1612,24 +1571,24 @@
 
             if (isOwner) {
                 menu.innerHTML = `
-                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
-                        <div class="menu-item" onclick="alert('Настройки сервера')"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
-                        <div class="menu-item" id="drop-add-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
-                        <div class="menu-item" onclick="alert('Категория создана')"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
-                        <div class="menu-item" onclick="alert('Параметры уведомлений')"><i class="fa-solid fa-bell"></i> Параметры уведомлений</div>
-                        <div class="menu-separator"></div>
-                        <div class="menu-item danger" id="drop-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
-                        <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
-                    `;
+                    <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+                    <div class="menu-item" onclick="alert('Настройки сервера')"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
+                    <div class="menu-item" id="drop-add-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
+                    <div class="menu-item" onclick="alert('Категория создана')"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
+                    <div class="menu-item" onclick="alert('Параметры уведомлений')"><i class="fa-solid fa-bell"></i> Параметры уведомлений</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-item danger" id="drop-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
+                    <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
+                `;
             } else {
                 menu.innerHTML = `
-                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
-                        <div class="menu-item" onclick="alert('Просмотр настроек сервера')"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
-                        <div class="menu-item" onclick="alert('Параметры уведомлений')"><i class="fa-solid fa-bell"></i> Параметры уведомлений</div>
-                        <div class="menu-separator"></div>
-                        <div class="menu-item danger" onclick="openDmView()"><i class="fa-solid fa-right-from-bracket"></i> Покинуть сервер</div>
-                        <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
-                    `;
+                    <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+                    <div class="menu-item" onclick="alert('Просмотр настроек сервера')"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
+                    <div class="menu-item" onclick="alert('Параметры уведомлений')"><i class="fa-solid fa-bell"></i> Параметры уведомлений</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-item danger" onclick="openDmView()"><i class="fa-solid fa-right-from-bracket"></i> Покинуть сервер</div>
+                    <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
+                `;
             }
 
             showMenuAt(menu, 78, 52);
@@ -1719,12 +1678,12 @@
                     if (peerData.isDeafened) iconsHtml += `<i class="fa-solid fa-headphones" title="Звук отключен"></i>`;
 
                     row.innerHTML = `
-                            <div class="voice-user-info">
-                                <div class="voice-user-avatar">${peerData.username ? peerData.username[0].toUpperCase() : 'U'}</div>
-                                <span>${peerData.username || 'User'}</span>
-                            </div>
-                            <div class="voice-user-icons">${iconsHtml}</div>
-                        `;
+                        <div class="voice-user-info">
+                            <div class="voice-user-avatar">${peerData.username ? peerData.username[0].toUpperCase() : 'U'}</div>
+                            <span>${peerData.username || 'User'}</span>
+                        </div>
+                        <div class="voice-user-icons">${iconsHtml}</div>
+                    `;
                     containerEl.appendChild(row);
                 });
             });
@@ -1788,11 +1747,11 @@
 
                 if (snapshot.empty) {
                     messagesContainer.innerHTML = `
-                            <div class="chat-welcome-banner">
-                                <h2>Добро пожаловать в ${activeMode === 'server' ? '#' + activeChannelName : activeChannelName}!</h2>
-                                <p>Это начало вашей истории сообщений.</p>
-                            </div>
-                        `;
+                        <div class="chat-welcome-banner">
+                            <h2>Добро пожаловать в ${activeMode === 'server' ? '#' + activeChannelName : activeChannelName}!</h2>
+                            <p>Это начало вашей истории сообщений.</p>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -1824,23 +1783,23 @@
 
                     if (isCompact) {
                         msgEl.innerHTML = `
-                                <div class="message-content">
-                                    ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
-                                    ${mediaHtml}
-                                </div>
-                            `;
+                            <div class="message-content">
+                                ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
+                                ${mediaHtml}
+                            </div>
+                        `;
                     } else {
                         msgEl.innerHTML = `
-                                <div class="avatar">${msg.senderName ? msg.senderName[0].toUpperCase() : 'U'}</div>
-                                <div class="message-content">
-                                    <div class="message-header">
-                                        <span class="message-author">${msg.senderName}</span>
-                                        <span class="message-time">${timeStr}</span>
-                                    </div>
-                                    ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
-                                    ${mediaHtml}
+                            <div class="avatar">${msg.senderName ? msg.senderName[0].toUpperCase() : 'U'}</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-author">${msg.senderName}</span>
+                                    <span class="message-time">${timeStr}</span>
                                 </div>
-                            `;
+                                ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
+                                ${mediaHtml}
+                            </div>
+                        `;
                     }
 
                     messagesContainer.appendChild(msgEl);
@@ -1962,12 +1921,12 @@
                     if (pData.isDeafened) statusIcons += `<i class="fa-solid fa-headphones" style="color: var(--danger);"></i>`;
 
                     card.innerHTML = `
-                            <div class="voice-stage-avatar">${pName[0].toUpperCase()}</div>
-                            <div class="voice-stage-badge">
-                                <span>${pName}</span>
-                                ${statusIcons}
-                            </div>
-                        `;
+                        <div class="voice-stage-avatar">${pName[0].toUpperCase()}</div>
+                        <div class="voice-stage-badge">
+                            <span>${pName}</span>
+                            ${statusIcons}
+                        </div>
+                    `;
 
                     voiceStageGrid.appendChild(card);
                 });
@@ -1976,12 +1935,17 @@
                 const inviteCard = document.createElement('div');
                 inviteCard.className = 'voice-stage-card invite-card';
                 inviteCard.innerHTML = `
-                        <i class="fa-solid fa-user-plus" style="font-size: 36px; color: var(--accent);"></i>
-                        <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
-                            <i class="fa-solid fa-link"></i> Пригласить в голосовой чат
-                        </button>
-                    `;
+                    <i class="fa-solid fa-user-plus" style="font-size: 36px; color: var(--accent);"></i>
+                    <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
+                        <i class="fa-solid fa-link"></i> Пригласить в голосовой чат
+                    </button>
+                `;
                 voiceStageGrid.appendChild(inviteCard);
+
+                // Перепривязываем локальный поток, если камера или шеринг активны
+                if (localStream && (isCameraOn || isScreenSharing)) {
+                    handleRemoteStream(currentUser.uid, localStream);
+                }
             });
         }
 
@@ -2068,8 +2032,20 @@
                     card.appendChild(videoEl);
                 }
                 videoEl.srcObject = stream;
-                videoEl.muted = isDeafened;
+                videoEl.muted = (peerId === currentUser.uid) ? true : isDeafened;
             }
+        }
+
+        // Вспомогательный метод для подмены трека у собеседников без разрыва соединения
+        function replaceVideoTrackForPeers(newTrack) {
+            Object.values(peerCalls).forEach(call => {
+                const sender = call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) {
+                    sender.replaceTrack(newTrack);
+                } else if (newTrack) {
+                    call.peerConnection.addTrack(newTrack, localStream);
+                }
+            });
         }
 
         // Логика Мута и Наушников
@@ -2100,27 +2076,36 @@
         document.getElementById('stage-btn-mute').addEventListener('click', () => { isMuted = !isMuted; syncAudioStates(); });
         document.getElementById('stage-btn-deafen').addEventListener('click', () => { isDeafened = !isDeafened; syncAudioStates(); });
 
-        // Включение Камеры и Демонстрации
+        // Включение Камеры
         async function toggleCamera() {
             try {
                 if (!isCameraOn) {
+                    if (isScreenSharing) await stopScreenShare(); // Выключаем демонстрацию, если включена
+
                     const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     const videoTrack = camStream.getVideoTracks()[0];
 
                     if (localStream) {
+                        const oldTrack = localStream.getVideoTracks()[0];
+                        if (oldTrack) localStream.removeTrack(oldTrack);
                         localStream.addTrack(videoTrack);
                     } else {
                         localStream = camStream;
                     }
 
-                    handleRemoteStream(currentUser.uid, camStream);
+                    replaceVideoTrackForPeers(videoTrack);
+                    handleRemoteStream(currentUser.uid, localStream);
                     isCameraOn = true;
                     document.getElementById('btn-voice-camera').classList.add('active');
                     document.getElementById('stage-btn-camera').classList.add('active');
                 } else {
                     if (localStream) {
-                        localStream.getVideoTracks().forEach(t => t.stop());
+                        localStream.getVideoTracks().forEach(t => {
+                            t.stop();
+                            localStream.removeTrack(t);
+                        });
                     }
+                    replaceVideoTrackForPeers(null);
                     const myCard = document.getElementById(`vstage-card-${currentUser.uid}`);
                     if (myCard) {
                         const vid = myCard.querySelector('video');
@@ -2138,7 +2123,99 @@
         document.getElementById('btn-voice-camera').addEventListener('click', toggleCamera);
         document.getElementById('stage-btn-camera').addEventListener('click', toggleCamera);
 
+        /* ==========================================================================
+           ДЕМОНСТРАЦИЯ ЭКРАНА (SCREEN SHARE LOGIC)
+           ========================================================================== */
+        async function toggleScreenShare() {
+            if (!currentVoiceChannelId) {
+                return alert("Сначала подключитесь к голосовому каналу!");
+            }
+
+            if (!isScreenSharing) {
+                try {
+                    // Запрашиваем захват экрана у браузера
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: { cursor: "always" },
+                        audio: false
+                    });
+
+                    const screenTrack = screenStream.getVideoTracks()[0];
+
+                    if (isCameraOn) {
+                        // Если камера включена, отключаем её трек
+                        if (localStream) {
+                            localStream.getVideoTracks().forEach(t => t.stop());
+                        }
+                        isCameraOn = false;
+                        document.getElementById('btn-voice-camera').classList.remove('active');
+                        document.getElementById('stage-btn-camera').classList.remove('active');
+                    }
+
+                    if (localStream) {
+                        const oldVideoTrack = localStream.getVideoTracks()[0];
+                        if (oldVideoTrack) localStream.removeTrack(oldVideoTrack);
+                        localStream.addTrack(screenTrack);
+                    } else {
+                        localStream = screenStream;
+                    }
+
+                    // Подменяем трек у подключенных пользователей
+                    replaceVideoTrackForPeers(screenTrack);
+
+                    // Отображаем экран локально в своей карточке
+                    handleRemoteStream(currentUser.uid, screenStream);
+
+                    isScreenSharing = true;
+                    document.getElementById('btn-voice-screenshare').classList.add('active');
+                    document.getElementById('stage-btn-screenshare').classList.add('active');
+
+                    // Отслеживаем системное завершение демонстрации (например, через плашку браузера)
+                    screenTrack.onended = () => {
+                        stopScreenShare();
+                    };
+
+                } catch (err) {
+                    console.error("Ошибка захвата экрана:", err);
+                }
+            } else {
+                stopScreenShare();
+            }
+        }
+
+        async function stopScreenShare() {
+            if (!isScreenSharing) return;
+
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+
+            if (localStream) {
+                localStream.getVideoTracks().forEach(track => {
+                    track.stop();
+                    localStream.removeTrack(track);
+                });
+            }
+
+            replaceVideoTrackForPeers(null);
+
+            const myCard = document.getElementById(`vstage-card-${currentUser.uid}`);
+            if (myCard) {
+                const vid = myCard.querySelector('video');
+                if (vid) vid.remove();
+            }
+
+            isScreenSharing = false;
+            document.getElementById('btn-voice-screenshare').classList.remove('active');
+            document.getElementById('stage-btn-screenshare').classList.remove('active');
+        }
+
+        document.getElementById('btn-voice-screenshare').addEventListener('click', toggleScreenShare);
+        document.getElementById('stage-btn-screenshare').addEventListener('click', toggleScreenShare);
+
         async function disconnectVoice() {
+            if (isScreenSharing) stopScreenShare();
+
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
@@ -2183,14 +2260,14 @@
                     item.dataset.tag = user.tag;
 
                     item.innerHTML = `
-                            <div class="avatar-container">
-                                <div class="avatar">${user.username ? user.username[0].toUpperCase() : 'U'}</div>
-                                <div class="status-indicator"></div>
-                            </div>
-                            <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
-                                ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
-                            </span>
-                        `;
+                        <div class="avatar-container">
+                            <div class="avatar">${user.username ? user.username[0].toUpperCase() : 'U'}</div>
+                            <div class="status-indicator"></div>
+                        </div>
+                        <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
+                            ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
+                        </span>
+                    `;
 
                     item.addEventListener('click', () => openUserProfileModal(user));
                     membersListContainer.appendChild(item);
