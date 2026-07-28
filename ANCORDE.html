@@ -188,8 +188,8 @@
             background: var(--bg-channels);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             position: relative;
+            height: 100%;
         }
 
         .server-header {
@@ -202,6 +202,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
+            flex-shrink: 0;
         }
 
             .server-header:hover {
@@ -262,41 +263,56 @@
                 color: var(--text-main);
             }
 
-        /* Пустые состояния */
-        .empty-state {
-            padding: 24px 16px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 13px;
+        /* Список участников ВНУТРИ голосового канала */
+        .voice-channel-users {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            margin: auto;
+            gap: 2px;
+            margin-left: 18px;
+            margin-bottom: 4px;
         }
 
-            .empty-state i {
-                font-size: 48px;
-                opacity: 0.4;
+        .voice-user-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+            .voice-user-row:hover {
+                background: var(--bg-hover);
+                color: var(--text-main);
             }
 
-        .chat-welcome-banner {
-            margin-top: auto;
-            padding: 24px 16px 16px 16px;
+        .voice-user-info {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 8px;
         }
 
-            .chat-welcome-banner h2 {
-                font-size: 28px;
-                font-weight: 800;
-            }
+        .voice-user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
 
-            .chat-welcome-banner p {
-                color: var(--text-muted);
-                font-size: 14px;
-            }
+        .voice-user-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--danger);
+        }
 
         /* ПАНЕЛЬ ГОЛОСОВОГО ПОДКЛЮЧЕНИЯ НАД ПРОФИЛЕМ */
         .voice-connected-bar {
@@ -305,7 +321,9 @@
             display: none;
             flex-direction: column;
             gap: 8px;
+            border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         .voice-status-row {
@@ -344,6 +362,9 @@
             font-size: 12px;
             font-weight: bold;
             color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .voice-actions {
@@ -389,6 +410,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 8px;
+            flex-shrink: 0;
         }
 
         .user-info {
@@ -478,12 +500,14 @@
                 color: var(--danger);
             }
 
-        /* Чат */
+        /* Чат и Область Голосовой Сцены */
         .chat-area {
             flex: 1;
             background: var(--bg-chat);
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
         .chat-header {
@@ -491,11 +515,192 @@
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 0 16px;
-            gap: 8px;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ==========================================================================
+           2. ГОЛОСОВАЯ СЦЕНА (VOICE STAGE VIEW)
+           ========================================================================== */
+        .voice-stage-container {
+            position: absolute;
+            inset: 48px 0 0 0;
+            background: #0b0c0e;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 20;
+        }
+
+        .voice-stage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: calc(100% - 70px);
+            overflow-y: auto;
+            align-content: center;
+            justify-items: center;
+            padding-bottom: 20px;
+        }
+
+        /* Карточка пользователя в Голосовой Сцене */
+        .voice-stage-card {
+            width: 100%;
+            max-width: 540px;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+            .voice-stage-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+            }
+
+        .voice-stage-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .voice-stage-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Полупрозрачный никнейм снизу слева */
+        .voice-stage-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        /* Карточка "Пригласить в голосовой чат" */
+        .voice-stage-card.invite-card {
+            background: linear-gradient(135deg, #1e1b2e 0%, #111214 100%);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .invite-card-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+            .invite-card-btn:hover {
+                background: var(--accent-hover);
+                transform: scale(1.02);
+            }
+
+        /* Плавающая панель управления внизу сцены */
+        .voice-stage-controls {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111214;
+            padding: 8px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            z-index: 30;
+        }
+
+        .stage-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+            border: none;
+            color: var(--text-main);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+            .stage-btn:hover {
+                background: var(--bg-active);
+            }
+
+            .stage-btn.active {
+                background: var(--accent);
+                color: white;
+            }
+
+            .stage-btn.danger {
+                background: var(--danger);
+                color: white;
+            }
+
+                .stage-btn.danger:hover {
+                    background: #b82e32;
+                }
+
+        /* Обычный чат */
         .messages-container {
             flex: 1;
             padding: 16px;
@@ -505,7 +710,6 @@
             gap: 4px;
         }
 
-        /* Сообщения */
         .message-item {
             display: flex;
             gap: 16px;
@@ -566,6 +770,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .chat-input-wrapper {
@@ -629,7 +834,7 @@
             font-weight: normal;
         }
 
-        /* Контекстные меню и выпадающие подменю */
+        /* Контекстные меню */
         .context-menu {
             position: fixed;
             background: var(--bg-card);
@@ -672,7 +877,6 @@
             margin: 4px 0;
         }
 
-        /* Вложенное подменю (Submenu) */
         .has-submenu:hover > .submenu {
             display: flex;
         }
@@ -732,6 +936,41 @@
             justify-content: flex-end;
             gap: 8px;
         }
+
+        .empty-state {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: auto;
+        }
+
+            .empty-state i {
+                font-size: 48px;
+                opacity: 0.4;
+            }
+
+        .chat-welcome-banner {
+            margin-top: auto;
+            padding: 24px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+            .chat-welcome-banner h2 {
+                font-size: 28px;
+                font-weight: 800;
+            }
+
+            .chat-welcome-banner p {
+                color: var(--text-muted);
+                font-size: 14px;
+            }
     </style>
 </head>
 <body>
@@ -761,7 +1000,6 @@
                 <i class="fa-brands fa-discord"></i>
             </div>
             <div class="menu-separator" style="width: 32px;"></div>
-            <!-- Динамический список серверов -->
             <div id="dynamic-servers"></div>
             <div class="server-icon" id="btn-add-server" style="color: var(--success);" title="Добавить сервер">
                 <i class="fa-solid fa-plus"></i>
@@ -770,40 +1008,38 @@
 
         <!-- Панель каналов -->
         <div class="channels-bar">
-            <div>
-                <div class="server-header" id="server-header">
-                    <span id="current-server-title">Личные сообщения</span>
-                    <i class="fa-solid fa-chevron-down" id="server-header-arrow"></i>
+            <div class="server-header" id="server-header">
+                <span id="current-server-title">Личные сообщения</span>
+                <i class="fa-solid fa-chevron-down" id="server-header-arrow"></i>
+            </div>
+
+            <div class="channels-list">
+                <div id="server-channels-group">
+                    <!-- ВЕТКА: ТЕКСТОВЫЕ КАНАЛЫ -->
+                    <div class="channel-category context-category" id="cat-text-header" data-id="cat-text" data-name="Текстовые каналы">
+                        <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-text"></i> Текстовые каналы</span>
+                        <i class="fa-solid fa-plus" id="btn-add-text-channel" title="Создать канал"></i>
+                    </div>
+                    <div id="text-channels-container"></div>
+
+                    <!-- ВЕТКА: ГОЛОСОВЫЕ КАНАЛЫ -->
+                    <div class="channel-category context-category" id="cat-voice-header" data-id="cat-voice" data-name="Голосовые каналы">
+                        <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-voice"></i> Голосовые каналы</span>
+                        <i class="fa-solid fa-plus" id="btn-add-voice-channel" title="Создать канал"></i>
+                    </div>
+                    <div id="voice-channels-container"></div>
                 </div>
 
-                <div class="channels-list">
-                    <div id="server-channels-group">
-                        <!-- ВЕТКА: ТЕКСТОВЫЕ КАНАЛЫ -->
-                        <div class="channel-category context-category" id="cat-text-header" data-id="cat-text" data-name="Текстовые каналы">
-                            <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-text"></i> Текстовые каналы</span>
-                            <i class="fa-solid fa-plus" id="btn-add-text-channel" title="Создать канал"></i>
-                        </div>
-                        <div id="text-channels-container"></div>
-
-                        <!-- ВЕТКА: ГОЛОСОВЫЕ КАНАЛЫ -->
-                        <div class="channel-category context-category" id="cat-voice-header" data-id="cat-voice" data-name="Голосовые каналы">
-                            <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-voice"></i> Голосовые каналы</span>
-                            <i class="fa-solid fa-plus" id="btn-add-voice-channel" title="Создать канал"></i>
-                        </div>
-                        <div id="voice-channels-container"></div>
+                <div id="dm-channels-group" style="display: none;">
+                    <div class="channel-category">
+                        Личные чаты
+                        <i class="fa-solid fa-plus" id="btn-open-add-dm" title="Добавить друга / Начать чат"></i>
                     </div>
-
-                    <div id="dm-channels-group" style="display: none;">
-                        <div class="channel-category">
-                            Личные чаты
-                            <i class="fa-solid fa-plus" id="btn-open-add-dm" title="Добавить друга / Начать чат"></i>
-                        </div>
-                        <div id="dm-users-container"></div>
-                    </div>
+                    <div id="dm-users-container"></div>
                 </div>
             </div>
 
-            <!-- ГОЛОСОВАЯ ПАНЕЛЬ ПOДКЛЮЧЕНИЯ (НАД ПРОФИЛЕМ) -->
+            <!-- ГОЛОСОВАЯ ПАНЕЛЬ ПОДКЛЮЧЕНИЯ (ПРИКЛЕЕНА СНИЗУ СТРОГО НАД ПРОФИЛЕМ) -->
             <div class="voice-connected-bar" id="voice-connected-bar">
                 <div class="voice-status-row">
                     <div class="voice-status-info">
@@ -827,7 +1063,7 @@
                 </div>
             </div>
 
-            <!-- Пользовательская панель -->
+            <!-- Пользовательская панель профиля -->
             <div class="user-bar">
                 <div class="user-info context-user" id="my-profile-bar">
                     <div class="avatar-container">
@@ -857,11 +1093,34 @@
             </div>
         </div>
 
-        <!-- Чат -->
+        <!-- Чат и Голосовая сцена -->
         <div class="chat-area">
             <div class="chat-header">
-                <i class="fa-solid fa-hashtag" id="chat-header-icon" style="color: var(--text-muted);"></i>
-                <span id="current-channel-title">выберите-канал</span>
+                <div class="chat-header-left">
+                    <i class="fa-solid fa-hashtag" id="chat-header-icon" style="color: var(--text-muted);"></i>
+                    <span id="current-channel-title">выберите-канал</span>
+                </div>
+                <div class="chat-header-actions">
+                    <div class="icon-btn" id="btn-toggle-voice-stage" style="display: none;" title="Переключить вид голосового чата">
+                        <i class="fa-solid fa-comment-dots"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ГОЛОСОВАЯ СЦЕНА (VOICE STAGE VIEW) -->
+            <div class="voice-stage-container" id="voice-stage-container">
+                <div class="voice-stage-grid" id="voice-stage-grid">
+                    <!-- Карточки участников генерируются динамически -->
+                </div>
+
+                <!-- Плавающая панель управления снизу -->
+                <div class="voice-stage-controls">
+                    <button class="stage-btn" id="stage-btn-mute" title="Микрофон"><i class="fa-solid fa-microphone"></i></button>
+                    <button class="stage-btn" id="stage-btn-deafen" title="Заглушить"><i class="fa-solid fa-headphones"></i></button>
+                    <button class="stage-btn" id="stage-btn-camera" title="Камера"><i class="fa-solid fa-video"></i></button>
+                    <button class="stage-btn" id="stage-btn-screenshare" title="Экран"><i class="fa-solid fa-desktop"></i></button>
+                    <button class="stage-btn danger" id="stage-btn-disconnect" title="Отключиться"><i class="fa-solid fa-phone-slash"></i></button>
+                </div>
             </div>
 
             <div class="messages-container" id="messages-container"></div>
@@ -885,17 +1144,12 @@
 
     </div>
 
-    <div id="remote-media-container" style="display: none;"></div>
-
-    <!-- ==========================================================================
-       КОНТЕКСТНЫЕ И ВСПЛЫВАЮЩИЕ МЕНЮ
-    ========================================================================== -->
+    <!-- КОНТЕКСТНЫЕ И ВСПЛЫВАЮЩИЕ МЕНЮ -->
     <div class="context-menu" id="menu-user">
         <div class="menu-item" id="ctx-user-profile"><i class="fa-solid fa-user"></i> Профиль</div>
         <div class="menu-item" id="ctx-user-dm"><i class="fa-solid fa-message"></i> Написать в ЛС</div>
     </div>
 
-    <!-- ВСПЛЫВАЮЩЕЕ МЕНЮ СЕРВЕРА -->
     <div class="context-menu" id="menu-server-dropdown"></div>
 
     <div class="context-menu" id="menu-server-item">
@@ -924,10 +1178,10 @@
             <span><i class="fa-solid fa-sliders"></i> Параметры уведомлений</span>
             <i class="fa-solid fa-chevron-right"></i>
             <div class="submenu">
-                <div class="menu-item" onclick="alert('Настройки по умолчанию применены')">По умолчанию</div>
-                <div class="menu-item" onclick="alert('Уведомления: Все сообщения')">Все сообщения</div>
-                <div class="menu-item" onclick="alert('Уведомления: Только @упоминания')">Только @упоминания</div>
-                <div class="menu-item" onclick="alert('Уведомления выключены')">Ничего</div>
+                <div class="menu-item" onclick="alert('По умолчанию')">По умолчанию</div>
+                <div class="menu-item" onclick="alert('Все сообщения')">Все сообщения</div>
+                <div class="menu-item" onclick="alert('Только @упоминания')">Только @упоминания</div>
+                <div class="menu-item" onclick="alert('Ничего')">Ничего</div>
             </div>
         </div>
 
@@ -953,17 +1207,6 @@
                 <div class="menu-item" onclick="alert('Заглушено на 8 часов')">На 8 часов</div>
                 <div class="menu-item" onclick="alert('Заглушено на 24 часа')">На 24 часа</div>
                 <div class="menu-item" onclick="alert('Заглушено до включения')">До тех пор пока не включу</div>
-            </div>
-        </div>
-
-        <div class="menu-item has-submenu">
-            <span><i class="fa-solid fa-sliders"></i> Параметры уведомлений</span>
-            <i class="fa-solid fa-chevron-right"></i>
-            <div class="submenu">
-                <div class="menu-item" onclick="alert('По умолчанию')">Использовать стандартные</div>
-                <div class="menu-item" onclick="alert('Все сообщения')">Все сообщения</div>
-                <div class="menu-item" onclick="alert('Только @упоминания')">Только @упоминания</div>
-                <div class="menu-item" onclick="alert('Ничего')">Ничего</div>
             </div>
         </div>
 
@@ -1006,7 +1249,6 @@
     </div>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
-    <!-- ДОБАВИТЬ ДРУГА / НАЧАТЬ ЛС С ВВОДОМ ИМЕНИ -->
     <div class="modal-overlay" id="modal-add-dm">
         <div class="modal">
             <h3>Найти пользователя</h3>
@@ -1124,9 +1366,10 @@
         let activeChannelId = null;
         let activeChannelName = "";
         let activeMode = 'dm';
-        let targetDmUserId = null;
         let isRegisterMode = false;
         let unsubscribeMessages = null;
+        let unsubscribeVoicePeersListeners = {};
+        let unsubscribeStagePeers = null;
         let selectedContextTarget = null;
         let selectedContextData = null;
 
@@ -1137,6 +1380,8 @@
         let peerCalls = {};
         let isMuted = false;
         let isDeafened = false;
+        let isCameraOn = false;
+        let isScreenSharing = false;
 
         // Элементы
         const authScreen = document.getElementById('auth-screen');
@@ -1149,9 +1394,12 @@
         const membersListContainer = document.getElementById('members-list-container');
         const chatInputArea = document.getElementById('chat-input-area');
         const membersBar = document.getElementById('members-bar');
+        const voiceStageContainer = document.getElementById('voice-stage-container');
+        const voiceStageGrid = document.getElementById('voice-stage-grid');
+        const btnToggleVoiceStage = document.getElementById('btn-toggle-voice-stage');
 
         /* ==========================================================================
-           1. БЛОКИРОВКА ПКМ И ВЫЗОВ КОНТЕКСТНЫХ МЕНЮ
+           1. ПКМ И КОНТЕКСТНЫЕ МЕНЮ
            ========================================================================== */
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -1160,12 +1408,10 @@
             const target = e.target;
             const isOwner = activeServerData && activeServerData.ownerId === currentUser.uid;
 
-            // Настройка видимости админских пунктов
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.style.display = isOwner ? 'flex' : 'none';
             });
 
-            // 1. Нажатие ПКМ по Веткам (Категориям)
             const catEl = target.closest('.context-category');
             if (catEl) {
                 selectedContextTarget = catEl.dataset.id;
@@ -1173,21 +1419,18 @@
                 return showMenu(menus.category, e);
             }
 
-            // 2. Нажатие ПКМ по Текстовым каналам
             const textChanEl = target.closest('.context-text-channel');
             if (textChanEl) {
                 selectedContextTarget = textChanEl.dataset.id;
                 return showMenu(menus.textChannel, e);
             }
 
-            // 3. Нажатие ПКМ по Голосовым каналам
             const voiceChanEl = target.closest('.context-voice-channel');
             if (voiceChanEl) {
                 selectedContextTarget = voiceChanEl.dataset.id;
                 return showMenu(menus.voiceChannel, e);
             }
 
-            // 4. Нажатие ПКМ по пользователю
             const userEl = target.closest('.context-user');
             if (userEl) {
                 selectedContextData = {
@@ -1197,23 +1440,16 @@
                 };
 
                 const ctxDmBtn = document.getElementById('ctx-user-dm');
-                if (selectedContextData.uid === currentUser.uid) {
-                    ctxDmBtn.style.display = 'none';
-                } else {
-                    ctxDmBtn.style.display = 'flex';
-                }
-
+                ctxDmBtn.style.display = selectedContextData.uid === currentUser.uid ? 'none' : 'flex';
                 return showMenu(menus.user, e);
             }
 
-            // 5. Нажатие ПКМ по серверу в левой панели
             const serverEl = target.closest('.context-server');
             if (serverEl) {
                 selectedContextTarget = serverEl.dataset.id;
                 return showMenu(menus.serverItem, e);
             }
 
-            // 6. Нажатие ПКМ по сообщению
             const messageEl = target.closest('.context-message');
             if (messageEl) {
                 selectedContextTarget = messageEl.dataset.id;
@@ -1296,7 +1532,7 @@
         });
 
         /* ==========================================================================
-           3. СЕРВЕРЫ И ВСПЛЫВАЮЩЕЕ МЕНЮ СЕРВЕРА
+           3. СЕРВЕРЫ И КАНАЛЫ
            ========================================================================== */
         document.getElementById('btn-dm-server').addEventListener('click', openDmView);
 
@@ -1318,6 +1554,7 @@
 
             chatInputArea.style.display = 'none';
             membersBar.style.display = 'none';
+            hideVoiceStage();
 
             messagesContainer.innerHTML = `
                     <div class="empty-state">
@@ -1364,7 +1601,6 @@
             loadChannels(serverId);
         }
 
-        // Выпадающее меню сервера
         document.getElementById('server-header').addEventListener('click', (e) => {
             if (activeMode !== 'server') return;
             e.stopPropagation();
@@ -1413,9 +1649,8 @@
         });
 
         /* ==========================================================================
-           4. ВЕТКИ (КАТЕГОРИИ) И КАНАЛЫ
+           4. ВЕТКИ И СПИСОК УЧАСТНИКОВ В ГОЛОСОВОМ КАНАЛЕ
            ========================================================================== */
-        // Интерактивное сворачивание категорий
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
             header.classList.toggle('collapsed');
@@ -1429,26 +1664,68 @@
         });
 
         function loadChannels(serverId) {
+            Object.values(unsubscribeVoicePeersListeners).forEach(unsub => unsub());
+            unsubscribeVoicePeersListeners = {};
+
             onSnapshot(collection(db, "servers", serverId, "channels"), (snapshot) => {
                 textChannelsContainer.innerHTML = '';
                 voiceChannelsContainer.innerHTML = '';
 
                 snapshot.forEach(docSnap => {
                     const chan = docSnap.data();
-                    const chanEl = document.createElement('div');
-                    chanEl.dataset.id = docSnap.id;
+                    const chanId = docSnap.id;
 
                     if (chan.type === 'text') {
-                        chanEl.className = `channel-item context-text-channel ${activeChannelId === docSnap.id ? 'active' : ''}`;
+                        const chanEl = document.createElement('div');
+                        chanEl.className = `channel-item context-text-channel ${activeChannelId === chanId ? 'active' : ''}`;
+                        chanEl.dataset.id = chanId;
                         chanEl.innerHTML = `<i class="fa-solid fa-hashtag"></i> ${chan.name}`;
-                        chanEl.addEventListener('click', () => selectChannel(docSnap.id, chan.name, 'text'));
+                        chanEl.addEventListener('click', () => selectChannel(chanId, chan.name, 'text'));
                         textChannelsContainer.appendChild(chanEl);
                     } else {
-                        chanEl.className = `channel-item context-voice-channel ${activeChannelId === docSnap.id ? 'active' : ''}`;
+                        const wrapper = document.createElement('div');
+
+                        const chanEl = document.createElement('div');
+                        chanEl.className = `channel-item context-voice-channel ${activeChannelId === chanId ? 'active' : ''}`;
+                        chanEl.dataset.id = chanId;
                         chanEl.innerHTML = `<i class="fa-solid fa-volume-high"></i> ${chan.name}`;
-                        chanEl.addEventListener('click', () => connectVoiceChannel(docSnap.id, chan.name));
-                        voiceChannelsContainer.appendChild(chanEl);
+                        chanEl.addEventListener('click', () => connectVoiceChannel(chanId, chan.name));
+
+                        const usersContainer = document.createElement('div');
+                        usersContainer.className = 'voice-channel-users';
+                        usersContainer.id = `voice-users-${chanId}`;
+
+                        wrapper.appendChild(chanEl);
+                        wrapper.appendChild(usersContainer);
+                        voiceChannelsContainer.appendChild(wrapper);
+
+                        listenVoiceChannelPeers(serverId, chanId, usersContainer);
                     }
+                });
+            });
+        }
+
+        function listenVoiceChannelPeers(serverId, channelId, containerEl) {
+            const voiceRoomRef = collection(db, "servers", serverId, "channels", channelId, "voice_peers");
+            unsubscribeVoicePeersListeners[channelId] = onSnapshot(voiceRoomRef, (snapshot) => {
+                containerEl.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const peerData = docSnap.data();
+                    const row = document.createElement('div');
+                    row.className = 'voice-user-row';
+
+                    let iconsHtml = '';
+                    if (peerData.isMuted) iconsHtml += `<i class="fa-solid fa-microphone-slash" title="Заглушен"></i>`;
+                    if (peerData.isDeafened) iconsHtml += `<i class="fa-solid fa-headphones" title="Звук отключен"></i>`;
+
+                    row.innerHTML = `
+                            <div class="voice-user-info">
+                                <div class="voice-user-avatar">${peerData.username ? peerData.username[0].toUpperCase() : 'U'}</div>
+                                <span>${peerData.username || 'User'}</span>
+                            </div>
+                            <div class="voice-user-icons">${iconsHtml}</div>
+                        `;
+                    containerEl.appendChild(row);
                 });
             });
         }
@@ -1463,6 +1740,7 @@
             const activeEl = document.querySelector(`.channel-item[data-id="${channelId}"]`);
             if (activeEl) activeEl.classList.add('active');
 
+            hideVoiceStage();
             chatInputArea.style.display = 'flex';
             loadMessages();
         }
@@ -1471,7 +1749,6 @@
             if (userId === currentUser.uid) return alert("Нельзя написать самому себе!");
 
             activeMode = 'dm';
-            targetDmUserId = userId;
             const dmChannelId = [currentUser.uid, userId].sort().join('_');
             activeChannelId = dmChannelId;
             activeChannelName = username;
@@ -1485,6 +1762,7 @@
             const activeEl = document.querySelector(`.channel-item[data-id="${userId}"]`);
             if (activeEl) activeEl.classList.add('active');
 
+            hideVoiceStage();
             chatInputArea.style.display = 'flex';
             loadMessages();
         }
@@ -1610,7 +1888,7 @@
         });
 
         /* ==========================================================================
-           6. WEBRTC ГОЛОСОВАЯ СВЯЗЬ
+           6. WEBRTC И ГОЛОСОВАЯ СЦЕНА (VOICE STAGE) С КАРТОЧКАМИ УЧАСТНИКОВ
            ========================================================================== */
         function initPeerJS() {
             peer = new Peer(currentUser.uid);
@@ -1618,9 +1896,92 @@
             peer.on('call', (call) => {
                 call.answer(localStream);
                 call.on('stream', (remoteStream) => {
-                    addRemoteAudioTrack(call.peer, remoteStream);
+                    handleRemoteStream(call.peer, remoteStream);
                 });
                 peerCalls[call.peer] = call;
+            });
+        }
+
+        // Генератор красивого мягкого цвета фона на основе имени пользователя
+        function getAvatarToneColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = Math.abs(hash) % 360;
+            return `hsl(${h}, 35%, 25%)`;
+        }
+
+        function showVoiceStage(channelName) {
+            document.getElementById('chat-header-icon').className = "fa-solid fa-volume-high";
+            document.getElementById('current-channel-title').innerText = channelName;
+            voiceStageContainer.style.display = 'flex';
+            btnToggleVoiceStage.style.display = 'flex';
+            chatInputArea.style.display = 'none';
+
+            subscribeVoiceStagePeers();
+        }
+
+        function hideVoiceStage() {
+            voiceStageContainer.style.display = 'none';
+            btnToggleVoiceStage.style.display = 'none';
+            if (unsubscribeStagePeers) unsubscribeStagePeers();
+        }
+
+        btnToggleVoiceStage.addEventListener('click', () => {
+            if (voiceStageContainer.style.display === 'none') {
+                voiceStageContainer.style.display = 'flex';
+                chatInputArea.style.display = 'none';
+            } else {
+                voiceStageContainer.style.display = 'none';
+                chatInputArea.style.display = 'flex';
+            }
+        });
+
+        function subscribeVoiceStagePeers() {
+            if (unsubscribeStagePeers) unsubscribeStagePeers();
+            if (!currentVoiceChannelId || !activeServerId) return;
+
+            const voiceRoomRef = collection(db, "servers", activeServerId, "channels", currentVoiceChannelId, "voice_peers");
+            unsubscribeStagePeers = onSnapshot(voiceRoomRef, (snapshot) => {
+                voiceStageGrid.innerHTML = '';
+
+                // 1. Рендерим карточки всех участников
+                snapshot.forEach(docSnap => {
+                    const pData = docSnap.data();
+                    const pUid = docSnap.id;
+                    const pName = pData.username || 'User';
+
+                    const card = document.createElement('div');
+                    card.className = 'voice-stage-card';
+                    card.id = `vstage-card-${pUid}`;
+                    card.style.backgroundColor = getAvatarToneColor(pName);
+
+                    let statusIcons = '';
+                    if (pData.isMuted) statusIcons += `<i class="fa-solid fa-microphone-slash" style="color: var(--danger);"></i>`;
+                    if (pData.isDeafened) statusIcons += `<i class="fa-solid fa-headphones" style="color: var(--danger);"></i>`;
+
+                    card.innerHTML = `
+                            <div class="voice-stage-avatar">${pName[0].toUpperCase()}</div>
+                            <div class="voice-stage-badge">
+                                <span>${pName}</span>
+                                ${statusIcons}
+                            </div>
+                        `;
+
+                    voiceStageGrid.appendChild(card);
+                });
+
+                // 2. Рендерим карточку "Пригласить в голосовой чат" (Соразмерный блок)
+                const inviteCard = document.createElement('div');
+                inviteCard.className = 'voice-stage-card invite-card';
+                inviteCard.innerHTML = `
+                        <i class="fa-solid fa-user-plus" style="font-size: 36px; color: var(--accent);"></i>
+                        <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
+                            <i class="fa-solid fa-link"></i> Пригласить в голосовой чат
+                        </button>
+                    `;
+                voiceStageGrid.appendChild(inviteCard);
             });
         }
 
@@ -1644,7 +2005,10 @@
 
         async function connectVoiceChannel(channelId, channelName) {
             try {
-                if (currentVoiceChannelId === channelId) return;
+                if (currentVoiceChannelId === channelId) {
+                    showVoiceStage(channelName);
+                    return;
+                }
 
                 const voiceBar = document.getElementById('voice-connected-bar');
                 voiceBar.style.display = 'flex';
@@ -1655,6 +2019,7 @@
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 currentVoiceChannelId = channelId;
 
+                showVoiceStage(channelName);
                 setVoiceStatus('connecting', 'Установление соединения...');
 
                 setTimeout(() => {
@@ -1665,6 +2030,9 @@
 
                 await setDoc(doc(voiceRoomRef, currentUser.uid), {
                     uid: currentUser.uid,
+                    username: currentUserData ? currentUserData.username : 'User',
+                    isMuted: isMuted,
+                    isDeafened: isDeafened,
                     joinedAt: serverTimestamp()
                 });
 
@@ -1675,7 +2043,7 @@
                             const call = peer.call(peerId, localStream);
                             if (call) {
                                 call.on('stream', (remoteStream) => {
-                                    addRemoteAudioTrack(peerId, remoteStream);
+                                    handleRemoteStream(peerId, remoteStream);
                                 });
                                 peerCalls[peerId] = call;
                             }
@@ -1685,23 +2053,92 @@
 
             } catch (err) {
                 setVoiceStatus('disconnected', 'Отключен');
-                alert("Ошибка доступа к устройству: " + err.message);
+                alert("Ошибка доступа к микрофону: " + err.message);
             }
         }
 
-        function addRemoteAudioTrack(peerId, stream) {
-            let mediaEl = document.getElementById(`media-${peerId}`);
-            if (!mediaEl) {
-                mediaEl = document.createElement('audio');
-                mediaEl.id = `media-${peerId}`;
-                mediaEl.autoplay = true;
-                document.getElementById('remote-media-container').appendChild(mediaEl);
+        function handleRemoteStream(peerId, stream) {
+            const card = document.getElementById(`vstage-card-${peerId}`);
+            if (card && stream.getVideoTracks().length > 0) {
+                let videoEl = card.querySelector('video');
+                if (!videoEl) {
+                    videoEl = document.createElement('video');
+                    videoEl.autoplay = true;
+                    videoEl.playsInline = true;
+                    card.appendChild(videoEl);
+                }
+                videoEl.srcObject = stream;
+                videoEl.muted = isDeafened;
             }
-            mediaEl.srcObject = stream;
-            mediaEl.muted = isDeafened;
         }
 
-        document.getElementById('btn-disconnect-voice').addEventListener('click', async () => {
+        // Логика Мута и Наушников
+        async function syncAudioStates() {
+            if (isDeafened) {
+                isMuted = true;
+            }
+
+            if (localStream) {
+                localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+            }
+
+            document.getElementById('btn-mute').classList.toggle('active', isMuted);
+            document.getElementById('btn-deafen').classList.toggle('active', isDeafened);
+            document.getElementById('stage-btn-mute').classList.toggle('active', isMuted);
+            document.getElementById('stage-btn-deafen').classList.toggle('active', isDeafened);
+
+            if (currentVoiceChannelId && activeServerId) {
+                await updateDoc(doc(db, "servers", activeServerId, "channels", currentVoiceChannelId, "voice_peers", currentUser.uid), {
+                    isMuted: isMuted,
+                    isDeafened: isDeafened
+                }).catch(() => { });
+            }
+        }
+
+        document.getElementById('btn-mute').addEventListener('click', () => { isMuted = !isMuted; syncAudioStates(); });
+        document.getElementById('btn-deafen').addEventListener('click', () => { isDeafened = !isDeafened; syncAudioStates(); });
+        document.getElementById('stage-btn-mute').addEventListener('click', () => { isMuted = !isMuted; syncAudioStates(); });
+        document.getElementById('stage-btn-deafen').addEventListener('click', () => { isDeafened = !isDeafened; syncAudioStates(); });
+
+        // Включение Камеры и Демонстрации
+        async function toggleCamera() {
+            try {
+                if (!isCameraOn) {
+                    const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    const videoTrack = camStream.getVideoTracks()[0];
+
+                    if (localStream) {
+                        localStream.addTrack(videoTrack);
+                    } else {
+                        localStream = camStream;
+                    }
+
+                    handleRemoteStream(currentUser.uid, camStream);
+                    isCameraOn = true;
+                    document.getElementById('btn-voice-camera').classList.add('active');
+                    document.getElementById('stage-btn-camera').classList.add('active');
+                } else {
+                    if (localStream) {
+                        localStream.getVideoTracks().forEach(t => t.stop());
+                    }
+                    const myCard = document.getElementById(`vstage-card-${currentUser.uid}`);
+                    if (myCard) {
+                        const vid = myCard.querySelector('video');
+                        if (vid) vid.remove();
+                    }
+                    isCameraOn = false;
+                    document.getElementById('btn-voice-camera').classList.remove('active');
+                    document.getElementById('stage-btn-camera').classList.remove('active');
+                }
+            } catch (err) {
+                alert("Ошибка подключения камеры: " + err.message);
+            }
+        }
+
+        document.getElementById('btn-voice-camera').addEventListener('click', toggleCamera);
+        document.getElementById('stage-btn-camera').addEventListener('click', toggleCamera);
+
+        async function disconnectVoice() {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
@@ -1713,30 +2150,18 @@
 
             Object.values(peerCalls).forEach(call => call.close());
             peerCalls = {};
-            document.getElementById('remote-media-container').innerHTML = '';
             currentVoiceChannelId = null;
 
             setVoiceStatus('disconnected', 'Отключен');
             document.getElementById('voice-connected-bar').style.display = 'none';
-        });
+            hideVoiceStage();
+        }
 
-        document.getElementById('btn-mute').addEventListener('click', () => {
-            if (localStream) {
-                isMuted = !isMuted;
-                localStream.getAudioTracks()[0].enabled = !isMuted;
-                document.getElementById('btn-mute').classList.toggle('active', isMuted);
-            }
-        });
-
-        document.getElementById('btn-deafen').addEventListener('click', () => {
-            isDeafened = !isDeafened;
-            const mediaElements = document.getElementById('remote-media-container').querySelectorAll('audio');
-            mediaElements.forEach(el => el.muted = isDeafened);
-            document.getElementById('btn-deafen').classList.toggle('active', isDeafened);
-        });
+        document.getElementById('btn-disconnect-voice').addEventListener('click', disconnectVoice);
+        document.getElementById('stage-btn-disconnect').addEventListener('click', disconnectVoice);
 
         /* ==========================================================================
-           7. МОДАЛЬНОЕ ОКНО "ДОБАВИТЬ ДРУГА" С ВВОДОМ ИМЕНИ ВРУЧНУЮ
+           7. УЧАСТНИКИ И МОДАЛЬНЫЕ ОКНА
            ========================================================================== */
         function loadGlobalUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
@@ -1751,7 +2176,6 @@
                     allUsers.push(user);
                     const isSelf = user.uid === currentUser.uid;
 
-                    // Список участников справа
                     const item = document.createElement('div');
                     item.className = 'member-item context-user';
                     item.dataset.uid = user.uid;
@@ -1771,7 +2195,6 @@
                     item.addEventListener('click', () => openUserProfileModal(user));
                     membersListContainer.appendChild(item);
 
-                    // Список ЛС слева
                     if (!isSelf) {
                         const dmItem = document.createElement('div');
                         dmItem.className = 'channel-item';
@@ -1786,7 +2209,6 @@
             });
         }
 
-        // Открытие модального окна ЛС с полем ввода
         const modalAddDm = document.getElementById('modal-add-dm');
         const inputDmUsername = document.getElementById('input-dm-username');
 
@@ -1797,7 +2219,6 @@
 
         document.getElementById('btn-cancel-add-dm').addEventListener('click', () => modalAddDm.style.display = 'none');
 
-        // Кнопка "Добавить"
         document.getElementById('btn-add-friend-action').addEventListener('click', () => {
             const name = inputDmUsername.value.trim();
             if (!name) return alert("Введите имя пользователя!");
@@ -1810,7 +2231,6 @@
             modalAddDm.style.display = 'none';
         });
 
-        // Кнопка "Написать"
         document.getElementById('btn-open-chat-action').addEventListener('click', () => {
             const name = inputDmUsername.value.trim();
             if (!name) return alert("Введите имя пользователя!");
@@ -1835,7 +2255,7 @@
         });
 
         /* ==========================================================================
-           8. НАСТРОЙКИ И ДЕЙСТВИЯ МЕНЮ
+           8. НАСТРОЙКИ И ДЕЙСТВИЯ МЕНЮ С РЕАЛЬНЫМИ ID FIREBASE
            ========================================================================== */
         const modalUserSettings = document.getElementById('modal-user-settings');
 
@@ -1903,7 +2323,6 @@
             document.getElementById('input-channel-name').value = '';
         });
 
-        // Управление всплывающими меню
         const menus = {
             user: document.getElementById('menu-user'),
             serverDropdown: document.getElementById('menu-server-dropdown'),
@@ -1929,25 +2348,36 @@
         }
 
         function copyToClipboard(text) {
+            if (!text) return alert("ID не существует!");
             navigator.clipboard.writeText(text);
-            alert("Скопировано в буфер обмена!");
+            alert(`Скопировано в буфер обмена: ${text}`);
         }
 
-        // Действия для меню Ветки (Категории)
+        window.copyToClipboard = copyToClipboard;
+
         document.getElementById('ctx-cat-read').addEventListener('click', () => alert("Все каналы категории помечены как прочитанные"));
-        document.getElementById('ctx-cat-collapse').addEventListener('click', () => {
-            const header = document.getElementById('cat-text-header');
-            header.click();
-        });
+        document.getElementById('ctx-cat-collapse').addEventListener('click', () => document.getElementById('cat-text-header').click());
         document.getElementById('ctx-cat-edit').addEventListener('click', () => alert("Редактирование категории"));
         document.getElementById('ctx-cat-delete').addEventListener('click', () => alert("Категория удалена"));
-        document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget || 'cat-001'));
+        document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // Действия для Текстового канала
         document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-tc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-tc-settings').addEventListener('click', () => alert("Настройки канала"));
-        document.getElementById('ctx-tc-clone').addEventListener('click', () => alert("Канал клонирован"));
+
+        document.getElementById('ctx-tc-clone').addEventListener('click', async () => {
+            if (selectedContextTarget && activeServerId) {
+                const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    await addDoc(collection(db, "servers", activeServerId, "channels"), {
+                        name: `${data.name}-копия`,
+                        type: data.type
+                    });
+                }
+            }
+        });
+
         document.getElementById('ctx-tc-delete').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId && confirm("Удалить этот канал?")) {
                 await deleteDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -1956,11 +2386,23 @@
         });
         document.getElementById('ctx-tc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // Действия для Голосового канала
         document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-vc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-vc-settings').addEventListener('click', () => alert("Настройки голосового канала"));
-        document.getElementById('ctx-vc-clone').addEventListener('click', () => alert("Голосовой канал клонирован"));
+
+        document.getElementById('ctx-vc-clone').addEventListener('click', async () => {
+            if (selectedContextTarget && activeServerId) {
+                const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    await addDoc(collection(db, "servers", activeServerId, "channels"), {
+                        name: `${data.name}-копия`,
+                        type: data.type
+                    });
+                }
+            }
+        });
+
         document.getElementById('ctx-vc-delete').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId && confirm("Удалить этот канал?")) {
                 await deleteDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -1968,7 +2410,6 @@
         });
         document.getElementById('ctx-vc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // Пользователи и Сообщения
         document.getElementById('ctx-user-profile').addEventListener('click', () => {
             if (selectedContextData && selectedContextData.username) {
                 openUserProfileModal(selectedContextData);
@@ -2005,7 +2446,6 @@
             await deleteDoc(msgRef);
         });
 
-        // Переключение темы
         document.getElementById('btn-toggle-theme').addEventListener('click', () => {
             if (document.body.getAttribute('data-theme') === 'light') {
                 document.body.removeAttribute('data-theme');
