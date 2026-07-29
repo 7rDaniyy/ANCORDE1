@@ -306,7 +306,6 @@
                 transform: rotate(-90deg);
             }
 
-        /* ПРАВКА 4: Перетаскивание каналов */
         .channel-item {
             padding: 6px 8px;
             border-radius: 4px;
@@ -871,7 +870,6 @@
             margin-top: 8px;
         }
 
-        /* ПРАВКА 1: ДИСКОРД ЭМБЕД ПРИГЛАШЕНИЯ СЕРВЕРА */
         .server-invite-embed {
             background: #2b2d31;
             border-radius: 12px;
@@ -2003,7 +2001,6 @@
                     </div>
                 </div>
 
-                <!-- ПРАВКА 3: ГОЛОС И ВИДЕО - ЖИВАЯ НАСТРОЙКА, КРАСИВЫЕ ИМЕНА И КАЧЕСТВЕННОЕ ФИЛЬТРОВАНИЕ -->
                 <div class="settings-section" id="tab-u-voice">
                     <div class="settings-header-row">
                         <h2>Голос</h2>
@@ -2275,7 +2272,7 @@
         </div>
     </div>
 
-    <!-- ПРАВКА 5: ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА ПО РЕФЕРЕНСУ (БЕЗ ПРИГЛАШЕНИЙ, ИНТЕГРАЦИИ И МЕДЛЕННОГО РЕЖИМА) -->
+    <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА ПО РЕФЕРЕНСУ -->
     <div class="settings-overlay" id="overlay-channel-settings">
         <div class="settings-close-btn-fixed" id="btn-close-channel-settings">
             <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
@@ -2470,7 +2467,7 @@
             <input type="text" class="settings-input" id="input-dm-username" placeholder="Введите имя пользователя">
             <div class="modal-actions">
                 <button class="btn btn-danger" id="btn-cancel-add-dm">Отмена</button>
-                <button class="btn" id="btn-add-friend-action">Добавить</button>
+                <button class="btn" id="btn-add-friend-action">Добавить в друзья</button>
                 <button class="btn" id="btn-open-chat-action">Написать</button>
             </div>
         </div>
@@ -2580,7 +2577,10 @@
             query,
             orderBy,
             onSnapshot,
-            serverTimestamp
+            serverTimestamp,
+            arrayUnion,
+            arrayRemove,
+            where
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -2615,7 +2615,6 @@
         let selectedContextData = null;
         let pendingUserAuth = null;
 
-        // ПРАВКА 2: Хранилище последнего открытого канала для каждого сервера
         const lastOpenedChannels = {};
 
         let peer = null;
@@ -2631,7 +2630,6 @@
         let cameraStream = null;
         let streamPreviewInterval = null;
 
-        // ПРАВКА 3: Движок Web Audio API для обработки звука в реальном времени
         let audioContext = null;
         let micGainNode = null;
         let speakerGainNode = null;
@@ -2737,7 +2735,6 @@
             }
         }
 
-        /* ПРАВКА 6: АДМИНИСТРАТОРЫ СЕРВЕРА (СОЗДАТЕЛЬ ИЛИ РОЛЬ С ADMIN === TRUE) */
         async function isUserAdminOnServer(serverId, userId) {
             if (!serverId || !userId) return false;
             if (activeServerData && activeServerData.ownerId === userId) return true;
@@ -2893,7 +2890,8 @@
                         email: email,
                         tag: "#" + Math.floor(1000 + Math.random() * 9000),
                         bannerColor: "#5865f2",
-                        is2FAEnabled: false
+                        is2FAEnabled: false,
+                        openDms: []
                     });
                 } else {
                     const res = await signInWithEmailAndPassword(auth, email, password);
@@ -2933,7 +2931,8 @@
                         email: res.user.email,
                         tag: "#" + Math.floor(1000 + Math.random() * 9000),
                         bannerColor: "#5865f2",
-                        is2FAEnabled: false
+                        is2FAEnabled: false,
+                        openDms: []
                     });
                 }
             } catch (err) { showToast(err.message, "danger"); }
@@ -2949,6 +2948,7 @@
                     if (snap.exists()) {
                         currentUserData = snap.data();
                         updateUserUI();
+                        renderDmList(); // ПРАВКА 1: Перерисовываем персональные ЛС при обновлении профиля
                     }
                 });
 
@@ -2982,7 +2982,7 @@
         }
 
         /* ==========================================================================
-           3. СЕРВЕРЫ И КАНАЛЫ (С МГНОВЕННЫМ ОБНОВЛЕНИЕМ И АВТОПЕРЕХОДОМ ПО КАНАЛАМ)
+           3. ПЕРСОНАЛЬНЫЕ СЕРВЕРЫ И ЛИЧНЫЕ ЧАТЫ (ПРАВКИ 1 И 2)
            ========================================================================== */
         document.getElementById('btn-dm-server').addEventListener('click', openDmView);
 
@@ -3006,16 +3006,22 @@
             membersBar.style.display = 'none';
             hideVoiceStage();
 
+            renderDmList();
+
             messagesContainer.innerHTML = `
                         <div class="empty-state">
                             <i class="fa-solid fa-comments"></i>
-                            <div>Выберите собеседника из списка слева или нажмите "+", чтобы начать диалог!</div>
+                            <div>Выберите личный чат слева или нажмите "+", чтобы найти пользователя и начать диалог!</div>
                         </div>
                     `;
         }
 
+        /* ПРАВКА 2: ИЗОЛЯЦИЯ СЕРВЕРОВ — отображаются только те, где участник в members */
         function loadServers() {
-            onSnapshot(collection(db, "servers"), (snapshot) => {
+            if (!currentUser) return;
+            const q = query(collection(db, "servers"), where("members", "array-contains", currentUser.uid));
+
+            onSnapshot(q, (snapshot) => {
                 dynamicServers.innerHTML = '';
                 snapshot.forEach(docSnap => {
                     const srv = docSnap.data();
@@ -3031,14 +3037,33 @@
             });
         }
 
-        /* ПРАВКА 3.2 & 2: МГНОВЕННОЕ ОБНОВЛЕНИЕ ДАННЫХ СЕРВЕРА И АВТОПЕРЕХОД ПО КАНАЛАМ */
+        /* ПРАВКА 2: Вход на сервер по ссылке-приглашению */
+        async function joinServer(serverId) {
+            if (!serverId || !currentUser) return;
+            try {
+                const srvRef = doc(db, "servers", serverId);
+                const snap = await getDoc(srvRef);
+                if (snap.exists()) {
+                    await updateDoc(srvRef, {
+                        members: arrayUnion(currentUser.uid)
+                    });
+                    showToast(`Вы присоединились к серверу "${snap.data().name}"!`, "success");
+                    selectServer(serverId, snap.data());
+                } else {
+                    showToast("Сервер не найден!", "danger");
+                }
+            } catch (e) {
+                showToast("Ошибка при входе на сервер", "danger");
+            }
+        }
+        window.joinServer = joinServer;
+
         function selectServer(serverId, initialServerData) {
             activeMode = 'server';
             activeServerId = serverId;
             activeServerData = initialServerData;
 
             if (unsubscribeServerListener) unsubscribeServerListener();
-            // Подписка на документы сервера для моментального обновления названий
             unsubscribeServerListener = onSnapshot(doc(db, "servers", serverId), (snap) => {
                 if (snap.exists()) {
                     activeServerData = snap.data();
@@ -3070,7 +3095,7 @@
             const isOwnerOrAdmin = await isUserAdminOnServer(activeServerId, currentUser.uid);
 
             menu.innerHTML = `
-                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+                        <div class="menu-item" onclick="copyToClipboard('${window.location.origin}/invite/${activeServerId}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
                         ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-server-settings"><i class="fa-solid fa-gear"></i> Настройки сервера</div>` : ''}
                         ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-add-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>` : ''}
                         ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-add-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>` : ''}
@@ -3094,7 +3119,7 @@
         });
 
         /* ==========================================================================
-           4. ГОЛОСОВЫЕ КАНАЛЫ, ДРАГ-ЭНД-ДРОП И ПРИВАТНОСТЬ
+           4. КАНАЛЫ, ДРАГ-ЭНД-ДРОП И ОРИГИНАЛЬНЫЙ СПИСОК ЛС (ПРАВКИ 1, 3)
            ========================================================================== */
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
@@ -3108,7 +3133,6 @@
             voiceChannelsContainer.style.display = header.classList.contains('collapsed') ? 'none' : 'block';
         });
 
-        /* ПРАВКА 2, 4, 6: ЗАГРУЗКА КАНАЛОВ, АВТОПЕРЕХОД, ДРАГ-ЭНД-ДРОП, ПРИВАТНОСТЬ ДЛЯ АДМИНОВ */
         function loadChannels(serverId) {
             Object.values(unsubscribeVoicePeersListeners).forEach(unsub => unsub());
             unsubscribeVoicePeersListeners = {};
@@ -3125,7 +3149,6 @@
                     const chan = docSnap.data();
                     const chanId = docSnap.id;
 
-                    // ПРАВКА 6: Приватный канал виден только администраторам
                     if (chan.isPrivate && !isOwnerOrAdmin) return;
 
                     availableChannels.push({ id: chanId, name: chan.name, type: chan.type, ...chan });
@@ -3135,7 +3158,7 @@
                     chanEl.dataset.id = chanId;
                     chanEl.dataset.name = chan.name;
                     chanEl.dataset.type = chan.type;
-                    chanEl.setAttribute('draggable', 'true'); // ПРАВКА 4: Перетаскивание каналов
+                    chanEl.setAttribute('draggable', 'true');
 
                     const iconClass = chan.type === 'text' ? (chan.isPrivate ? 'fa-lock' : 'fa-hashtag') : (chan.isPrivate ? 'fa-lock' : 'fa-volume-high');
 
@@ -3159,7 +3182,6 @@
                         });
                     }
 
-                    // ПРАВКА 4: Обработчики Drag & Drop
                     setupChannelDragAndDrop(chanEl, serverId);
 
                     if (chan.type === 'text') {
@@ -3181,23 +3203,17 @@
                     }
                 });
 
-                // ПРАВКА 2: Автоматическое открытие последнего или первого канала
                 if (availableChannels.length > 0) {
                     const savedChanId = lastOpenedChannels[serverId];
                     const targetChan = availableChannels.find(c => c.id === savedChanId) || availableChannels[0];
 
                     if (targetChan && activeChannelId !== targetChan.id) {
-                        if (targetChan.type === 'text') {
-                            selectChannel(targetChan.id, targetChan.name, 'text');
-                        } else {
-                            selectChannel(targetChan.id, targetChan.name, 'voice');
-                        }
+                        selectChannel(targetChan.id, targetChan.name, targetChan.type);
                     }
                 }
             });
         }
 
-        /* ПРАВКА 4: ЛОГИКА ПЕРЕТАСКИВАНИЯ КАНАЛОВ МЫШЬЮ */
         let draggedChannelEl = null;
 
         function setupChannelDragAndDrop(el, serverId) {
@@ -3309,7 +3325,6 @@
             activeChannelId = channelId;
             activeChannelName = channelName;
 
-            // ПРАВКА 2: Сохраняем последний открытый канал на этом сервере
             if (activeServerId) {
                 lastOpenedChannels[activeServerId] = channelId;
             }
@@ -3324,6 +3339,66 @@
             hideVoiceStage();
             chatInputArea.style.display = 'flex';
             loadMessages();
+        }
+
+        /* ПРАВКА 1 И 3: ОТОБРАЖЕНИЕ ТОЛЬКО ДОБАВЛЕННЫХ ЛС И ЗАМЕНА @ НА АВАТАРКУ ПОЛЬЗОВАТЕЛЯ */
+        function renderDmList() {
+            dmUsersContainer.innerHTML = '';
+            if (!currentUserData || !Array.isArray(currentUserData.openDms) || currentUserData.openDms.length === 0) {
+                dmUsersContainer.innerHTML = `
+                        <div style="padding: 12px; font-size: 12px; color: var(--text-muted); text-align: center;">
+                            Список чатов пуст.<br>Нажмите "+" чтобы найти друга!
+                        </div>
+                    `;
+                return;
+            }
+
+            currentUserData.openDms.forEach(targetUid => {
+                const targetUser = allUsers.find(u => u.uid === targetUid);
+                const username = targetUser ? targetUser.username : 'Пользователь';
+                const avatarUrl = targetUser ? targetUser.avatarUrl : null;
+
+                const dmChannelId = [currentUser.uid, targetUid].sort().join('_');
+
+                const dmItem = document.createElement('div');
+                dmItem.className = `channel-item ${activeChannelId === dmChannelId ? 'active' : ''}`;
+                dmItem.dataset.id = targetUid;
+
+                let avatarStyle = avatarUrl ? `background-image: url(${avatarUrl});` : '';
+                let avatarInitial = avatarUrl ? '' : username[0].toUpperCase();
+
+                // ПРАВКА 3: Настоящая аватарка вместо иконки @
+                dmItem.innerHTML = `
+                        <div class="avatar" style="width: 24px; height: 24px; font-size: 11px; ${avatarStyle}">${avatarInitial}</div>
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${username}</span>
+                    `;
+
+                dmItem.addEventListener('click', () => selectDmUser(targetUid, username));
+                dmUsersContainer.appendChild(dmItem);
+            });
+        }
+
+        /* ПРАВКА 1: Создание/открытие личного диалога с добавлением в openDms двух пользователей */
+        async function openDmChatWithUser(targetUid, targetUsername) {
+            if (!targetUid || targetUid === currentUser.uid) {
+                return showToast("Нельзя создать чат с самим собой!", "warning");
+            }
+
+            try {
+                // Добавляем себе в список ЛС
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    openDms: arrayUnion(targetUid)
+                });
+                // Добавляем собеседнику в список ЛС
+                await updateDoc(doc(db, "users", targetUid), {
+                    openDms: arrayUnion(currentUser.uid)
+                });
+
+                selectDmUser(targetUid, targetUsername);
+                showToast(`Чат с ${targetUsername} открыт!`, "success");
+            } catch (err) {
+                showToast("Ошибка открытия чата", "danger");
+            }
         }
 
         function selectDmUser(userId, username) {
@@ -3349,7 +3424,7 @@
         }
 
         /* ==========================================================================
-           5. ЧАТ И СООБЩЕНИЯ (ПРАВКА 1: БАННЕР ТОЛЬКО ПРИ ПРИГЛАСИТЕЛЬНЫХ ССЫЛКАХ)
+           5. ЧАТ И СООБЩЕНИЯ
            ========================================================================== */
         function loadMessages() {
             if (unsubscribeMessages) unsubscribeMessages();
@@ -3398,7 +3473,6 @@
 
                     let mediaHtml = msg.media ? `<img src="${msg.media}" class="message-media" />` : '';
 
-                    /* ПРАВКА 1: Проверяем, содержит ли текст именно пригласительную ссылку на сервер */
                     let inviteEmbedHtml = '';
                     if (msg.text) {
                         const inviteMatch = msg.text.match(/(?:ancorde:\/\/invite\/|discord\.gg\/|https?:\/\/[^\s]+\/invite\/)([a-zA-Z0-9_-]+)/);
@@ -3427,7 +3501,7 @@
                                                         <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${desc}</div>
                                                     </div>
                                                 </div>
-                                                <button class="btn" style="background: var(--success); width: 100%; margin-top: 4px;" onclick="showToast('Вы присоединились к серверу!')">Присоединиться</button>
+                                                <button class="btn" style="background: var(--success); width: 100%; margin-top: 4px;" onclick="joinServer('${invitedServerId}')">Перейти на сервер</button>
                                             </div>
                                         `;
                             }
@@ -3507,7 +3581,7 @@
         });
 
         /* ==========================================================================
-           6. WEBRTC И ГОЛОСОВОЙ ДВИЖОК WEB AUDIO API (ПРАВКА 3)
+           6. WEBRTC И ГОЛОСОВОЙ ДВИЖОК WEB AUDIO API
            ========================================================================== */
         function initPeerJS() {
             peer = new Peer(currentUser.uid, {
@@ -3622,7 +3696,7 @@
                 inviteCard.innerHTML = `
                             <div style="font-size: 32px; color: var(--accent); margin-top: 10px;"><i class="fa-solid fa-trophy"></i></div>
                             <div class="invite-card-actions">
-                                <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
+                                <button class="invite-card-btn" onclick="copyToClipboard('${window.location.origin}/invite/${activeServerId}')">
                                     <i class="fa-solid fa-user-plus"></i> Пригласить в голосовой чат
                                 </button>
                                 <button class="invite-card-btn" onclick="showToast('Выбор активности')">
@@ -3652,7 +3726,6 @@
             }
         }
 
-        /* ПРАВКА 3: ПОЛНОЦЕННЫЙ WEB AUDIO API ДВИЖОК ДЛЯ НАСТРОЕК ГРОМКОСТИ, ЭХО И ШУМОПОДАВЛЕНИЯ */
         function initAudioEngine() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -3671,7 +3744,7 @@
             if (!highPassFilterNode) {
                 highPassFilterNode = audioContext.createBiquadFilter();
                 highPassFilterNode.type = "highpass";
-                highPassFilterNode.frequency.value = 80; // Отсекает низовой шум и эхо
+                highPassFilterNode.frequency.value = 80;
             }
 
             if (!compressorNode) {
@@ -3682,7 +3755,6 @@
             }
         }
 
-        // Вызов обновлений настроек звука в реальном времени
         function applyLiveAudioSettings() {
             initAudioEngine();
 
@@ -3693,18 +3765,16 @@
             if (micGainNode) micGainNode.gain.value = micVol;
             if (speakerGainNode) speakerGainNode.gain.value = speakerVol;
 
-            // Настройка фильтра шумоподавления Krisp
             if (highPassFilterNode) {
                 if (krispVal === 'krisp') {
-                    highPassFilterNode.frequency.value = 150; // Глубокое отсечение шума
+                    highPassFilterNode.frequency.value = 150;
                 } else if (krispVal === 'standard') {
                     highPassFilterNode.frequency.value = 80;
                 } else {
-                    highPassFilterNode.frequency.value = 10; // Отключено
+                    highPassFilterNode.frequency.value = 10;
                 }
             }
 
-            // Обновляем громкость у всех элементов вывода аудио
             document.querySelectorAll('audio, video').forEach(el => {
                 if (!el.muted) el.volume = Math.min(1, speakerVol);
             });
@@ -3755,7 +3825,6 @@
             }
         }
 
-        /* ПРАВКА 3: ДЕТЕКЦИЯ УСТРОЙСТВ С РЕАЛЬНЫМИ НАЗВАНИЯМИ И УЛУЧШЕННЫМИ ПАРАМЕТРАМИ */
         async function getMicrophoneStream() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 showToast("Микрофон недоступен. Проверьте HTTPS.", "danger");
@@ -4214,12 +4283,10 @@
             showToast(enabled ? "2FA включена! Демо-код: 123456" : "2FA отключена");
         });
 
-        /* ПРАВКА 3: ОПРЕДЕЛЕНИЕ РЕАЛЬНЫХ ИМЕН АУДИО И ВИДЕО УСТРОЙСТВ */
         async function loadAudioVideoDevices() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
 
             try {
-                // Временный запрос прав для раскрытия реальных названий устройств браузером
                 const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(() => null);
 
                 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -4260,7 +4327,6 @@
             } catch (e) { console.error("Ошибка загрузки устройств:", e); }
         }
 
-        /* ПРАВКА 3: ПРОВЕРКА МИКРОФОНА С ПРАВИЛЬНЫМ СЛУШАНИЕМ СЕБЯ И ДИНАМИЧЕСКИМ ИЗМЕНЕНИЕМ ГРОМКОСТИ */
         document.getElementById('btn-test-mic').addEventListener('click', async () => {
             const btn = document.getElementById('btn-test-mic');
 
@@ -4359,7 +4425,6 @@
         document.getElementById('set-servername-input').addEventListener('input', updateServerPreviewCard);
         document.getElementById('set-serverbanner-input').addEventListener('input', updateServerPreviewCard);
 
-        /* ПРАВКА 5: НАСТРОЙКИ КАНАЛА ПО РЕФЕРЕНСУ (ОБЗОР, ПРАВА ДОСТУПА, УДАЛИТЬ КАНАЛ) */
         function openChannelSettings(chanId, chanData) {
             editingChannelId = chanId;
             document.getElementById('channel-settings-title-nav').innerText = (chanData.type === 'text' ? 'ТЕКСТОВЫЙ КАНАЛ' : 'ГОЛОСОВОЙ КАНАЛ');
@@ -4688,12 +4753,11 @@
         });
 
         /* ==========================================================================
-           8. СПИСОК УЧАСТНИКОВ И РОЛИ
+           8. СПИСОК УЧАСТНИКОВ И КНОПКИ ДИАЛОГОВ (ПРАВКИ 1 И 2)
            ========================================================================== */
         function loadGlobalUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
                 membersListContainer.innerHTML = '';
-                dmUsersContainer.innerHTML = '';
                 allUsers = [];
                 let count = 0;
 
@@ -4726,18 +4790,10 @@
 
                     item.addEventListener('click', () => openUserProfileModal(user));
                     membersListContainer.appendChild(item);
-
-                    if (!isSelf) {
-                        const dmItem = document.createElement('div');
-                        dmItem.className = 'channel-item';
-                        dmItem.dataset.id = user.uid;
-                        dmItem.innerHTML = `<i class="fa-solid fa-at"></i> ${user.username}`;
-                        dmItem.addEventListener('click', () => selectDmUser(user.uid, user.username));
-                        dmUsersContainer.appendChild(dmItem);
-                    }
                 });
 
                 document.getElementById('members-count').innerText = `Участники — ${count}`;
+                renderDmList(); // Обновляем список ЛС
             });
         }
 
@@ -4751,7 +4807,8 @@
 
         document.getElementById('btn-cancel-add-dm').addEventListener('click', () => modalAddDm.style.display = 'none');
 
-        document.getElementById('btn-add-friend-action').addEventListener('click', () => {
+        /* ПРАВКА 1: Добавить в друзья — открывает и добавляет диалог в ЛС */
+        document.getElementById('btn-add-friend-action').addEventListener('click', async () => {
             const name = inputDmUsername.value.trim();
             if (!name) return showToast("Введите имя пользователя!", "warning");
 
@@ -4759,11 +4816,12 @@
             if (!found) return showToast("Пользователь не найден!", "danger");
             if (found.uid === currentUser.uid) return showToast("Нельзя добавить себя!", "warning");
 
-            showToast(`Запрос отправлен пользователю ${found.username}`, "success");
             modalAddDm.style.display = 'none';
+            await openDmChatWithUser(found.uid, found.username);
         });
 
-        document.getElementById('btn-open-chat-action').addEventListener('click', () => {
+        /* ПРАВКА 1: Написать — открывает и добавляет диалог в ЛС */
+        document.getElementById('btn-open-chat-action').addEventListener('click', async () => {
             const name = inputDmUsername.value.trim();
             if (!name) return showToast("Введите имя пользователя!", "warning");
 
@@ -4771,7 +4829,7 @@
             if (!found) return showToast("Пользователь не найден!", "danger");
 
             modalAddDm.style.display = 'none';
-            selectDmUser(found.uid, found.username);
+            await openDmChatWithUser(found.uid, found.username);
         });
 
         async function openUserProfileModal(user) {
@@ -4832,6 +4890,7 @@
         document.getElementById('btn-add-server').addEventListener('click', () => modalServer.style.display = 'flex');
         document.getElementById('btn-cancel-server').addEventListener('click', () => modalServer.style.display = 'none');
 
+        /* ПРАВКА 2: Создание сервера с привязкой создателя в массив members */
         document.getElementById('btn-confirm-server').addEventListener('click', async () => {
             const name = document.getElementById('input-server-name').value.trim();
             if (!name) return;
@@ -4839,6 +4898,7 @@
             const srvRef = await addDoc(collection(db, "servers"), {
                 name: name,
                 ownerId: currentUser.uid,
+                members: [currentUser.uid], // Создатель сразу член сервера
                 createdAt: serverTimestamp()
             });
 
@@ -4930,14 +4990,14 @@
         }
         window.copyToClipboard = copyToClipboard;
 
-        document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${selectedContextTarget}`));
+        document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(`${window.location.origin}/invite/${selectedContextTarget}`));
         const ctxSrvSettings = document.getElementById('ctx-srv-settings');
         if (ctxSrvSettings) ctxSrvSettings.addEventListener('click', openServerSettings);
         document.getElementById('ctx-srv-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
         document.getElementById('ctx-area-create-channel').addEventListener('click', () => openChannelModal('text'));
         document.getElementById('ctx-area-create-category').addEventListener('click', openCategoryModal);
-        document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
+        document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(`${window.location.origin}/invite/${activeServerId}`));
 
         document.getElementById('ctx-cat-read').addEventListener('click', () => showToast("Категория помечена как прочитанная"));
         document.getElementById('ctx-cat-collapse').addEventListener('click', () => document.getElementById('cat-text-header').click());
@@ -4945,7 +5005,7 @@
         document.getElementById('ctx-cat-delete').addEventListener('click', () => showToast("Категория удалена"));
         document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
+        document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(`${window.location.origin}/invite/${activeServerId}`));
         document.getElementById('ctx-tc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
 
         document.getElementById('ctx-tc-settings').addEventListener('click', async () => {
@@ -4981,7 +5041,7 @@
         });
         document.getElementById('ctx-tc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
+        document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(`${window.location.origin}/invite/${activeServerId}`));
         document.getElementById('ctx-vc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
 
         document.getElementById('ctx-vc-settings').addEventListener('click', async () => {
@@ -5021,13 +5081,15 @@
                 openUserProfileModal(selectedContextData);
             }
         });
-        document.getElementById('ctx-user-dm').addEventListener('click', () => {
+
+        /* ПКМ по пользователю -> "Написать в ЛС" */
+        document.getElementById('ctx-user-dm').addEventListener('click', async () => {
             if (selectedContextData && selectedContextData.uid) {
                 if (selectedContextData.uid === currentUser.uid) {
                     return showToast("Нельзя написать самому себе!", "warning");
                 }
                 openDmView();
-                selectDmUser(selectedContextData.uid, selectedContextData.username);
+                await openDmChatWithUser(selectedContextData.uid, selectedContextData.username);
             }
         });
 
