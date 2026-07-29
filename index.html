@@ -315,7 +315,7 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 2px;
-            transition: background 0.15s, border 0.15s;
+            transition: background 0.15s, border 0.15s, color 0.15s;
         }
 
         .channel-item:active {
@@ -339,6 +339,26 @@
         .channel-item.active {
             background: var(--bg-active);
             color: var(--text-main);
+        }
+
+        /* ПРАВКА 2: Стили индикаторов непрочитанных сообщений */
+        .channel-item.has-unread {
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .unread-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffffff;
+            margin-left: auto;
+            display: none;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+        }
+
+        .channel-item.has-unread .unread-badge {
+            display: block;
         }
 
         .voice-channel-users {
@@ -1123,6 +1143,43 @@
             font-size: 13px;
         }
 
+        /* ПРАВКА 4: Наложение оверлея с иконкой карандаша на аватарку */
+        .profile-preview-avatar-full {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 6px solid var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .avatar-edit-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: white;
+            font-size: 20px;
+        }
+
+        .profile-preview-avatar-full:hover .avatar-edit-overlay {
+            opacity: 1;
+        }
+
         .stream-preview-popover {
             position: fixed;
             z-index: 25000;
@@ -1476,22 +1533,6 @@
             align-items: flex-end;
         }
 
-        .profile-preview-avatar-full {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: 6px solid var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            background-size: cover;
-            background-position: center;
-        }
-
         .discord-switch {
             position: relative;
             display: inline-block;
@@ -1794,7 +1835,7 @@
                     </div>
                     <div class="user-details">
                         <div class="name" id="my-name">Загрузка...</div>
-                        <div class="tag" id="my-tag">#0000</div>
+                        <div class="tag" id="my-tag">@username</div>
                     </div>
                 </div>
 
@@ -1902,23 +1943,23 @@
                     <div class="profile-card-full">
                         <div class="profile-banner-full" id="preview-banner"></div>
                         <div class="profile-avatar-wrapper-full">
-                            <div class="profile-preview-avatar-full" id="preview-avatar">U</div>
+                            <!-- ПРАВКА 4: Аватарка редактируется по нажатию на круг/карандашик -->
+                            <div class="profile-preview-avatar-full" id="preview-avatar" title="Нажмите, чтобы загрузить аватарку">
+                                <div class="avatar-edit-overlay"><i class="fa-solid fa-pen"></i></div>
+                                <span id="preview-avatar-text">U</span>
+                            </div>
+                            <input type="file" id="set-avatar-file-input" accept="image/*" style="display: none;">
                         </div>
                         <div style="padding: 16px 20px;">
                             <div id="preview-username" style="font-weight: bold; font-size: 20px;">User</div>
-                            <div id="preview-tag" style="color: var(--text-muted); font-size: 13px;">#0000</div>
+                            <div id="preview-tag" style="color: var(--text-muted); font-size: 13px;">@user_id</div>
                         </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="settings-group">
-                            <label>Отображаемое имя</label>
+                            <label>Отображаемое имя (Никнейм)</label>
                             <input type="text" class="settings-input" id="set-username-input">
-                        </div>
-
-                        <div class="settings-group">
-                            <label>Аватарка (URL картинки)</label>
-                            <input type="text" class="settings-input" id="set-avatar-input" placeholder="https://domain.com/avatar.png">
                         </div>
 
                         <div class="settings-group">
@@ -1930,6 +1971,7 @@
                     </div>
                 </div>
 
+                <!-- ПРАВКА 3: Имя учетной записи (Handle / ID) изменяется через пароль -->
                 <div class="settings-section" id="tab-u-account">
                     <div class="settings-header-row">
                         <h2>Информация об учётной записи</h2>
@@ -1938,10 +1980,10 @@
                     <div class="account-info-card">
                         <div class="account-field-row">
                             <div>
-                                <div class="account-field-label">Имя пользователя</div>
-                                <div class="account-field-value" id="acc-display-username">User</div>
+                                <div class="account-field-label">Имя учетной записи (Уникальный ID)</div>
+                                <div class="account-field-value" id="acc-display-userhandle">@user_id</div>
                             </div>
-                            <button class="btn btn-secondary" id="btn-edit-username-trigger">Изменить</button>
+                            <button class="btn btn-secondary" id="btn-edit-userhandle-trigger">Изменить</button>
                         </div>
 
                         <div class="account-field-row">
@@ -2271,7 +2313,7 @@
         </div>
     </div>
 
-    <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА ПО РЕФЕРЕНСУ -->
+    <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА -->
     <div class="settings-overlay" id="overlay-channel-settings">
         <div class="settings-close-btn-fixed" id="btn-close-channel-settings">
             <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
@@ -2460,10 +2502,24 @@
         </div>
     </div>
 
+    <!-- ПРАВКА 3: МОДАЛЬНОЕ ОКНО ИЗМЕНЕНИЯ HANDLE / УЧЕТНОЙ ЗАПИСИ (ID) -->
+    <div class="modal-overlay" id="modal-change-userhandle">
+        <div class="modal">
+            <h3>Изменить имя учетной записи (ID)</h3>
+            <p style="font-size: 12px; color: var(--text-muted);">Введите новое имя учетной записи (только английские буквы и цифры) и ваш текущий пароль.</p>
+            <input type="text" class="settings-input" id="input-new-userhandle" placeholder="Новый ID (например: alex123)">
+            <input type="password" class="settings-input" id="input-confirm-password-userhandle" placeholder="Текущий пароль">
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="btn-cancel-change-userhandle">Отмена</button>
+                <button class="btn" id="btn-save-userhandle-action">Сохранить ID</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modal-add-dm">
         <div class="modal">
             <h3>Найти пользователя</h3>
-            <input type="text" class="settings-input" id="input-dm-username" placeholder="Введите имя пользователя">
+            <input type="text" class="settings-input" id="input-dm-username" placeholder="Введите имя пользователя или ID">
             <div class="modal-actions">
                 <button class="btn btn-danger" id="btn-cancel-add-dm">Отмена</button>
                 <button class="btn" id="btn-add-friend-action">Добавить в друзья</button>
@@ -2526,7 +2582,7 @@
                 <div class="avatar" id="modal-profile-avatar" style="width: 54px; height: 54px; font-size: 24px;">U</div>
                 <div>
                     <h3 id="modal-profile-username">User</h3>
-                    <div style="color: var(--text-muted); font-size: 14px;" id="modal-profile-tag">#0000</div>
+                    <div style="color: var(--text-muted); font-size: 14px;" id="modal-profile-tag">@user_id</div>
                 </div>
             </div>
 
@@ -2615,6 +2671,7 @@
         let pendingUserAuth = null;
 
         const lastOpenedChannels = {};
+        let selectedAvatarBase64 = null;
 
         let peer = null;
         let localStream = null;
@@ -2883,11 +2940,13 @@
 
                 if (isRegisterMode) {
                     const res = await createUserWithEmailAndPassword(auth, email, password);
+                    const defaultUserHandle = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') || "user" + Math.floor(Math.random() * 1000);
                     await setDoc(doc(db, "users", res.user.uid), {
                         uid: res.user.uid,
                         username: email.split('@')[0],
+                        userHandle: defaultUserHandle,
                         email: email,
-                        tag: "#" + Math.floor(1000 + Math.random() * 9000),
+                        tag: "@" + defaultUserHandle,
                         bannerColor: "#5865f2",
                         is2FAEnabled: false,
                         openDms: []
@@ -2924,11 +2983,13 @@
                 const userRef = doc(db, "users", res.user.uid);
                 const snap = await getDoc(userRef);
                 if (!snap.exists()) {
+                    const defaultUserHandle = (res.user.email ? res.user.email.split('@')[0] : "user").replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 100);
                     await setDoc(userRef, {
                         uid: res.user.uid,
                         username: res.user.displayName || "User",
+                        userHandle: defaultUserHandle,
                         email: res.user.email,
-                        tag: "#" + Math.floor(1000 + Math.random() * 9000),
+                        tag: "@" + defaultUserHandle,
                         bannerColor: "#5865f2",
                         is2FAEnabled: false,
                         openDms: []
@@ -2947,7 +3008,7 @@
                     if (snap.exists()) {
                         currentUserData = snap.data();
                         updateUserUI();
-                        renderDmList(); // ПРАВКА 1: Перерисовываем персональные ЛС при обновлении профиля
+                        renderDmList();
                     }
                 });
 
@@ -2961,10 +3022,13 @@
             }
         });
 
+        /* ПРАВКА 3: Отображение ника иHandle (ID) пользователя */
         function updateUserUI() {
             if (!currentUserData) return;
+            const handleStr = currentUserData.tag || (currentUserData.userHandle ? "@" + currentUserData.userHandle : "@user");
+
             document.getElementById('my-name').innerText = currentUserData.username;
-            document.getElementById('my-tag').innerText = currentUserData.tag;
+            document.getElementById('my-tag').innerText = handleStr;
 
             const avatarEl = document.getElementById('my-avatar');
             if (currentUserData.avatarUrl) {
@@ -2977,11 +3041,11 @@
 
             document.getElementById('my-profile-bar').dataset.uid = currentUserData.uid;
             document.getElementById('my-profile-bar').dataset.username = currentUserData.username;
-            document.getElementById('my-profile-bar').dataset.tag = currentUserData.tag;
+            document.getElementById('my-profile-bar').dataset.tag = handleStr;
         }
 
         /* ==========================================================================
-           3. ПЕРСОНАЛЬНЫЕ СЕРВЕРЫ И ЛИЧНЫЕ ЧАТЫ (ПРАВКИ 1 И 2)
+           3. СЕРВЕРЫ И ЛИЧНЫЕ ЧАТЫ
            ========================================================================== */
         document.getElementById('btn-dm-server').addEventListener('click', openDmView);
 
@@ -3010,12 +3074,11 @@
             messagesContainer.innerHTML = `
                     <div class="empty-state">
                         <i class="fa-solid fa-comments"></i>
-                        <div>Выберите личный чат слева или нажмите "+", чтобы найти пользователя и начать диалог!</div>
+                        <div>Выберите личный чат слева или нажмите "+", чтобы найти друга и начать диалог!</div>
                     </div>
                 `;
         }
 
-        /* ПРАВКА 2: ИЗОЛЯЦИЯ СЕРВЕРОВ — отображаются только те, где участник в members */
         function loadServers() {
             if (!currentUser) return;
             const q = query(collection(db, "servers"), where("members", "array-contains", currentUser.uid));
@@ -3036,7 +3099,6 @@
             });
         }
 
-        /* ПРАВКА 2: Вход на сервер по ссылке-приглашению */
         async function joinServer(serverId) {
             if (!serverId || !currentUser) return;
             try {
@@ -3069,6 +3131,7 @@
                     document.getElementById('current-server-title').innerText = activeServerData.name;
                     const srvIcon = document.querySelector(`.server-icon[data-id="${serverId}"]`);
                     if (srvIcon) srvIcon.innerText = activeServerData.name.substring(0, 3).toUpperCase();
+                    renderServerMembers(); // ПРАВКА 1: Перерисовываем участников конкретно для этого сервера
                 }
             });
 
@@ -3118,7 +3181,7 @@
         });
 
         /* ==========================================================================
-           4. КАНАЛЫ, ДРАГ-ЭНД-ДРОП И ОРИГИНАЛЬНЫЙ СПИСОК ЛС (ПРАВКИ 1, 3)
+           4. КАНАЛЫ И ПЕРСОНАЛЬНЫЕ ИНДИКАТОРЫ НЕПРОЧИТАННОГО (ПРАВКА 2)
            ========================================================================== */
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
@@ -3152,8 +3215,12 @@
 
                     availableChannels.push({ id: chanId, name: chan.name, type: chan.type, ...chan });
 
+                    // ПРАВКА 2: Проверка непрочитанных сообщений по временнои метке
+                    const lastRead = localStorage.getItem(`lastRead_${currentUser.uid}_${chanId}`) || 0;
+                    const hasUnread = chan.lastMessageAt && (chan.lastMessageAt.toMillis ? chan.lastMessageAt.toMillis() : Date.now()) > parseInt(lastRead) && activeChannelId !== chanId;
+
                     const chanEl = document.createElement('div');
-                    chanEl.className = `channel-item ${chan.type === 'text' ? 'context-text-channel' : 'context-voice-channel'} ${activeChannelId === chanId ? 'active' : ''}`;
+                    chanEl.className = `channel-item ${chan.type === 'text' ? 'context-text-channel' : 'context-voice-channel'} ${activeChannelId === chanId ? 'active' : ''} ${hasUnread ? 'has-unread' : ''}`;
                     chanEl.dataset.id = chanId;
                     chanEl.dataset.name = chan.name;
                     chanEl.dataset.type = chan.type;
@@ -3163,7 +3230,7 @@
                     
                     let adminGearHtml = isOwnerOrAdmin ? `<i class="fa-solid fa-gear channel-settings-gear" style="margin-left: auto; font-size: 12px; display: none;" title="Настройки канала"></i>` : '';
 
-                    chanEl.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${chan.name}</span> ${adminGearHtml}`;
+                    chanEl.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${chan.name}</span> ${adminGearHtml} <div class="unread-badge"></div>`;
 
                     chanEl.addEventListener('mouseenter', () => {
                         const gear = chanEl.querySelector('.channel-settings-gear');
@@ -3324,6 +3391,9 @@
             activeChannelId = channelId;
             activeChannelName = channelName;
 
+            // ПРАВКА 2: Сбрасываем индикатор непрочитанного при клике
+            localStorage.setItem(`lastRead_${currentUser.uid}_${channelId}`, Date.now());
+
             if (activeServerId) {
                 lastOpenedChannels[activeServerId] = channelId;
             }
@@ -3331,16 +3401,20 @@
             document.getElementById('chat-header-icon').className = type === 'text' ? "fa-solid fa-hashtag" : "fa-solid fa-volume-high";
             document.getElementById('current-channel-title').innerText = channelName;
 
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.querySelector(`.channel-item[data-id="${channelId}"]`);
-            if (activeEl) activeEl.classList.add('active');
+            document.querySelectorAll('.channel-item').forEach(el => {
+                if (el.dataset.id === channelId) {
+                    el.classList.add('active');
+                    el.classList.remove('has-unread');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
 
             hideVoiceStage();
             chatInputArea.style.display = 'flex';
             loadMessages();
         }
 
-        /* ПРАВКА 1 И 3: ОТОБРАЖЕНИЕ ТОЛЬКО ДОБАВЛЕННЫХ ЛС И ЗАМЕНА @ НА АВАТАРКУ ПОЛЬЗОВАТЕЛЯ */
         function renderDmList() {
             dmUsersContainer.innerHTML = '';
             if (!currentUserData || !Array.isArray(currentUserData.openDms) || currentUserData.openDms.length === 0) {
@@ -3358,6 +3432,7 @@
                 const avatarUrl = targetUser ? targetUser.avatarUrl : null;
 
                 const dmChannelId = [currentUser.uid, targetUid].sort().join('_');
+                const lastRead = localStorage.getItem(`lastRead_${currentUser.uid}_${dmChannelId}`) || 0;
 
                 const dmItem = document.createElement('div');
                 dmItem.className = `channel-item ${activeChannelId === dmChannelId ? 'active' : ''}`;
@@ -3366,10 +3441,10 @@
                 let avatarStyle = avatarUrl ? `background-image: url(${avatarUrl});` : '';
                 let avatarInitial = avatarUrl ? '' : username[0].toUpperCase();
 
-                // ПРАВКА 3: Настоящая аватарка вместо иконки @
                 dmItem.innerHTML = `
                     <div class="avatar" style="width: 24px; height: 24px; font-size: 11px; ${avatarStyle}">${avatarInitial}</div>
                     <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${username}</span>
+                    <div class="unread-badge"></div>
                 `;
 
                 dmItem.addEventListener('click', () => selectDmUser(targetUid, username));
@@ -3377,18 +3452,15 @@
             });
         }
 
-        /* ПРАВКА 1: Создание/открытие личного диалога с добавлением в openDms двух пользователей */
         async function openDmChatWithUser(targetUid, targetUsername) {
             if (!targetUid || targetUid === currentUser.uid) {
                 return showToast("Нельзя создать чат с самим собой!", "warning");
             }
 
             try {
-                // Добавляем себе в список ЛС
                 await updateDoc(doc(db, "users", currentUser.uid), {
                     openDms: arrayUnion(targetUid)
                 });
-                // Добавляем собеседнику в список ЛС
                 await updateDoc(doc(db, "users", targetUid), {
                     openDms: arrayUnion(currentUser.uid)
                 });
@@ -3408,14 +3480,21 @@
             activeChannelId = dmChannelId;
             activeChannelName = username;
 
+            localStorage.setItem(`lastRead_${currentUser.uid}_${dmChannelId}`, Date.now());
+
             document.getElementById('chat-header-icon').className = "fa-solid fa-at";
             document.getElementById('current-channel-title').innerText = username;
 
             membersBar.style.display = 'none';
 
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.querySelector(`.channel-item[data-id="${userId}"]`);
-            if (activeEl) activeEl.classList.add('active');
+            document.querySelectorAll('.channel-item').forEach(el => {
+                if (el.dataset.id === userId) {
+                    el.classList.add('active');
+                    el.classList.remove('has-unread');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
 
             hideVoiceStage();
             chatInputArea.style.display = 'flex';
@@ -3423,7 +3502,7 @@
         }
 
         /* ==========================================================================
-           5. ЧАТ И СООБЩЕНИЯ
+           5. ЧАТ И СООБЩЕНИЯ (ПРАВКА 2: ФИКСАЦИЯ ВРЕМЕНИ ПОСЛЕДНЕГО СООБЩЕНИЯ)
            ========================================================================== */
         function loadMessages() {
             if (unsubscribeMessages) unsubscribeMessages();
@@ -3548,6 +3627,10 @@
             let msgRef;
             if (activeMode === 'server') {
                 msgRef = collection(db, "servers", activeServerId, "channels", activeChannelId, "messages");
+                // Обновляем метку времени последнего сообщения на канале для работы уведомлений
+                updateDoc(doc(db, "servers", activeServerId, "channels", activeChannelId), {
+                    lastMessageAt: serverTimestamp()
+                }).catch(() => { });
             } else {
                 msgRef = collection(db, "direct_messages", activeChannelId, "messages");
             }
@@ -3559,6 +3642,8 @@
                 media: mediaData,
                 timestamp: serverTimestamp()
             });
+
+            localStorage.setItem(`lastRead_${currentUser.uid}_${activeChannelId}`, Date.now());
         }
 
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
@@ -4112,7 +4197,7 @@
         document.getElementById('stage-btn-disconnect').addEventListener('click', disconnectVoice);
 
         /* ==========================================================================
-           7. НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ, СЕРВЕРА И КАНАЛОВ
+           7. НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ И ПРАВКА 4: ВЫБОР ФАЙЛА АВАТАРКИ ВМЕСТО URL
            ========================================================================== */
         const overlayUserSettings = document.getElementById('overlay-user-settings');
         const overlayServerSettings = document.getElementById('overlay-server-settings');
@@ -4153,13 +4238,35 @@
             }
         });
 
+        /* ПРАВКА 4: Нажатие на круг аватарки вызывает выбор файла на ПК */
+        document.getElementById('preview-avatar').addEventListener('click', () => {
+            document.getElementById('set-avatar-file-input').click();
+        });
+
+        document.getElementById('set-avatar-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    selectedAvatarBase64 = evt.target.result;
+                    const prevAv = document.getElementById('preview-avatar');
+                    prevAv.style.backgroundImage = `url(${selectedAvatarBase64})`;
+                    document.getElementById('preview-avatar-text').innerText = '';
+                    showToast("Аватарка выбрана! Нажмите 'Сохранить'.");
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         document.getElementById('btn-user-settings').addEventListener('click', () => {
             if (currentUserData) {
                 document.getElementById('set-username-input').value = currentUserData.username || '';
-                document.getElementById('set-avatar-input').value = currentUserData.avatarUrl || '';
                 document.getElementById('set-banner-color-input').value = currentUserData.bannerColor || '#5865f2';
 
+                const handleStr = currentUserData.tag || (currentUserData.userHandle ? "@" + currentUserData.userHandle : "@user");
                 document.getElementById('acc-display-username').innerText = currentUserData.username || 'User';
+                document.getElementById('acc-display-userhandle').innerText = handleStr;
+
                 const emailStr = currentUserData.email || currentUser.email || 'user@gmail.com';
                 const maskedEmail = emailStr.replace(/^(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + "*".repeat(gp3.length));
                 document.getElementById('acc-display-email-masked').innerText = maskedEmail;
@@ -4169,6 +4276,7 @@
                 document.getElementById('acc-display-phone-masked').innerText = phoneStr;
                 document.getElementById('set-2fa-toggle').checked = !!currentUserData.is2FAEnabled;
 
+                selectedAvatarBase64 = null;
                 updateProfilePreview();
             }
             overlayUserSettings.style.display = 'flex';
@@ -4187,6 +4295,42 @@
                 const real = el.dataset.real;
                 el.innerText = real.replace(/^(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + "*".repeat(gp3.length));
                 e.target.innerText = "Показать";
+            }
+        });
+
+        /* ПРАВКА 3: Изменение уникального Имени учетной записи (ID) с подтверждением паролем */
+        document.getElementById('btn-edit-userhandle-trigger').addEventListener('click', () => {
+            document.getElementById('modal-change-userhandle').style.display = 'flex';
+        });
+
+        document.getElementById('btn-cancel-change-userhandle').addEventListener('click', () => {
+            document.getElementById('modal-change-userhandle').style.display = 'none';
+        });
+
+        document.getElementById('btn-save-userhandle-action').addEventListener('click', async () => {
+            const newHandle = document.getElementById('input-new-userhandle').value.trim();
+            const password = document.getElementById('input-confirm-password-userhandle').value.trim();
+
+            if (!newHandle || !password) return showToast("Заполните все поля!", "warning");
+
+            // Проверка: только английские буквы и цифры без символов
+            if (!/^[a-zA-Z0-9]+$/.test(newHandle)) {
+                return showToast("Имя учетной записи может содержать только английские буквы и цифры!", "danger");
+            }
+
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, password);
+                await reauthenticateWithCredential(currentUser, credential);
+
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    userHandle: newHandle,
+                    tag: "@" + newHandle
+                });
+
+                document.getElementById('modal-change-userhandle').style.display = 'none';
+                showToast("Имя учетной записи (ID) успешно изменено!", "success");
+            } catch (err) {
+                showToast("Ошибка смены ID: Неверный пароль!", "danger");
             }
         });
 
@@ -4220,24 +4364,26 @@
 
         function updateProfilePreview() {
             const name = document.getElementById('set-username-input').value || 'User';
-            const avatar = document.getElementById('set-avatar-input').value;
             const color = document.getElementById('set-banner-color-input').value;
+            const handleStr = currentUserData ? (currentUserData.tag || "@user") : "@user";
 
             document.getElementById('preview-banner').style.backgroundColor = color;
             document.getElementById('preview-username').innerText = name;
+            document.getElementById('preview-tag').innerText = handleStr;
 
             const prevAv = document.getElementById('preview-avatar');
-            if (avatar) {
-                prevAv.style.backgroundImage = `url(${avatar})`;
-                prevAv.innerText = '';
+            const currentAv = selectedAvatarBase64 || (currentUserData ? currentUserData.avatarUrl : null);
+
+            if (currentAv) {
+                prevAv.style.backgroundImage = `url(${currentAv})`;
+                document.getElementById('preview-avatar-text').innerText = '';
             } else {
                 prevAv.style.backgroundImage = 'none';
-                prevAv.innerText = name[0].toUpperCase();
+                document.getElementById('preview-avatar-text').innerText = name[0].toUpperCase();
             }
         }
 
         document.getElementById('set-username-input').addEventListener('input', updateProfilePreview);
-        document.getElementById('set-avatar-input').addEventListener('input', updateProfilePreview);
         document.getElementById('set-banner-color-input').addEventListener('input', updateProfilePreview);
 
         document.querySelectorAll('.settings-sidebar-nav .settings-nav-item[data-tab]').forEach(item => {
@@ -4263,15 +4409,19 @@
 
         document.getElementById('btn-save-user-profile').addEventListener('click', async () => {
             const name = document.getElementById('set-username-input').value.trim();
-            const avatar = document.getElementById('set-avatar-input').value.trim();
             const banner = document.getElementById('set-banner-color-input').value;
 
             if (name) {
-                await updateDoc(doc(db, "users", currentUser.uid), {
+                const updateData = {
                     username: name,
-                    avatarUrl: avatar,
                     bannerColor: banner
-                });
+                };
+
+                if (selectedAvatarBase64) {
+                    updateData.avatarUrl = selectedAvatarBase64;
+                }
+
+                await updateDoc(doc(db, "users", currentUser.uid), updateData);
                 showToast("Профиль сохранен!", "success");
             }
         });
@@ -4735,6 +4885,7 @@
                 overlayServerSettings.style.display = 'none';
                 overlayChannelSettings.style.display = 'none';
                 modalAddRoleMembers.style.display = 'none';
+                document.getElementById('modal-change-userhandle').style.display = 'none';
                 hideMenus();
             }
 
@@ -4752,48 +4903,57 @@
         });
 
         /* ==========================================================================
-           8. СПИСОК УЧАСТНИКОВ И КНОПКИ ДИАЛОГОВ (ПРАВКИ 1 И 2)
+           8. ОТОБРАЖЕНИЕ УЧАСТНИКОВ (ПРАВКА 1: ОТОБРАЖЕНИЕ ТОЛЬКО УЧАСТНИКОВ ТЕКУЩЕГО СЕРВЕРА)
            ========================================================================== */
         function loadGlobalUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
-                membersListContainer.innerHTML = '';
                 allUsers = [];
-                let count = 0;
-
                 snapshot.forEach(docSnap => {
-                    count++;
-                    const user = docSnap.data();
-                    allUsers.push(user);
-                    const isSelf = user.uid === currentUser.uid;
-
-                    const isServerOwner = activeServerData && activeServerData.ownerId === user.uid;
-
-                    const item = document.createElement('div');
-                    item.className = 'member-item context-user';
-                    item.dataset.uid = user.uid;
-                    item.dataset.username = user.username;
-                    item.dataset.tag = user.tag;
-
-                    let avatarStyle = user.avatarUrl ? `background-image: url(${user.avatarUrl});` : '';
-
-                    item.innerHTML = `
-                            <div class="avatar-container">
-                                <div class="avatar" style="${avatarStyle}">${user.avatarUrl ? '' : (user.username ? user.username[0].toUpperCase() : 'U')}</div>
-                                <div class="status-indicator"></div>
-                            </div>
-                            <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
-                                ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
-                            </span>
-                            ${isServerOwner ? `<i class="fa-solid fa-crown owner-crown" title="Владелец сервера"></i>` : ''}
-                        `;
-
-                    item.addEventListener('click', () => openUserProfileModal(user));
-                    membersListContainer.appendChild(item);
+                    allUsers.push(docSnap.data());
                 });
 
-                document.getElementById('members-count').innerText = `Участники — ${count}`;
-                renderDmList(); // Обновляем список ЛС
+                if (activeMode === 'server') {
+                    renderServerMembers();
+                }
+                renderDmList();
             });
+        }
+
+        /* ПРАВКА 1: Новый пустой сервер содержит только своего создателя */
+        function renderServerMembers() {
+            membersListContainer.innerHTML = '';
+            if (!activeServerData || !Array.isArray(activeServerData.members)) return;
+
+            const serverMembers = allUsers.filter(u => activeServerData.members.includes(u.uid));
+
+            serverMembers.forEach(user => {
+                const isSelf = user.uid === currentUser.uid;
+                const isServerOwner = activeServerData && activeServerData.ownerId === user.uid;
+
+                const item = document.createElement('div');
+                item.className = 'member-item context-user';
+                item.dataset.uid = user.uid;
+                item.dataset.username = user.username;
+                item.dataset.tag = user.tag || "@user";
+
+                let avatarStyle = user.avatarUrl ? `background-image: url(${user.avatarUrl});` : '';
+
+                item.innerHTML = `
+                        <div class="avatar-container">
+                            <div class="avatar" style="${avatarStyle}">${user.avatarUrl ? '' : (user.username ? user.username[0].toUpperCase() : 'U')}</div>
+                            <div class="status-indicator"></div>
+                        </div>
+                        <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
+                            ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
+                        </span>
+                        ${isServerOwner ? `<i class="fa-solid fa-crown owner-crown" title="Владелец сервера"></i>` : ''}
+                    `;
+
+                item.addEventListener('click', () => openUserProfileModal(user));
+                membersListContainer.appendChild(item);
+            });
+
+            document.getElementById('members-count').innerText = `Участники — ${serverMembers.length}`;
         }
 
         const modalAddDm = document.getElementById('modal-add-dm');
@@ -4806,12 +4966,16 @@
 
         document.getElementById('btn-cancel-add-dm').addEventListener('click', () => modalAddDm.style.display = 'none');
 
-        /* ПРАВКА 1: Добавить в друзья — открывает и добавляет диалог в ЛС */
         document.getElementById('btn-add-friend-action').addEventListener('click', async () => {
-            const name = inputDmUsername.value.trim();
-            if (!name) return showToast("Введите имя пользователя!", "warning");
+            const queryVal = inputDmUsername.value.trim().toLowerCase();
+            if (!queryVal) return showToast("Введите имя пользователя или ID!", "warning");
 
-            const found = allUsers.find(u => u.username.toLowerCase() === name.toLowerCase());
+            const found = allUsers.find(u => 
+                u.username.toLowerCase() === queryVal || 
+                (u.userHandle && u.userHandle.toLowerCase() === queryVal.replace('@', '')) ||
+                (u.tag && u.tag.toLowerCase() === queryVal)
+            );
+
             if (!found) return showToast("Пользователь не найден!", "danger");
             if (found.uid === currentUser.uid) return showToast("Нельзя добавить себя!", "warning");
 
@@ -4819,12 +4983,16 @@
             await openDmChatWithUser(found.uid, found.username);
         });
 
-        /* ПРАВКА 1: Написать — открывает и добавляет диалог в ЛС */
         document.getElementById('btn-open-chat-action').addEventListener('click', async () => {
-            const name = inputDmUsername.value.trim();
-            if (!name) return showToast("Введите имя пользователя!", "warning");
+            const queryVal = inputDmUsername.value.trim().toLowerCase();
+            if (!queryVal) return showToast("Введите имя пользователя или ID!", "warning");
 
-            const found = allUsers.find(u => u.username.toLowerCase() === name.toLowerCase());
+            const found = allUsers.find(u => 
+                u.username.toLowerCase() === queryVal || 
+                (u.userHandle && u.userHandle.toLowerCase() === queryVal.replace('@', '')) ||
+                (u.tag && u.tag.toLowerCase() === queryVal)
+            );
+
             if (!found) return showToast("Пользователь не найден!", "danger");
 
             modalAddDm.style.display = 'none';
@@ -4833,7 +5001,7 @@
 
         async function openUserProfileModal(user) {
             document.getElementById('modal-profile-username').innerText = user.username;
-            document.getElementById('modal-profile-tag').innerText = user.tag || "#0000";
+            document.getElementById('modal-profile-tag').innerText = user.tag || (user.userHandle ? "@" + user.userHandle : "@user");
 
             const av = document.getElementById('modal-profile-avatar');
             if (user.avatarUrl) {
@@ -4889,7 +5057,7 @@
         document.getElementById('btn-add-server').addEventListener('click', () => modalServer.style.display = 'flex');
         document.getElementById('btn-cancel-server').addEventListener('click', () => modalServer.style.display = 'none');
 
-        /* ПРАВКА 2: Создание сервера с привязкой создателя в массив members */
+        /* ПРАВКА 1: Автоматическое создание 1 текстового и 1 голосового канала при создании сервера */
         document.getElementById('btn-confirm-server').addEventListener('click', async () => {
             const name = document.getElementById('input-server-name').value.trim();
             if (!name) return;
@@ -4897,13 +5065,21 @@
             const srvRef = await addDoc(collection(db, "servers"), {
                 name: name,
                 ownerId: currentUser.uid,
-                members: [currentUser.uid], // Создатель сразу член сервера
+                members: [currentUser.uid],
                 createdAt: serverTimestamp()
             });
 
+            // 1 Текстовый канал по умолчанию
             await addDoc(collection(db, "servers", srvRef.id, "channels"), {
                 name: "общий-чат",
-                type: "text"
+                type: "text",
+                lastMessageAt: serverTimestamp()
+            });
+
+            // 1 Голосовой канал по умолчанию
+            await addDoc(collection(db, "servers", srvRef.id, "channels"), {
+                name: "Основной",
+                type: "voice"
             });
 
             modalServer.style.display = 'none';
@@ -4949,7 +5125,8 @@
 
             await addDoc(collection(db, "servers", activeServerId, "channels"), {
                 name: name,
-                type: type
+                type: type,
+                lastMessageAt: serverTimestamp()
             });
 
             modalChannel.style.display = 'none';
@@ -5023,7 +5200,8 @@
                     const data = snap.data();
                     await addDoc(collection(db, "servers", activeServerId, "channels"), {
                         name: `${data.name}-копия`,
-                        type: data.type
+                        type: data.type,
+                        lastMessageAt: serverTimestamp()
                     });
                     showToast("Канал клонирован!", "success");
                 }
@@ -5081,7 +5259,6 @@
             }
         });
 
-        /* ПКМ по пользователю -> "Написать в ЛС" */
         document.getElementById('ctx-user-dm').addEventListener('click', async () => {
             if (selectedContextData && selectedContextData.uid) {
                 if (selectedContextData.uid === currentUser.uid) {
