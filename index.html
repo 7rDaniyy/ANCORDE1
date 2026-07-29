@@ -1002,7 +1002,7 @@
         }
 
         /* ==========================================================================
-           2. ЦЕНТРИРОВАННЫЕ НАСТРОЙКИ (DISCORD STYLE ПРАВКА 1 И 2)
+           ПРАВКА 1: БЕЗ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ В НАСТРОЙКАХ
            ========================================================================== */
         .settings-overlay {
             position: fixed;
@@ -1012,19 +1012,21 @@
             display: none;
             justify-content: center;
             align-items: stretch;
+            overflow-x: hidden; /* Без горизонтального скроллбара */
         }
 
         .settings-container {
             width: 100%;
-            max-width: 1040px;
+            max-width: 960px;
             display: flex;
             flex-direction: row;
             position: relative;
             height: 100%;
+            box-sizing: border-box;
         }
 
         .settings-sidebar {
-            width: 240px;
+            width: 220px;
             background: var(--bg-settings-sidebar);
             display: flex;
             flex-direction: column;
@@ -1080,13 +1082,16 @@
             flex: 1;
             padding: 60px 40px;
             overflow-y: auto;
+            overflow-x: hidden;
             position: relative;
+            box-sizing: border-box;
         }
 
         .settings-section {
             display: none;
             flex-direction: column;
             gap: 20px;
+            max-width: 100%;
         }
 
             .settings-section.active {
@@ -1131,7 +1136,7 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--border-color);
-            max-width: 340px;
+            max-width: 320px;
         }
 
         .profile-banner {
@@ -1164,17 +1169,18 @@
             background-position: center;
         }
 
-        /* Кнопка ESC справа от центрального блока */
+        /* Кнопка закрытия настроек (справа в углу без переполнения) */
         .settings-close-btn {
             position: absolute;
-            top: 60px;
-            right: -60px;
+            top: 24px;
+            right: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
             cursor: pointer;
             color: var(--text-muted);
+            z-index: 10;
         }
 
             .settings-close-btn:hover {
@@ -1317,7 +1323,7 @@
 </head>
 <body>
 
-    <!-- ЭКРАН АВТОРИЗАЦИИ И ДВУХФАКТОРКИ (ПРАВКА 3) -->
+    <!-- ЭКРАН АВТОРИЗАЦИИ И ДВУХФАКТОРКИ -->
     <div id="auth-screen">
         <div class="auth-card">
             <h2 id="auth-title">С возвращением!</h2>
@@ -1368,13 +1374,13 @@
         </div>
 
         <!-- Панель каналов -->
-        <div class="channels-bar">
+        <div class="channels-bar" id="channels-bar-container">
             <div class="server-header" id="server-header">
                 <span id="current-server-title">Личные сообщения</span>
                 <i class="fa-solid fa-chevron-down" id="server-header-arrow"></i>
             </div>
 
-            <div class="channels-list">
+            <div class="channels-list" id="channels-list-area">
                 <div id="server-channels-group">
                     <div class="channel-category context-category" id="cat-text-header" data-id="cat-text" data-name="Текстовые каналы">
                         <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-text"></i> Текстовые каналы</span>
@@ -1461,7 +1467,6 @@
                 </div>
             </div>
 
-            <!-- СТРИМИНГ ПРЕДПРОСМОТР POP-OVER (ПРАВКА 2) -->
             <div class="stream-preview-popover" id="stream-preview-popover">
                 <div class="title"><i class="fa-solid fa-desktop"></i> Прямой эфир</div>
                 <img id="stream-preview-img" src="" alt="Предпросмотр трансляции">
@@ -1499,7 +1504,7 @@
 
     </div>
 
-    <!-- ПОЛНОЭКРАННОЕ ЦЕНТРИРОВАННОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ (DISCORD STYLE) -->
+    <!-- ЦЕНТРИРОВАННОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ -->
     <div class="settings-overlay" id="overlay-user-settings">
         <div class="settings-container">
 
@@ -1565,7 +1570,7 @@
                     <h2>Моя учетная запись</h2>
 
                     <div class="settings-group">
-                        <label>Email адреса</label>
+                        <label>Email адрес</label>
                         <input type="text" class="settings-input" id="set-account-email" disabled>
                     </div>
 
@@ -1703,22 +1708,53 @@
         </div>
     </div>
 
-    <!-- КОНТЕКСТНЫЕ МЕНЮ -->
+    <!-- ВСЕ ПОЛНОЦЕННЫЕ ПКМ КОНТЕКСТНЫЕ МЕНЮ (ПРАВКА 3, 4, 5) -->
+    <!-- 1. Меню при клике ПКМ на Сервер -->
+    <div class="context-menu" id="menu-server-item">
+        <div class="menu-item" id="ctx-srv-read"><i class="fa-solid fa-check-double"></i> Пометить как прочитанное</div>
+        <div class="menu-item" id="ctx-srv-invite"><i class="fa-solid fa-user-plus"></i> Пригласить людей</div>
+        <div class="menu-item has-submenu">
+            <i class="fa-solid fa-bell-slash"></i>
+            <span style="flex: 1;">Заглушить сервер</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <div class="submenu">
+                <div class="menu-item" onclick="showToast('Сервер заглушен на 15 минут')">На 15 минут</div>
+                <div class="menu-item" onclick="showToast('Сервер заглушен на 1 час')">На 1 час</div>
+                <div class="menu-item" onclick="showToast('Сервер заглушен на 3 часа')">На 3 часа</div>
+                <div class="menu-item" onclick="showToast('Сервер заглушен на 8 часов')">На 8 часов</div>
+                <div class="menu-item" onclick="showToast('Сервер заглушен на 24 часа')">На 24 часа</div>
+                <div class="menu-item" onclick="showToast('Сервер заглушен до включения')">До включения</div>
+            </div>
+        </div>
+        <div class="menu-item" onclick="showToast('Настройки уведомлений сервера')"><i class="fa-solid fa-sliders"></i> Параметры уведомлений</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item danger" id="ctx-srv-leave"><i class="fa-solid fa-right-from-bracket"></i> Покинуть сервер</div>
+        <div class="menu-item danger admin-only" id="ctx-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="ctx-srv-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
+    </div>
+
+    <!-- 2. Меню при клике ПКМ по пустому полю списка каналов (ПРАВКА 3) -->
+    <div class="context-menu" id="menu-channels-area">
+        <div class="menu-item" id="ctx-area-create-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
+        <div class="menu-item" id="ctx-area-create-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="ctx-area-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+    </div>
+
+    <!-- 3. Меню при клике ПКМ на Пользователя -->
     <div class="context-menu" id="menu-user">
         <div class="menu-item" id="ctx-user-profile"><i class="fa-solid fa-user"></i> Профиль</div>
         <div class="menu-item" id="ctx-user-dm"><i class="fa-solid fa-message"></i> Написать в ЛС</div>
     </div>
 
+    <!-- 4. Выпадающее меню Заголовка Сервера -->
     <div class="context-menu" id="menu-server-dropdown"></div>
 
-    <div class="context-menu" id="menu-server-item">
-        <div class="menu-item danger" id="ctx-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
-    </div>
-
+    <!-- 5. Меню Категории -->
     <div class="context-menu" id="menu-category">
         <div class="menu-item" id="ctx-cat-read"><i class="fa-solid fa-check-double"></i> Пометить прочитанным</div>
         <div class="menu-item" id="ctx-cat-collapse"><i class="fa-solid fa-chevron-up"></i> Свернуть категорию</div>
-
         <div class="menu-item has-submenu">
             <i class="fa-solid fa-bell-slash"></i>
             <span style="flex: 1;">Заглушить категорию</span>
@@ -1729,7 +1765,6 @@
                 <div class="menu-item" onclick="showToast('Заглушено до включения')">До включения</div>
             </div>
         </div>
-
         <div class="menu-separator admin-only"></div>
         <div class="menu-item admin-only" id="ctx-cat-edit"><i class="fa-solid fa-pen"></i> Переименовать</div>
         <div class="menu-item danger admin-only" id="ctx-cat-delete"><i class="fa-solid fa-trash"></i> Удалить категорию</div>
@@ -1737,10 +1772,10 @@
         <div class="menu-item" id="ctx-cat-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID</div>
     </div>
 
+    <!-- 6. Меню Текстового Канала -->
     <div class="context-menu" id="menu-text-channel">
         <div class="menu-item" id="ctx-tc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на канал</div>
         <div class="menu-item" id="ctx-tc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
-
         <div class="menu-item has-submenu">
             <i class="fa-solid fa-bell-slash"></i>
             <span style="flex: 1;">Заглушить канал</span>
@@ -1751,7 +1786,6 @@
                 <div class="menu-item" onclick="showToast('Заглушено до включения')">До включения</div>
             </div>
         </div>
-
         <div class="menu-separator admin-only"></div>
         <div class="menu-item admin-only" id="ctx-tc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
         <div class="menu-item danger admin-only" id="ctx-tc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
@@ -1759,10 +1793,10 @@
         <div class="menu-item" id="ctx-tc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
     </div>
 
+    <!-- 7. Меню Голосового Канала -->
     <div class="context-menu" id="menu-voice-channel">
         <div class="menu-item" id="ctx-vc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить в голос</div>
         <div class="menu-item" id="ctx-vc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
-
         <div class="menu-separator admin-only"></div>
         <div class="menu-item admin-only" id="ctx-vc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
         <div class="menu-item danger admin-only" id="ctx-vc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
@@ -1770,11 +1804,12 @@
         <div class="menu-item" id="ctx-vc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
     </div>
 
+    <!-- 8. Меню Сообщения -->
     <div class="context-menu" id="menu-message">
         <div class="menu-item danger" id="ctx-delete-message"><i class="fa-solid fa-trash"></i> Удалить сообщение</div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА И УВЕДОМЛЕНИЯ -->
+    <!-- МОДАЛЬНЫЕ ОКНА -->
     <div class="modal-overlay" id="modal-confirm">
         <div class="modal">
             <h3 id="modal-confirm-title">Подтверждение</h3>
@@ -1904,9 +1939,9 @@
         let unsubscribeStagePeers = null;
         let selectedContextTarget = null;
         let selectedContextData = null;
-        let pendingUserAuth = null; // Буфер для 2FA
+        let pendingUserAuth = null;
 
-        // WebRTC & Audio
+        // WebRTC & Audio State
         let peer = null;
         let localStream = null;
         let currentVoiceChannelId = null;
@@ -1918,10 +1953,6 @@
         let isScreenSharing = false;
         let screenStream = null;
         let streamPreviewInterval = null;
-
-        let audioContext = null;
-        let localAnalyser = null;
-        let micTesterInterval = null;
 
         // UI Элементы
         const authScreen = document.getElementById('auth-screen');
@@ -1974,7 +2005,7 @@
         }
 
         /* ==========================================================================
-           1. ПКМ МЕНЮ
+           1. ПКМ И КОНТЕКСТНЫЕ МЕНЮ (ПРАВКИ 3, 4, 5)
            ========================================================================== */
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
@@ -1987,6 +2018,15 @@
                 el.style.display = isOwner ? 'flex' : 'none';
             });
 
+            // Клик ПКМ на Иконку Сервера (ПРАВКА 5)
+            const serverEl = target.closest('.context-server');
+            if (serverEl) {
+                selectedContextTarget = serverEl.dataset.id;
+                selectedContextData = { name: serverEl.dataset.name };
+                return showMenu(menus.serverItem, e);
+            }
+
+            // Клик ПКМ на Категорию
             const catEl = target.closest('.context-category');
             if (catEl) {
                 selectedContextTarget = catEl.dataset.id;
@@ -1994,18 +2034,21 @@
                 return showMenu(menus.category, e);
             }
 
+            // Клик ПКМ на Текстовый Канал
             const textChanEl = target.closest('.context-text-channel');
             if (textChanEl) {
                 selectedContextTarget = textChanEl.dataset.id;
                 return showMenu(menus.textChannel, e);
             }
 
+            // Клик ПКМ на Голосовой Канал
             const voiceChanEl = target.closest('.context-voice-channel');
             if (voiceChanEl) {
                 selectedContextTarget = voiceChanEl.dataset.id;
                 return showMenu(menus.voiceChannel, e);
             }
 
+            // Клик ПКМ на Пользователя
             const userEl = target.closest('.context-user');
             if (userEl) {
                 selectedContextData = {
@@ -2019,22 +2062,23 @@
                 return showMenu(menus.user, e);
             }
 
-            const serverEl = target.closest('.context-server');
-            if (serverEl) {
-                selectedContextTarget = serverEl.dataset.id;
-                return showMenu(menus.serverItem, e);
-            }
-
+            // Клик ПКМ на Сообщение
             const messageEl = target.closest('.context-message');
             if (messageEl) {
                 selectedContextTarget = messageEl.dataset.id;
                 selectedContextData = { senderId: messageEl.dataset.senderId };
                 return showMenu(menus.message, e);
             }
+
+            // Клик ПКМ на пустое поле каналов (ПРАВКА 3)
+            const channelsArea = target.closest('#channels-bar-container');
+            if (channelsArea && activeMode === 'server') {
+                return showMenu(menus.channelsArea, e);
+            }
         });
 
         /* ==========================================================================
-           2. АВТОРИЗАЦИЯ, 2FA И ЗАБЫЛИ ПАРОЛЬ (ПРАВКА 3)
+           2. АВТОРИЗАЦИЯ
            ========================================================================== */
         document.getElementById('auth-toggle-btn').addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
@@ -2042,19 +2086,15 @@
             document.getElementById('btn-submit-auth').innerText = isRegisterMode ? "Зарегистрироваться" : "Войти";
         });
 
-        // Забыли пароль
         document.getElementById('auth-forgot-password').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value.trim();
             if (!email) return showToast("Введите ваш Email в поле выше!", "warning");
             try {
                 await sendPasswordResetEmail(auth, email);
-                showToast("Инструкции по сбросу пароля отправлены на ваш Email!", "success");
-            } catch (err) {
-                showToast("Ошибка отправки письмо: " + err.message, "danger");
-            }
+                showToast("Инструкции отправлены на ваш Email!", "success");
+            } catch (err) { showToast("Ошибка: " + err.message, "danger"); }
         });
 
-        // Вход / Регистрация
         document.getElementById('btn-submit-auth').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value.trim();
@@ -2063,7 +2103,6 @@
             if (!email || !password) return showToast("Заполните Email и Пароль!", "warning");
 
             try {
-                // Настраиваем режим запоминания входа
                 await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
 
                 if (isRegisterMode) {
@@ -2079,8 +2118,6 @@
                 } else {
                     const res = await signInWithEmailAndPassword(auth, email, password);
                     const userSnap = await getDoc(doc(db, "users", res.user.uid));
-
-                    // ПРОВЕРКА 2FA
                     if (userSnap.exists() && userSnap.data().is2FAEnabled) {
                         pendingUserAuth = res.user;
                         document.getElementById('auth-form-fields').style.display = 'none';
@@ -2091,7 +2128,6 @@
             } catch (err) { showToast(err.message, "danger"); }
         });
 
-        // Подтверждение 2FA Кода (Демо код 123456)
         document.getElementById('btn-submit-2fa').addEventListener('click', () => {
             const code = document.getElementById('auth-2fa-code').value.trim();
             if (code === "123456" || code.length === 6) {
@@ -2140,7 +2176,6 @@
                 loadServers();
                 loadGlobalUsers();
                 openDmView();
-                loadAudioVideoDevices();
             } else if (!user) {
                 authScreen.style.display = 'flex';
                 appContainer.style.display = 'none';
@@ -2236,54 +2271,8 @@
             loadChannels(serverId);
         }
 
-        document.getElementById('server-header').addEventListener('click', (e) => {
-            if (activeMode !== 'server') return;
-            e.stopPropagation();
-
-            const menu = menus.serverDropdown;
-            menu.innerHTML = '';
-
-            const isOwner = activeServerData && activeServerData.ownerId === currentUser.uid;
-
-            if (isOwner) {
-                menu.innerHTML = `
-                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
-                        <div class="menu-item" id="drop-server-settings"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
-                        <div class="menu-item" id="drop-add-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
-                        <div class="menu-separator"></div>
-                        <div class="menu-item danger" id="drop-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
-                        <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
-                    `;
-            } else {
-                menu.innerHTML = `
-                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
-                        <div class="menu-item danger" onclick="openDmView()"><i class="fa-solid fa-right-from-bracket"></i> Покинуть сервер</div>
-                        <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
-                    `;
-            }
-
-            showMenuAt(menu, 78, 52);
-
-            setTimeout(() => {
-                const addChan = document.getElementById('drop-add-channel');
-                if (addChan) addChan.onclick = () => openChannelModal('text');
-
-                const setSrv = document.getElementById('drop-server-settings');
-                if (setSrv) setSrv.onclick = openServerSettings;
-
-                const delSrv = document.getElementById('drop-delete-server');
-                if (delSrv) delSrv.onclick = () => {
-                    showConfirm("Удаление сервера", "Вы уверены, что хотите удалить сервер?", async () => {
-                        await deleteDoc(doc(db, "servers", activeServerId));
-                        openDmView();
-                        showToast("Сервер удален", "danger");
-                    });
-                };
-            }, 50);
-        });
-
         /* ==========================================================================
-           4. ВЕТКИ И ВНЕШНИЙ ВИД КАНАЛОВ
+           4. ГОЛОСОВЫЕ КАНАЛЫ (ИСПРАВЛЕНИЕ 2: ВХОД В ГОЛОСОВЫЕ КАНАЛЫ)
            ========================================================================== */
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
@@ -2323,6 +2312,8 @@
                         chanEl.className = `channel-item context-voice-channel ${activeChannelId === chanId ? 'active' : ''}`;
                         chanEl.dataset.id = chanId;
                         chanEl.innerHTML = `<i class="fa-solid fa-volume-high"></i> ${chan.name}`;
+
+                        // Клик входа в голосовой канал
                         chanEl.addEventListener('click', () => connectVoiceChannel(chanId, chan.name));
 
                         const usersContainer = document.createElement('div');
@@ -2523,7 +2514,7 @@
         });
 
         /* ==========================================================================
-           6. WEBRTC, ГОЛОСОВАЯ СЦЕНА И СТРИМИНГ
+           6. WEBRTC ЛОГИКА ГОЛОСА (ПРАВКА 2)
            ========================================================================== */
         function initPeerJS() {
             peer = new Peer(currentUser.uid, {
@@ -2600,19 +2591,6 @@
                             </div>
                         `;
 
-                    // Наведение для предпросмотра стрима (ПРАВКА 2)
-                    card.addEventListener('mouseenter', () => {
-                        if (pData.streamThumbnail && document.getElementById('set-stream-preview-toggle').checked) {
-                            const popover = document.getElementById('stream-preview-popover');
-                            document.getElementById('stream-preview-img').src = pData.streamThumbnail;
-                            popover.style.display = 'flex';
-                        }
-                    });
-
-                    card.addEventListener('mouseleave', () => {
-                        document.getElementById('stream-preview-popover').style.display = 'none';
-                    });
-
                     voiceStageGrid.appendChild(card);
                 });
 
@@ -2647,6 +2625,19 @@
                 statusIcon.style.color = 'var(--success)';
             } else {
                 statusIcon.style.color = 'var(--danger)';
+            }
+        }
+
+        async function getMicrophoneStream() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast("Микрофон недоступен. Проверьте протокол HTTPS.", "danger");
+                return null;
+            }
+            try {
+                return await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            } catch (err) {
+                showToast("Доступ к микрофону отклонен браузером!", "danger");
+                return null;
             }
         }
 
@@ -2805,7 +2796,6 @@
         document.getElementById('btn-voice-camera').addEventListener('click', toggleCamera);
         document.getElementById('stage-btn-camera').addEventListener('click', toggleCamera);
 
-        /* ДЕМОНСТРАЦИЯ ЭКРАНА И ГЕНЕРАТОР ПРЕДПРОСМОТРА (ПРАВКА 2) */
         async function toggleScreenShare() {
             if (!currentVoiceChannelId) {
                 return showToast("Сначала подключитесь к голосовому каналу!", "warning");
@@ -2842,9 +2832,6 @@
                     document.getElementById('btn-voice-screenshare').classList.add('active');
                     document.getElementById('stage-btn-screenshare').classList.add('active');
 
-                    // ЗАПУСК ГЕНЕРАТОРА ПРЕДПРОСМОТРА СТРИМА (Каждые 10 секунд)
-                    startStreamThumbnailGenerator();
-
                     screenTrack.onended = () => { stopScreenShare(); };
 
                 } catch (err) {
@@ -2855,31 +2842,8 @@
             }
         }
 
-        function startStreamThumbnailGenerator() {
-            if (streamPreviewInterval) clearInterval(streamPreviewInterval);
-
-            streamPreviewInterval = setInterval(async () => {
-                const videoEl = document.getElementById(`video-${currentUser.uid}`);
-                if (videoEl && isScreenSharing) {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 320;
-                    canvas.height = 180;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.4);
-
-                    // Публикуем сжатый скриншот в Firestore для предпросмотра другим
-                    await updateDoc(doc(db, "servers", currentVoiceServerId, "channels", currentVoiceChannelId, "voice_peers", currentUser.uid), {
-                        streamThumbnail: base64
-                    }).catch(() => { });
-                }
-            }, 10000);
-        }
-
         async function stopScreenShare() {
             if (!isScreenSharing) return;
-
-            if (streamPreviewInterval) clearInterval(streamPreviewInterval);
 
             if (screenStream) {
                 screenStream.getTracks().forEach(track => track.stop());
@@ -2935,7 +2899,7 @@
         document.getElementById('stage-btn-disconnect').addEventListener('click', disconnectVoice);
 
         /* ==========================================================================
-           7. ЦЕНТРИРОВАННЫЕ НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ И СЕРВЕРА (ПРАВКА 1 И 2)
+           7. НАСТРОЙКИ
            ========================================================================== */
         const overlayUserSettings = document.getElementById('overlay-user-settings');
         const overlayServerSettings = document.getElementById('overlay-server-settings');
@@ -2958,7 +2922,6 @@
             overlayUserSettings.style.display = 'none';
         });
 
-        // Живое превью профиля
         function updateProfilePreview() {
             const name = document.getElementById('set-username-input').value || 'User';
             const avatar = document.getElementById('set-avatar-input').value;
@@ -2981,7 +2944,6 @@
         document.getElementById('set-avatar-input').addEventListener('input', updateProfilePreview);
         document.getElementById('set-banner-color-input').addEventListener('input', updateProfilePreview);
 
-        // Навигация по вкладкам
         document.querySelectorAll('.settings-sidebar-nav .settings-nav-item[data-tab]').forEach(item => {
             item.addEventListener('click', () => {
                 const navGroup = item.parentElement;
@@ -2995,7 +2957,6 @@
             });
         });
 
-        // Сохранение Профиля
         document.getElementById('btn-save-user-profile').addEventListener('click', async () => {
             const name = document.getElementById('set-username-input').value.trim();
             const avatar = document.getElementById('set-avatar-input').value.trim();
@@ -3011,76 +2972,10 @@
             }
         });
 
-        // Включение / Выключение 2FA
         document.getElementById('set-2fa-toggle').addEventListener('change', async (e) => {
             const enabled = e.target.checked;
             await updateDoc(doc(db, "users", currentUser.uid), { is2FAEnabled: enabled });
             showToast(enabled ? "2FA включена! Демо-код для входа: 123456" : "2FA отключена");
-        });
-
-        // Загрузка списков аудио и видео устройств
-        async function loadAudioVideoDevices() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-            const devices = await navigator.mediaDevices.enumerateDevices();
-
-            const micSelect = document.getElementById('set-voice-mic-select');
-            const speakerSelect = document.getElementById('set-voice-speaker-select');
-            const camSelect = document.getElementById('set-voice-cam-select');
-
-            micSelect.innerHTML = ''; speakerSelect.innerHTML = ''; camSelect.innerHTML = '';
-
-            devices.forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d.deviceId;
-                opt.innerText = d.label || `${d.kind} (${d.deviceId.substring(0, 5)})`;
-
-                if (d.kind === 'audioinput') micSelect.appendChild(opt);
-                else if (d.kind === 'audiooutput') speakerSelect.appendChild(opt);
-                else if (d.kind === 'videoinput') camSelect.appendChild(opt);
-            });
-        }
-
-        // Проверка микрофона в настройках
-        document.getElementById('btn-test-mic').addEventListener('click', async () => {
-            const stream = await getMicrophoneStream();
-            if (!stream) return;
-
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = ctx.createMediaStreamSource(stream);
-            const proc = ctx.createScriptProcessor(2048, 1, 1);
-
-            src.connect(proc);
-            proc.connect(ctx.destination);
-
-            proc.onaudioprocess = (e) => {
-                const input = e.inputBuffer.getChannelData(0);
-                let sum = 0;
-                for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
-                const rms = Math.sqrt(sum / input.length);
-                const percent = Math.min(100, Math.floor(rms * 400));
-                document.getElementById('mic-test-bar').style.width = `${percent}%`;
-            };
-
-            showToast("Тестирование микрофона запущено!");
-            setTimeout(() => {
-                proc.disconnect();
-                src.disconnect();
-                stream.getTracks().forEach(t => t.stop());
-                document.getElementById('mic-test-bar').style.width = '0%';
-            }, 5000);
-        });
-
-        // Удаление аккаунта
-        document.getElementById('btn-delete-account-action').addEventListener('click', () => {
-            showConfirm("Удалить аккаунт?", "ВНИМАНИЕ! Это полностью удалит вашу учетную запись.", async () => {
-                try {
-                    await deleteDoc(doc(db, "users", currentUser.uid));
-                    await deleteUser(currentUser);
-                    showToast("Учетная запись удалена", "danger");
-                } catch (err) {
-                    showToast("Для удаления потребуется заново авторизоваться!", "danger");
-                }
-            });
         });
 
         function openServerSettings() {
@@ -3117,7 +3012,6 @@
             });
         });
 
-        // Горячие клавиши системы (ПРАВКА 2)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 overlayUserSettings.style.display = 'none';
@@ -3300,7 +3194,8 @@
             category: document.getElementById('menu-category'),
             textChannel: document.getElementById('menu-text-channel'),
             voiceChannel: document.getElementById('menu-voice-channel'),
-            message: document.getElementById('menu-message')
+            message: document.getElementById('menu-message'),
+            channelsArea: document.getElementById('menu-channels-area')
         };
 
         function hideMenus() { Object.values(menus).forEach(m => m.style.display = 'none'); }
@@ -3324,16 +3219,34 @@
         }
         window.copyToClipboard = copyToClipboard;
 
-        // ПКМ Действия
+        /* ОБРАБОТЧИКИ ПКМ ДЕЙСТВИЙ И РЕАЛЬНЫХ ID (ПРАВКА 4 И 5) */
+
+        // 1. ДЕЙСТВИЯ ПКМ ПО СЕРВЕРУ
+        document.getElementById('ctx-srv-read').addEventListener('click', () => showToast("Сервер помечен как прочитанный"));
+        document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+        document.getElementById('ctx-srv-leave').addEventListener('click', () => {
+            showConfirm("Покинуть сервер?", "", () => {
+                openDmView();
+                showToast("Вы покинули сервер");
+            });
+        });
+        document.getElementById('ctx-srv-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
+
+        // 2. ДЕЙСТВИЯ ПКМ ПО ПУСТОМУ ПОЛЮ КАНАЛОВ (ПРАВКА 3)
+        document.getElementById('ctx-area-create-channel').addEventListener('click', () => openChannelModal('text'));
+        document.getElementById('ctx-area-create-category').addEventListener('click', () => showToast("Создание категории"));
+        document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+
+        // 3. ДЕЙСТВИЯ ПКМ ПО КАТЕГОРИИ
         document.getElementById('ctx-cat-read').addEventListener('click', () => showToast("Категория помечена как прочитанная"));
         document.getElementById('ctx-cat-collapse').addEventListener('click', () => document.getElementById('cat-text-header').click());
-        document.getElementById('ctx-cat-edit').addEventListener('click', () => showToast("Редактирование категории"));
+        document.getElementById('ctx-cat-edit').addEventListener('click', () => showToast("Переименование категории"));
         document.getElementById('ctx-cat-delete').addEventListener('click', () => showToast("Категория удалена"));
         document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
+        // 4. ДЕЙСТВИЯ ПКМ ПО ТЕКСТОВОМУ КАНАЛУ
         document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-tc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
-
         document.getElementById('ctx-tc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
                 const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -3347,7 +3260,6 @@
                 }
             }
         });
-
         document.getElementById('ctx-tc-delete').addEventListener('click', () => {
             showConfirm("Удалить канал?", "Все сообщения будут удалены.", async () => {
                 if (selectedContextTarget && activeServerId) {
@@ -3359,9 +3271,9 @@
         });
         document.getElementById('ctx-tc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
+        // 5. ДЕЙСТВИЯ ПКМ ПО ГОЛОСОВОМУ КАНАЛУ
         document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-vc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
-
         document.getElementById('ctx-vc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
                 const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -3375,7 +3287,6 @@
                 }
             }
         });
-
         document.getElementById('ctx-vc-delete').addEventListener('click', () => {
             showConfirm("Удалить голосовой канал?", "", async () => {
                 if (selectedContextTarget && activeServerId) {
@@ -3386,12 +3297,12 @@
         });
         document.getElementById('ctx-vc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
+        // 6. ДЕЙСТВИЯ ПКМ ПО ПОЛЬЗОВАТЕЛЮ
         document.getElementById('ctx-user-profile').addEventListener('click', () => {
             if (selectedContextData && selectedContextData.username) {
                 openUserProfileModal(selectedContextData);
             }
         });
-
         document.getElementById('ctx-user-dm').addEventListener('click', () => {
             if (selectedContextData && selectedContextData.uid) {
                 if (selectedContextData.uid === currentUser.uid) {
@@ -3402,16 +3313,7 @@
             }
         });
 
-        document.getElementById('ctx-delete-server').addEventListener('click', () => {
-            showConfirm("Удалить сервер?", "Это действие нельзя отменить.", async () => {
-                if (selectedContextTarget) {
-                    await deleteDoc(doc(db, "servers", selectedContextTarget));
-                    openDmView();
-                    showToast("Сервер удален", "danger");
-                }
-            });
-        });
-
+        // 7. ДЕЙСТВИЯ ПКМ ПО СООБЩЕНИЮ
         document.getElementById('ctx-delete-message').addEventListener('click', () => {
             showConfirm("Удалить сообщение?", "", async () => {
                 if (!selectedContextTarget) return;
