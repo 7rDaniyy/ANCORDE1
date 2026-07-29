@@ -13,17 +13,18 @@
 
     <style>
         /* ==========================================================================
-        1. СТИЛИ И ТЕМАТИЗАЦИЯ
-        ========================================================================== */
+           1. СТИЛИ И ТЕМАТИЗАЦИЯ
+           ========================================================================== */
         :root {
             --bg-servers: #1e1f22;
             --bg-channels: #2b2d31;
             --bg-chat: #313338;
             --bg-user-bar: #232428;
+            --bg-voice-bar: #1e1f22;
             --bg-card: #111214;
             --bg-hover: #35373c;
             --bg-active: #404249;
-            --bg-input: #383a40;
+            --bg-input: #1e1f22;
             --bg-settings: #313338;
             --bg-settings-sidebar: #2b2d31;
             --text-main: #f2f3f5;
@@ -34,6 +35,7 @@
             --danger: #da373c;
             --success: #23a55a;
             --warning: #f0b232;
+            --crown: #f0b232;
             --shadow: rgba(0, 0, 0, 0.4);
         }
 
@@ -42,6 +44,7 @@
             --bg-channels: #f2f3f5;
             --bg-chat: #ffffff;
             --bg-user-bar: #ebedef;
+            --bg-voice-bar: #e3e5e8;
             --bg-card: #e3e5e8;
             --bg-hover: #e0e2e5;
             --bg-active: #d7d9dc;
@@ -53,6 +56,25 @@
             --border-color: #d0d2d6;
             --shadow: rgba(0, 0, 0, 0.1);
         }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a1b1e;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #111214;
+            }
 
         * {
             box-sizing: border-box;
@@ -70,7 +92,6 @@
             color: var(--text-main);
         }
 
-        /* ЭКРАН АВТОРИЗАЦИИ И 2FA */
         #auth-screen {
             position: fixed;
             inset: 0;
@@ -133,7 +154,7 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 16px;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
@@ -142,10 +163,19 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-size: 14px;
         }
 
             .btn:hover {
                 background: var(--accent-hover);
+            }
+
+        .btn-secondary {
+            background: #4e5058;
+        }
+
+            .btn-secondary:hover {
+                background: #6d6f78;
             }
 
         .btn-danger {
@@ -176,7 +206,6 @@
                 text-decoration: underline;
             }
 
-        /* ОСНОВНОЕ ПРИЛОЖЕНИЕ */
         #app-container {
             display: none;
             height: 100vh;
@@ -184,7 +213,6 @@
             flex-direction: row;
         }
 
-        /* Серверы */
         .servers-bar {
             width: 72px;
             background: var(--bg-servers);
@@ -194,6 +222,7 @@
             padding: 12px 0;
             gap: 8px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .server-icon {
@@ -209,6 +238,7 @@
             color: var(--text-main);
             font-weight: bold;
             position: relative;
+            flex-shrink: 0;
         }
 
             .server-icon:hover, .server-icon.active {
@@ -217,7 +247,6 @@
                 color: white;
             }
 
-        /* Каналы */
         .channels-bar {
             width: 240px;
             background: var(--bg-channels);
@@ -298,7 +327,6 @@
                 color: var(--text-main);
             }
 
-        /* Список участников ВНУТРИ голосового канала */
         .voice-channel-users {
             display: flex;
             flex-direction: column;
@@ -346,10 +374,10 @@
             background-position: center;
         }
 
-        .speaking {
-            border-color: var(--success) !important;
-            box-shadow: 0 0 0 2px var(--success) !important;
-        }
+            .voice-user-avatar.speaking {
+                border-color: var(--success) !important;
+                box-shadow: 0 0 0 2px var(--success) !important;
+            }
 
         .voice-user-icons {
             display: flex;
@@ -359,9 +387,21 @@
             color: var(--danger);
         }
 
-        /* ПАНЕЛЬ ГОЛОСОВОГО ПОДКЛЮЧЕНИЯ НАД ПРОФИЛЕМ */
+        .badge-live {
+            background: var(--danger);
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            order: 99;
+            margin-left: auto;
+        }
+
         .voice-connected-bar {
-            background: #111214;
+            background: var(--bg-voice-bar);
             padding: 10px 12px;
             display: none;
             flex-direction: column;
@@ -410,7 +450,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            cursor: pointer;
+            transition: color 0.15s;
         }
+
+            .voice-channel-title:hover {
+                color: #ffffff;
+                text-decoration: underline;
+            }
 
         .voice-actions {
             display: flex;
@@ -447,7 +494,6 @@
                 color: white;
             }
 
-        /* Профиль пользователя снизу */
         .user-bar {
             height: 52px;
             background: var(--bg-user-bar);
@@ -549,7 +595,6 @@
                 color: var(--danger);
             }
 
-        /* Чат и Область Голосовой Сцены */
         .chat-area {
             flex: 1;
             background: var(--bg-chat);
@@ -582,43 +627,39 @@
             gap: 8px;
         }
 
-        /* ==========================================================================
-           ГОЛОСОВАЯ СЦЕНА (VOICE STAGE VIEW)
-           ========================================================================== */
         .voice-stage-container {
             position: absolute;
             inset: 48px 0 0 0;
-            background: #0b0c0e;
+            background: #000000;
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 24px;
+            justify-content: space-between;
+            padding: 20px 24px;
             z-index: 20;
         }
 
         .voice-stage-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
             gap: 16px;
             width: 100%;
-            max-width: 1200px;
-            max-height: calc(100% - 70px);
+            max-width: 1100px;
+            flex: 1;
             overflow-y: auto;
             align-content: center;
             justify-items: center;
-            padding-bottom: 20px;
         }
 
         .voice-stage-card {
             width: 100%;
-            max-width: 540px;
             aspect-ratio: 16 / 9;
             border-radius: 12px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #e5e5e5;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
@@ -627,18 +668,14 @@
 
             .voice-stage-card.speaking {
                 border-color: var(--success) !important;
-                box-shadow: 0 0 16px rgba(35, 165, 90, 0.6) !important;
-            }
-
-            .voice-stage-card:hover {
-                transform: translateY(-2px);
+                box-shadow: 0 0 16px rgba(35, 165, 90, 0.7) !important;
             }
 
         .voice-stage-avatar {
-            width: 90px;
-            height: 90px;
+            width: 96px;
+            height: 96px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: #2b2d31;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -646,11 +683,10 @@
             font-weight: bold;
             color: white;
             box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            backdrop-filter: blur(8px);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            border: 3px solid transparent;
             background-size: cover;
             background-position: center;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         .voice-stage-card video {
@@ -664,10 +700,10 @@
 
         .voice-stage-badge {
             position: absolute;
-            bottom: 12px;
-            left: 12px;
+            bottom: 16px;
+            left: 16px;
             background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(6px);
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
@@ -680,20 +716,29 @@
         }
 
         .voice-stage-card.invite-card {
-            background: linear-gradient(135deg, #1e1b2e 0%, #111214 100%);
-            border: 2px dashed rgba(255, 255, 255, 0.1);
+            background: radial-gradient(circle, #2b1736 0%, #110c1d 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             flex-direction: column;
             gap: 16px;
+            height: auto;
+            min-height: 220px;
+            aspect-ratio: auto;
+        }
+
+        .invite-card-actions {
+            display: flex;
+            gap: 12px;
+            z-index: 2;
         }
 
         .invite-card-btn {
-            background: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -702,17 +747,12 @@
         }
 
             .invite-card-btn:hover {
-                background: var(--accent-hover);
-                transform: scale(1.02);
+                background: rgba(255, 255, 255, 0.15);
             }
 
         .voice-stage-controls {
-            position: absolute;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
             background: #111214;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -720,6 +760,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
             border: 1px solid var(--border-color);
             z-index: 30;
+            margin-top: 10px;
         }
 
         .stage-btn {
@@ -751,7 +792,6 @@
                 color: white;
             }
 
-        /* Обычный чат */
         .messages-container {
             flex: 1;
             padding: 16px;
@@ -816,6 +856,46 @@
             margin-top: 8px;
         }
 
+        .server-invite-embed {
+            background: #2b2d31;
+            border-radius: 12px;
+            padding: 16px;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .server-invite-banner {
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            background-color: var(--accent);
+        }
+
+        .server-invite-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .server-invite-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--bg-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            border: 2px solid var(--border-color);
+        }
+
         .chat-input-area {
             padding: 0 16px 24px 16px;
             display: flex;
@@ -856,7 +936,6 @@
                 background: var(--bg-hover);
             }
 
-        /* Список участников */
         .members-bar {
             width: 240px;
             background: var(--bg-channels);
@@ -885,38 +964,228 @@
             font-weight: normal;
         }
 
-        /* СТРИМИНГ ПРЕДПРОСМОТР МИНИ-ОКНО */
-        .stream-preview-popover {
-            position: absolute;
-            right: 250px;
-            top: 60px;
-            width: 280px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
-            box-shadow: 0 12px 24px var(--shadow);
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 100;
+        .owner-crown {
+            color: var(--crown);
+            font-size: 12px;
+            margin-left: auto;
         }
 
-            .stream-preview-popover img {
-                width: 100%;
-                height: 150px;
-                object-fit: cover;
-                border-radius: 6px;
-                background: #000;
+        /* ==========================================================================
+           ПРАВКА 3: РЕФЕРЕНС ПРЕДПРОСМОТРА СЕРВЕРА (IMAGE_7E08A1.PNG)
+           ========================================================================== */
+        .server-preview-card-wrapper {
+            width: 300px;
+            background: #2b2d31;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .server-preview-card-banner {
+            height: 90px;
+            background-size: cover;
+            background-position: center;
+            background-color: #1e1f22;
+            position: relative;
+            background-image: linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+        }
+
+        .server-preview-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            background: #1e1f22;
+            border: 4px solid #2b2d31;
+            position: absolute;
+            bottom: -22px;
+            left: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .server-preview-card-body {
+            padding: 28px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .server-preview-card-title {
+            font-weight: bold;
+            font-size: 17px;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .server-preview-card-stats {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+            .server-preview-card-stats span.online-dot {
+                color: var(--success);
+                font-weight: bold;
             }
 
-            .stream-preview-popover .title {
-                font-size: 12px;
+            .server-preview-card-stats span.offline-dot {
+                color: var(--text-muted);
                 font-weight: bold;
+            }
+
+        .server-preview-card-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ==========================================================================
+           ПРАВКА 1: ВКЛАДКИ РЕДАКТИРОВАНИЯ РОЛИ (IMAGE_7E5A23.PNG & IMAGE_7E5A1C.PNG)
+           ========================================================================== */
+        .role-tabs-header {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .role-tab-btn {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding-bottom: 6px;
+            position: relative;
+            transition: color 0.15s;
+        }
+
+            .role-tab-btn:hover {
                 color: var(--text-main);
             }
 
-        /* Контекстные меню */
+            .role-tab-btn.active {
+                color: var(--text-main);
+            }
+
+                .role-tab-btn.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -9px;
+                    left: 0;
+                    right: 0;
+                    height: 2px;
+                    background: var(--accent);
+                }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2b2d31;
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .role-member-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .stream-preview-popover {
+            position: fixed;
+            z-index: 25000;
+            width: 280px;
+            background: #2b2d31;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+            pointer-events: none;
+        }
+
+        .stream-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: bold;
+            color: #dbdee1;
+        }
+
+        .stream-preview-card {
+            background: #1e1f22;
+            border-radius: 8px;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            min-height: 140px;
+        }
+
+            .stream-preview-card img.stream-thumb {
+                width: 100%;
+                height: 130px;
+                object-fit: cover;
+                border-radius: 6px;
+            }
+
+            .stream-preview-card .stream-placeholder-svg {
+                font-size: 42px;
+                color: var(--accent);
+                opacity: 0.8;
+            }
+
+            .stream-preview-card .stream-text {
+                font-size: 13px;
+                font-weight: bold;
+                color: #f2f3f5;
+            }
+
+        .stream-preview-footer-btn {
+            background: #35373c;
+            color: #f2f3f5;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+
         .context-menu {
             position: fixed;
             background: var(--bg-card);
@@ -1001,9 +1270,6 @@
             gap: 2px;
         }
 
-        /* ==========================================================================
-           ПРАВКА 1: БЕЗ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ В НАСТРОЙКАХ
-           ========================================================================== */
         .settings-overlay {
             position: fixed;
             inset: 0;
@@ -1012,12 +1278,12 @@
             display: none;
             justify-content: center;
             align-items: stretch;
-            overflow-x: hidden; /* Без горизонтального скроллбара */
+            overflow-x: hidden;
         }
 
         .settings-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 900px;
             display: flex;
             flex-direction: row;
             position: relative;
@@ -1091,19 +1357,25 @@
             display: none;
             flex-direction: column;
             gap: 20px;
-            max-width: 100%;
+            width: 100%;
         }
 
             .settings-section.active {
                 display: flex;
             }
 
-            .settings-section h2 {
+        .settings-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+            .settings-header-row h2 {
                 font-size: 20px;
                 font-weight: bold;
                 color: var(--text-main);
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 10px;
             }
 
         .settings-group {
@@ -1130,60 +1402,144 @@
             font-size: 14px;
         }
 
-        /* Баннер профиля и редактирование */
-        .profile-card-preview {
+        .account-info-card {
+            background: #2b2d31;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .account-field-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .account-field-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .account-field-value {
+            color: var(--text-main);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .account-link-btn {
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+            .account-link-btn:hover {
+                text-decoration: underline;
+            }
+
+        .profile-card-full {
+            width: 100%;
             background: var(--bg-card);
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--border-color);
-            max-width: 320px;
+            margin-bottom: 12px;
         }
 
-        .profile-banner {
-            height: 100px;
+        .profile-banner-full {
+            height: 120px;
             background: var(--accent);
             transition: background 0.2s;
+            width: 100%;
         }
 
-        .profile-avatar-wrapper {
-            padding: 0 16px;
-            margin-top: -32px;
+        .profile-avatar-wrapper-full {
+            padding: 0 20px;
+            margin-top: -40px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
         }
 
-        .profile-preview-avatar {
-            width: 64px;
-            height: 64px;
+        .profile-preview-avatar-full {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: var(--accent);
-            border: 4px solid var(--bg-card);
+            border: 6px solid var(--bg-card);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             color: white;
             background-size: cover;
             background-position: center;
         }
 
-        /* Кнопка закрытия настроек (справа в углу без переполнения) */
-        .settings-close-btn {
+        .discord-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+            .discord-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .discord-slider {
             position: absolute;
-            top: 24px;
-            right: 24px;
+            cursor: pointer;
+            inset: 0;
+            background-color: #80848e;
+            transition: .2s;
+            border-radius: 20px;
+        }
+
+            .discord-slider:before {
+                position: absolute;
+                content: "";
+                height: 16px;
+                width: 16px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: .2s;
+                border-radius: 50%;
+            }
+
+        input:checked + .discord-slider {
+            background-color: var(--success);
+        }
+
+            input:checked + .discord-slider:before {
+                transform: translateX(18px);
+            }
+
+        .settings-close-btn-fixed {
+            position: fixed;
+            top: 60px;
+            left: calc(50% + 470px);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
             cursor: pointer;
             color: var(--text-muted);
-            z-index: 10;
+            z-index: 25000;
         }
 
-            .settings-close-btn:hover {
+            .settings-close-btn-fixed:hover {
                 color: var(--text-main);
             }
 
@@ -1198,7 +1554,7 @@
             font-size: 16px;
         }
 
-        .settings-close-btn:hover .settings-close-icon {
+        .settings-close-btn-fixed:hover .settings-close-icon {
             border-color: var(--text-main);
         }
 
@@ -1207,7 +1563,6 @@
             font-weight: bold;
         }
 
-        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -1323,7 +1678,7 @@
 </head>
 <body>
 
-    <!-- ЭКРАН АВТОРИЗАЦИИ И ДВУХФАКТОРКИ -->
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-screen">
         <div class="auth-card">
             <h2 id="auth-title">С возвращением!</h2>
@@ -1343,7 +1698,6 @@
                 </button>
             </div>
 
-            <!-- ВВОД 2FA КОДА -->
             <div id="auth-2fa-fields" style="display: none; flex-direction: column; gap: 12px;">
                 <p style="font-size: 13px; color: var(--text-muted); text-align: center;">
                     Включена двухфакторная аутентификация. Введите 6-значный код безопасности:
@@ -1361,19 +1715,17 @@
     <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
     <div id="app-container">
 
-        <!-- Панель серверов -->
         <div class="servers-bar" id="servers-bar">
             <div class="server-icon active" id="btn-dm-server" title="Личные сообщения">
                 <i class="fa-brands fa-discord"></i>
             </div>
             <div class="menu-separator" style="width: 32px;"></div>
-            <div id="dynamic-servers"></div>
+            <div id="dynamic-servers" style="display: flex; flex-direction: column; gap: 8px;"></div>
             <div class="server-icon" id="btn-add-server" style="color: var(--success);" title="Добавить сервер">
                 <i class="fa-solid fa-plus"></i>
             </div>
         </div>
 
-        <!-- Панель каналов -->
         <div class="channels-bar" id="channels-bar-container">
             <div class="server-header" id="server-header">
                 <span id="current-server-title">Личные сообщения</span>
@@ -1412,7 +1764,7 @@
                     </div>
                     <span class="voice-ping" id="voice-ping">18 ms</span>
                 </div>
-                <div class="voice-channel-title" id="voice-channel-name-display">Голосовой канал</div>
+                <div class="voice-channel-title" id="voice-channel-name-display" title="Перейти к голосовому каналу">Голосовой канал</div>
 
                 <div class="voice-actions">
                     <button class="voice-action-btn" id="btn-voice-camera" title="Камера">
@@ -1453,7 +1805,6 @@
             </div>
         </div>
 
-        <!-- Чат и Голосовая сцена -->
         <div class="chat-area">
             <div class="chat-header">
                 <div class="chat-header-left">
@@ -1468,8 +1819,17 @@
             </div>
 
             <div class="stream-preview-popover" id="stream-preview-popover">
-                <div class="title"><i class="fa-solid fa-desktop"></i> Прямой эфир</div>
-                <img id="stream-preview-img" src="" alt="Предпросмотр трансляции">
+                <div class="stream-preview-header">
+                    <span>Сейчас стримит</span>
+                    <span class="badge-live">В ЭФИРЕ</span>
+                </div>
+                <div class="stream-preview-card" id="stream-preview-card-body">
+                    <i class="fa-solid fa-desktop stream-placeholder-svg"></i>
+                    <div class="stream-text">Стрим начался. Не пропустите его!</div>
+                </div>
+                <button class="stream-preview-footer-btn">
+                    <i class="fa-solid fa-desktop"></i> Вы стримите!
+                </button>
             </div>
 
             <div class="voice-stage-container" id="voice-stage-container">
@@ -1506,8 +1866,12 @@
 
     <!-- ЦЕНТРИРОВАННОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ -->
     <div class="settings-overlay" id="overlay-user-settings">
-        <div class="settings-container">
+        <div class="settings-close-btn-fixed" id="btn-close-user-settings">
+            <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
+            <span class="settings-close-text">ESC</span>
+        </div>
 
+        <div class="settings-container">
             <div class="settings-sidebar">
                 <div class="settings-sidebar-nav">
                     <div class="settings-nav-header">Настройки пользователя</div>
@@ -1515,6 +1879,7 @@
                     <div class="settings-nav-item" data-tab="u-account"><i class="fa-solid fa-id-card"></i> Учетная запись</div>
                     <div class="settings-nav-item" data-tab="u-voice"><i class="fa-solid fa-microphone"></i> Голос и видео</div>
                     <div class="settings-nav-item" data-tab="u-stream"><i class="fa-solid fa-tv"></i> Стриминг</div>
+                    <div class="settings-nav-item" data-tab="u-appearance"><i class="fa-solid fa-palette"></i> Внешний вид</div>
                     <div class="settings-nav-item" data-tab="u-system"><i class="fa-solid fa-keyboard"></i> Система</div>
                     <div class="menu-separator"></div>
                     <div class="settings-nav-item danger" id="btn-settings-logout"><i class="fa-solid fa-right-from-bracket"></i> Выйти</div>
@@ -1522,76 +1887,98 @@
             </div>
 
             <div class="settings-content">
-                <div class="settings-close-btn" id="btn-close-user-settings">
-                    <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
-                    <span class="settings-close-text">ESC</span>
-                </div>
-
-                <!-- ВКЛАДКА: ПРОФИЛЬ -->
                 <div class="settings-section active" id="tab-u-profile">
-                    <h2>Профиль пользователя</h2>
+                    <div class="settings-header-row">
+                        <h2>Профиль пользователя</h2>
+                    </div>
 
-                    <div style="display: flex; gap: 24px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 16px;">
-                            <div class="settings-group">
-                                <label>Отображаемое имя</label>
-                                <input type="text" class="settings-input" id="set-username-input">
-                            </div>
+                    <div class="profile-card-full">
+                        <div class="profile-banner-full" id="preview-banner"></div>
+                        <div class="profile-avatar-wrapper-full">
+                            <div class="profile-preview-avatar-full" id="preview-avatar">U</div>
+                        </div>
+                        <div style="padding: 16px 20px;">
+                            <div id="preview-username" style="font-weight: bold; font-size: 20px;">User</div>
+                            <div id="preview-tag" style="color: var(--text-muted); font-size: 13px;">#0000</div>
+                        </div>
+                    </div>
 
-                            <div class="settings-group">
-                                <label>Аватарка (URL картинки)</label>
-                                <input type="text" class="settings-input" id="set-avatar-input" placeholder="https://domain.com/avatar.png">
-                            </div>
-
-                            <div class="settings-group">
-                                <label>Цвет баннера профиля</label>
-                                <input type="color" id="set-banner-color-input" value="#5865f2" style="width: 100%; height: 40px; cursor: pointer; border: none; border-radius: 4px;">
-                            </div>
-
-                            <button class="btn" id="btn-save-user-profile" style="width: 160px;">Сохранить</button>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div class="settings-group">
+                            <label>Отображаемое имя</label>
+                            <input type="text" class="settings-input" id="set-username-input">
                         </div>
 
-                        <!-- ПРЕВЬЮ ПРОФИЛЯ -->
-                        <div class="profile-card-preview">
-                            <div class="profile-banner" id="preview-banner"></div>
-                            <div class="profile-avatar-wrapper">
-                                <div class="profile-preview-avatar" id="preview-avatar">U</div>
-                            </div>
-                            <div style="padding: 16px;">
-                                <div id="preview-username" style="font-weight: bold; font-size: 18px;">User</div>
-                                <div id="preview-tag" style="color: var(--text-muted); font-size: 12px;">#0000</div>
-                            </div>
+                        <div class="settings-group">
+                            <label>Аватарка (URL картинки)</label>
+                            <input type="text" class="settings-input" id="set-avatar-input" placeholder="https://domain.com/avatar.png">
                         </div>
+
+                        <div class="settings-group">
+                            <label>Цвет баннера профиля</label>
+                            <input type="color" id="set-banner-color-input" value="#5865f2" style="width: 100%; height: 40px; cursor: pointer; border: none; border-radius: 4px;">
+                        </div>
+
+                        <button class="btn" id="btn-save-user-profile" style="width: 160px; margin-top: 8px;">Сохранить</button>
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: УЧЕТНАЯ ЗАПИСЬ -->
                 <div class="settings-section" id="tab-u-account">
-                    <h2>Моя учетная запись</h2>
-
-                    <div class="settings-group">
-                        <label>Email адрес</label>
-                        <input type="text" class="settings-input" id="set-account-email" disabled>
+                    <div class="settings-header-row">
+                        <h2>Информация об учётной записи</h2>
                     </div>
 
-                    <div class="settings-group">
-                        <label>Номер телефона</label>
-                        <input type="text" class="settings-input" id="set-account-phone" placeholder="+7 (999) 000-00-00">
-                    </div>
-
-                    <div class="menu-separator"></div>
-
-                    <h2>Пароль и безопасность</h2>
-                    <div style="display: flex; gap: 12px;">
-                        <button class="btn" id="btn-change-password-action">Сменить пароль через Email</button>
-                    </div>
-
-                    <div class="settings-group" style="margin-top: 16px;">
-                        <label>Двухфакторная аутентификация (2FA)</label>
-                        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px; border-radius: 6px;">
+                    <div class="account-info-card">
+                        <div class="account-field-row">
                             <div>
-                                <div style="font-weight: bold; font-size: 14px;">Защита входа 2FA</div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Требовать код подтверждения при каждом входе с нового устройства.</div>
+                                <div class="account-field-label">Имя пользователя</div>
+                                <div class="account-field-value" id="acc-display-username">User</div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-edit-username-trigger">Изменить</button>
+                        </div>
+
+                        <div class="account-field-row">
+                            <div>
+                                <div class="account-field-label">Электронная почта</div>
+                                <div class="account-field-value">
+                                    <span id="acc-display-email-masked">**************@gmail.com</span>
+                                    <span class="account-link-btn" id="btn-toggle-show-email">Показать</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-edit-email-trigger">Изменить</button>
+                        </div>
+
+                        <div class="account-field-row">
+                            <div>
+                                <div class="account-field-label">Номер телефона</div>
+                                <div class="account-field-value">
+                                    <span id="acc-display-phone-masked">********7289</span>
+                                    <span class="account-link-btn" id="btn-toggle-show-phone">Показать</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-edit-phone-trigger">Изменить</button>
+                        </div>
+                    </div>
+
+                    <div class="menu-separator" style="margin: 20px 0;"></div>
+
+                    <div class="settings-header-row">
+                        <h2>Пароль и безопасность</h2>
+                    </div>
+
+                    <div class="account-info-card">
+                        <div class="account-field-row">
+                            <div>
+                                <div class="account-field-label">Пароль</div>
+                                <div class="account-field-value">••••••••••••</div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-change-password-action">Изменить</button>
+                        </div>
+
+                        <div class="account-field-row">
+                            <div>
+                                <div style="font-weight: bold; font-size: 14px;">Двухфакторная аутентификация</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Защитите ваш аккаунт дополнительным кодом.</div>
                             </div>
                             <input type="checkbox" id="set-2fa-toggle" style="width: 20px; height: 20px; cursor: pointer;">
                         </div>
@@ -1606,32 +1993,100 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: ГОЛОС И ВИДЕО -->
                 <div class="settings-section" id="tab-u-voice">
-                    <h2>Голос и видео</h2>
-
-                    <div class="settings-group">
-                        <label>Устройство ввода (Микрофон)</label>
-                        <select class="settings-select" id="set-voice-mic-select"></select>
+                    <div class="settings-header-row">
+                        <h2>Голос</h2>
                     </div>
 
-                    <div class="settings-group">
-                        <label>Устройство вывода (Динамики)</label>
-                        <select class="settings-select" id="set-voice-speaker-select"></select>
+                    <div style="display: flex; gap: 16px;">
+                        <div class="settings-group" style="flex: 1;">
+                            <label>Микрофон</label>
+                            <select class="settings-select" id="set-voice-mic-select"></select>
+                        </div>
+
+                        <div class="settings-group" style="flex: 1;">
+                            <label>Динамик</label>
+                            <select class="settings-select" id="set-voice-speaker-select"></select>
+                        </div>
                     </div>
 
-                    <div class="settings-group">
-                        <label>Громкость микрофона</label>
-                        <input type="range" id="set-mic-volume" min="0" max="100" value="80">
+                    <div style="display: flex; gap: 16px;">
+                        <div class="settings-group" style="flex: 1;">
+                            <label>Громкость микрофона</label>
+                            <input type="range" id="set-mic-volume" min="0" max="100" value="80" style="width: 100%;">
+                        </div>
+
+                        <div class="settings-group" style="flex: 1;">
+                            <label>Громкость динамика</label>
+                            <input type="range" id="set-speaker-volume" min="0" max="100" value="80" style="width: 100%;">
+                        </div>
                     </div>
 
-                    <!-- ТЕСТЕР МИКРОФОНА -->
                     <div class="settings-group" style="background: var(--bg-card); padding: 16px; border-radius: 6px;">
                         <label>Проверка микрофона</label>
                         <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
-                            <button class="btn" id="btn-test-mic">Проверить</button>
+                            <button class="btn" id="btn-test-mic">Проверка микрофона</button>
                             <div style="flex: 1; height: 12px; background: var(--bg-input); border-radius: 6px; overflow: hidden;">
                                 <div id="mic-test-bar" style="width: 0%; height: 100%; background: var(--success); transition: width 0.1s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 14px;">Автоматически определять чувствительность ввода</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Контролирует чувствительность к звукам вашего микрофона.</div>
+                            </div>
+                            <label class="discord-switch">
+                                <input type="checkbox" id="set-auto-sensitivity-switch" checked>
+                                <span class="discord-slider"></span>
+                            </label>
+                        </div>
+                        <input type="range" id="set-mic-sensitivity" min="1" max="100" value="20" style="width: 100%; margin-top: 8px;">
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px; border-radius: 6px;">
+                        <div>
+                            <div style="font-weight: bold; font-size: 14px;">Шумоподавление</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Уменьшает фоновый шум микрофона. Предоставляется Krisp.</div>
+                            <div style="font-size: 18px; font-weight: 800; color: white; margin-top: 4px;">krisp</div>
+                        </div>
+                        <select class="settings-select" id="set-noise-krisp-select" style="width: 140px;">
+                            <option value="krisp">Krisp</option>
+                            <option value="standard">Стандартное</option>
+                            <option value="none">Пусто</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px; border-radius: 6px;">
+                        <span style="font-weight: bold; font-size: 14px;">Эхоподавление</span>
+                        <label class="discord-switch">
+                            <input type="checkbox" id="set-echo-cancellation" checked>
+                            <span class="discord-slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: bold; font-size: 14px;">Режим рации</span>
+                            <label class="discord-switch">
+                                <input type="checkbox" id="set-push-to-talk-switch">
+                                <span class="discord-slider"></span>
+                            </label>
+                        </div>
+
+                        <div id="push-to-talk-panel" style="display: none; flex-direction: column; gap: 12px;">
+                            <div class="settings-group">
+                                <label>Горячая клавиша для режима рации</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" class="settings-input" id="set-ptt-key-input" value="Не назначено" readonly style="flex: 1;">
+                                    <button class="btn btn-secondary" id="btn-assign-ptt-key">Установить г...</button>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <label>Задержка отключения в режиме рации</label>
+                                <input type="range" id="set-ptt-delay" min="0" max="2000" value="200" style="width: 100%;">
                             </div>
                         </div>
                     </div>
@@ -1642,9 +2097,10 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: СТРИМИНГ -->
                 <div class="settings-section" id="tab-u-stream">
-                    <h2>Параметры стриминга</h2>
+                    <div class="settings-header-row">
+                        <h2>Параметры стриминга</h2>
+                    </div>
 
                     <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px; border-radius: 6px;">
                         <div>
@@ -1655,9 +2111,24 @@
                     </div>
                 </div>
 
-                <!-- ВКЛАДКА: СИСТЕМА И ГОРЯЧИЕ КЛАВИШИ -->
+                <div class="settings-section" id="tab-u-appearance">
+                    <div class="settings-header-row">
+                        <h2>Внешний вид</h2>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>Тема оформления</label>
+                        <div style="display: flex; gap: 16px; margin-top: 8px;">
+                            <button class="btn" id="btn-set-dark-theme" style="background: #1e1f22;">Темная</button>
+                            <button class="btn" id="btn-set-light-theme" style="background: #e3e5e8; color: #000;">Светлая</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="settings-section" id="tab-u-system">
-                    <h2>Горячие клавиши</h2>
+                    <div class="settings-header-row">
+                        <h2>Горячие клавиши</h2>
+                    </div>
 
                     <div class="settings-group">
                         <label>Заглушить микрофон (Mute)</label>
@@ -1681,60 +2152,268 @@
 
     <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК СЕРВЕРА -->
     <div class="settings-overlay" id="overlay-server-settings">
+        <div class="settings-close-btn-fixed" id="btn-close-server-settings">
+            <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
+            <span class="settings-close-text">ESC</span>
+        </div>
         <div class="settings-container">
             <div class="settings-sidebar">
                 <div class="settings-sidebar-nav">
                     <div class="settings-nav-header" id="server-settings-title-nav">Сервер</div>
-                    <div class="settings-nav-item active" data-tab="s-overview"><i class="fa-solid fa-circle-info"></i> Обзор</div>
+                    <div class="settings-nav-item active" data-tab="s-overview"><i class="fa-solid fa-circle-info"></i> Обзор / Профиль</div>
+                    <div class="settings-nav-item" data-tab="s-roles"><i class="fa-solid fa-user-shield"></i> Роли</div>
                     <div class="menu-separator"></div>
                     <div class="settings-nav-item danger" id="btn-settings-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
                 </div>
             </div>
             <div class="settings-content">
-                <div class="settings-close-btn" id="btn-close-server-settings">
-                    <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
-                    <span class="settings-close-text">ESC</span>
-                </div>
-
+                <!-- ПРАВКА 3: ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР СЕРВЕРА (ОБЗОР) -->
                 <div class="settings-section active" id="tab-s-overview">
-                    <h2>Обзор сервера</h2>
+                    <div class="settings-header-row">
+                        <h2>Профиль сервера</h2>
+                    </div>
+
+                    <!-- Карточка предпросмотра -->
+                    <div>
+                        <div style="font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+                            Предварительный просмотр
+                        </div>
+                        <div class="server-preview-card-wrapper">
+                            <div class="server-preview-card-banner" id="preview-card-banner">
+                                <div class="server-preview-card-icon" id="preview-card-icon">DS</div>
+                            </div>
+                            <div class="server-preview-card-body">
+                                <div class="server-preview-card-title" id="preview-card-title">DustyGames12's Server</div>
+                                <div class="server-preview-card-stats">
+                                    <span><span class="online-dot">●</span> <span id="preview-card-online">1</span> в сети</span>
+                                    <span><span class="offline-dot">●</span> <span id="preview-card-members">1</span> участник</span>
+                                </div>
+                                <div class="server-preview-card-date" id="preview-card-date">Дата основания: май 2020 г.</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="settings-group">
                         <label>Название сервера</label>
                         <input type="text" class="settings-input" id="set-servername-input">
                     </div>
+                    <div class="settings-group">
+                        <label>Баннер сервера (URL картинки)</label>
+                        <input type="text" class="settings-input" id="set-serverbanner-input" placeholder="https://domain.com/banner.png">
+                    </div>
+                    <div class="settings-group">
+                        <label>Описание сервера</label>
+                        <input type="text" class="settings-input" id="set-serverdesc-input" placeholder="Описание для пригласительной карточки">
+                    </div>
                     <button class="btn" id="btn-save-server-overview" style="width: 160px;">Сохранить</button>
+                </div>
+
+                <!-- ПРАВКА 1: ДОРАБОТАННАЯ ВКЛАДКА РОЛЕЙ СЕРВЕРА -->
+                <div class="settings-section" id="tab-s-roles">
+                    <div class="settings-header-row">
+                        <h2>Управление ролями</h2>
+                        <button class="btn" id="btn-add-new-role"><i class="fa-solid fa-plus"></i> Создать роль</button>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; height: 460px;">
+                        <div style="width: 200px; background: var(--bg-card); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px;" id="server-roles-list"></div>
+
+                        <div style="flex: 1; background: var(--bg-card); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;" id="role-edit-panel">
+                            <div style="font-weight: bold; font-size: 15px; text-transform: uppercase; margin-bottom: 12px;" id="role-edit-title">РЕДАКТИРОВАТЬ РОЛЬ</div>
+
+                            <!-- Навигационные вкладки внутри роли -->
+                            <div class="role-tabs-header">
+                                <div class="role-tab-btn active" data-roletab="display">Элементы отображения</div>
+                                <div class="role-tab-btn" data-roletab="perms">Права доступа</div>
+                                <div class="role-tab-btn" data-roletab="members" id="role-tab-members-title">Управлять участниками (0)</div>
+                            </div>
+
+                            <!-- Содержимое: Элементы отображения -->
+                            <div class="role-tab-content active" id="roletab-display" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="settings-group">
+                                    <label>Название роли *</label>
+                                    <input type="text" class="settings-input" id="set-role-name-input">
+                                </div>
+                            </div>
+
+                            <!-- Содержимое: Права доступа -->
+                            <div class="role-tab-content" id="roletab-perms" style="display: none; flex-direction: column; gap: 16px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-channels); padding: 12px; border-radius: 6px;">
+                                    <div>
+                                        <div style="font-weight: bold; font-size: 14px;">Администратор</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);">Участники с этим правом имеют доступ ко всем настройкам этого сервера.</div>
+                                    </div>
+                                    <label class="discord-switch">
+                                        <input type="checkbox" id="set-role-admin-switch">
+                                        <span class="discord-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Содержимое: Управлять участниками -->
+                            <div class="role-tab-content" id="roletab-members" style="display: none; flex-direction: column; gap: 12px; flex: 1;">
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" class="settings-input" id="input-search-assigned-members" placeholder="Поиск участников" style="flex: 1;">
+                                    <button class="btn" id="btn-open-add-role-members" style="white-space: nowrap;">Добавить участников</button>
+                                </div>
+
+                                <div id="role-assigned-members-list" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 250px; margin-top: 8px;"></div>
+                            </div>
+
+                            <button class="btn" id="btn-save-role-settings" style="width: 160px; margin-top: auto;">Сохранить роль</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ВСЕ ПОЛНОЦЕННЫЕ ПКМ КОНТЕКСТНЫЕ МЕНЮ (ПРАВКА 3, 4, 5) -->
-    <!-- 1. Меню при клике ПКМ на Сервер -->
-    <div class="context-menu" id="menu-server-item">
-        <div class="menu-item" id="ctx-srv-read"><i class="fa-solid fa-check-double"></i> Пометить как прочитанное</div>
-        <div class="menu-item" id="ctx-srv-invite"><i class="fa-solid fa-user-plus"></i> Пригласить людей</div>
-        <div class="menu-item has-submenu">
-            <i class="fa-solid fa-bell-slash"></i>
-            <span style="flex: 1;">Заглушить сервер</span>
-            <i class="fa-solid fa-chevron-right"></i>
-            <div class="submenu">
-                <div class="menu-item" onclick="showToast('Сервер заглушен на 15 минут')">На 15 минут</div>
-                <div class="menu-item" onclick="showToast('Сервер заглушен на 1 час')">На 1 час</div>
-                <div class="menu-item" onclick="showToast('Сервер заглушен на 3 часа')">На 3 часа</div>
-                <div class="menu-item" onclick="showToast('Сервер заглушен на 8 часов')">На 8 часов</div>
-                <div class="menu-item" onclick="showToast('Сервер заглушен на 24 часа')">На 24 часа</div>
-                <div class="menu-item" onclick="showToast('Сервер заглушен до включения')">До включения</div>
+    <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА -->
+    <div class="settings-overlay" id="overlay-channel-settings">
+        <div class="settings-close-btn-fixed" id="btn-close-channel-settings">
+            <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
+            <span class="settings-close-text">ESC</span>
+        </div>
+        <div class="settings-container">
+            <div class="settings-sidebar">
+                <div class="settings-sidebar-nav">
+                    <div class="settings-nav-header" id="channel-settings-title-nav">Канал</div>
+                    <div class="settings-nav-item active" data-tab="c-overview"><i class="fa-solid fa-eye"></i> Обзор</div>
+                    <div class="settings-nav-item" data-tab="c-permissions"><i class="fa-solid fa-lock"></i> Права доступа</div>
+                    <div class="menu-separator"></div>
+                    <div class="settings-nav-item danger" id="btn-settings-delete-channel"><i class="fa-solid fa-trash"></i> Удалить канал</div>
+                </div>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section active" id="tab-c-overview">
+                    <div class="settings-header-row">
+                        <h2>Обзор</h2>
+                    </div>
+                    <div class="settings-group">
+                        <label>Название канала *</label>
+                        <input type="text" class="settings-input" id="set-channelname-input">
+                    </div>
+
+                    <div class="settings-group">
+                        <label>Медленный режим</label>
+                        <select class="settings-select" id="set-slowmode-select">
+                            <option value="0">Выкл</option>
+                            <option value="5">5 сек</option>
+                            <option value="10">10 сек</option>
+                            <option value="15">15 сек</option>
+                            <option value="30">30 сек</option>
+                            <option value="60">1 мин</option>
+                            <option value="120">2 мин</option>
+                            <option value="300">5 мин</option>
+                            <option value="600">10 мин</option>
+                            <option value="900">15 мин</option>
+                            <option value="21600">6 часов</option>
+                        </select>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Участники не смогут отправлять больше одного сообщения в течение этого периода времени.</div>
+                    </div>
+
+                    <button class="btn" id="btn-save-channel-overview" style="width: 160px; margin-top: 10px;">Сохранить</button>
+                </div>
+
+                <div class="settings-section" id="tab-c-permissions">
+                    <div class="settings-header-row">
+                        <h2>Права канала</h2>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted);">Используйте права, чтобы настроить возможности пользователей на этом канале.</div>
+
+                    <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-lock"></i> Приватный канал
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px; max-width: 480px;">
+                                Если сделать канал приватным, только выбранные вами участники и роли смогут просматривать его или подключаться к нему.
+                            </div>
+                        </div>
+                        <label class="discord-switch">
+                            <input type="checkbox" id="set-private-channel-switch">
+                            <span class="discord-slider"></span>
+                        </label>
+                    </div>
+
+                    <button class="btn" id="btn-save-channel-permissions" style="width: 160px; margin-top: 16px;">Сохранить изменения</button>
+                </div>
             </div>
         </div>
-        <div class="menu-item" onclick="showToast('Настройки уведомлений сервера')"><i class="fa-solid fa-sliders"></i> Параметры уведомлений</div>
-        <div class="menu-separator"></div>
-        <div class="menu-item danger" id="ctx-srv-leave"><i class="fa-solid fa-right-from-bracket"></i> Покинуть сервер</div>
-        <div class="menu-item danger admin-only" id="ctx-delete-server"><i class="fa-solid fa-trash"></i> Удалить сервер</div>
+    </div>
+
+    <!-- ПКМ КОНТЕКСТНЫЕ МЕНЮ -->
+    <div class="context-menu" id="menu-server-item">
+        <div class="menu-item" id="ctx-srv-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+        <div class="menu-item has-submenu" id="ctx-srv-mute-parent">
+            <i class="fa-solid fa-bell-slash"></i>
+            <span style="flex: 1;" id="ctx-srv-mute-label">Заглушить сервер</span>
+            <i class="fa-solid fa-chevron-right" id="ctx-srv-mute-arrow"></i>
+            <div class="submenu" id="ctx-srv-mute-submenu">
+                <div class="menu-item" onclick="muteServerTimer(15)">На 15 минут</div>
+                <div class="menu-item" onclick="muteServerTimer(60)">На 1 час</div>
+                <div class="menu-item" onclick="muteServerTimer(180)">На 3 часа</div>
+                <div class="menu-item" onclick="muteServerTimer(480)">На 8 часов</div>
+                <div class="menu-item" onclick="muteServerTimer(1440)">На 24 часа</div>
+                <div class="menu-item" onclick="muteServerTimer(-1)">До включения</div>
+            </div>
+        </div>
+        <div class="menu-item" onclick="showToast('Параметры уведомлений')"><i class="fa-solid fa-sliders"></i> Параметры уведомлений</div>
+        <div class="menu-item admin-only" id="ctx-srv-settings"><i class="fa-solid fa-gear"></i> Настройки сервера</div>
         <div class="menu-separator"></div>
         <div class="menu-item" id="ctx-srv-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
     </div>
 
-    <!-- 2. Меню при клике ПКМ по пустому полю списка каналов (ПРАВКА 3) -->
+    <div class="context-menu" id="menu-server-dropdown"></div>
+
+    <div class="context-menu" id="menu-voice-channel">
+        <div class="menu-item" id="ctx-vc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить в голосовой чат</div>
+        <div class="menu-item" id="ctx-vc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
+        <div class="menu-item has-submenu" id="ctx-vc-mute-parent">
+            <i class="fa-solid fa-bell-slash"></i>
+            <span style="flex: 1;" id="ctx-vc-mute-label">Заглушить канал</span>
+            <i class="fa-solid fa-chevron-right" id="ctx-vc-mute-arrow"></i>
+            <div class="submenu">
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 15)">На 15 минут</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 60)">На 1 час</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 180)">На 3 часа</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 480)">На 8 часов</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 1440)">На 24 часа</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, -1)">До включения</div>
+            </div>
+        </div>
+        <div class="menu-separator admin-only"></div>
+        <div class="menu-item admin-only" id="ctx-vc-settings"><i class="fa-solid fa-gear"></i> Настроить канал</div>
+        <div class="menu-item admin-only" id="ctx-vc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
+        <div class="menu-item danger admin-only" id="ctx-vc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="ctx-vc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
+    </div>
+
+    <div class="context-menu" id="menu-text-channel">
+        <div class="menu-item" id="ctx-tc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на канал</div>
+        <div class="menu-item" id="ctx-tc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
+        <div class="menu-item has-submenu" id="ctx-tc-mute-parent">
+            <i class="fa-solid fa-bell-slash"></i>
+            <span style="flex: 1;" id="ctx-tc-mute-label">Заглушить канал</span>
+            <i class="fa-solid fa-chevron-right" id="ctx-tc-mute-arrow"></i>
+            <div class="submenu">
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 15)">На 15 минут</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 60)">На 1 час</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 180)">На 3 часа</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 480)">На 8 часов</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, 1440)">На 24 часа</div>
+                <div class="menu-item" onclick="muteChannelTimer(selectedContextTarget, -1)">До включения</div>
+            </div>
+        </div>
+        <div class="menu-separator admin-only"></div>
+        <div class="menu-item admin-only" id="ctx-tc-settings"><i class="fa-solid fa-gear"></i> Настроить канал</div>
+        <div class="menu-item admin-only" id="ctx-tc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
+        <div class="menu-item danger admin-only" id="ctx-tc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="ctx-tc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
+    </div>
+
     <div class="context-menu" id="menu-channels-area">
         <div class="menu-item" id="ctx-area-create-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
         <div class="menu-item" id="ctx-area-create-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
@@ -1742,16 +2421,11 @@
         <div class="menu-item" id="ctx-area-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
     </div>
 
-    <!-- 3. Меню при клике ПКМ на Пользователя -->
     <div class="context-menu" id="menu-user">
         <div class="menu-item" id="ctx-user-profile"><i class="fa-solid fa-user"></i> Профиль</div>
         <div class="menu-item" id="ctx-user-dm"><i class="fa-solid fa-message"></i> Написать в ЛС</div>
     </div>
 
-    <!-- 4. Выпадающее меню Заголовка Сервера -->
-    <div class="context-menu" id="menu-server-dropdown"></div>
-
-    <!-- 5. Меню Категории -->
     <div class="context-menu" id="menu-category">
         <div class="menu-item" id="ctx-cat-read"><i class="fa-solid fa-check-double"></i> Пометить прочитанным</div>
         <div class="menu-item" id="ctx-cat-collapse"><i class="fa-solid fa-chevron-up"></i> Свернуть категорию</div>
@@ -1772,39 +2446,6 @@
         <div class="menu-item" id="ctx-cat-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID</div>
     </div>
 
-    <!-- 6. Меню Текстового Канала -->
-    <div class="context-menu" id="menu-text-channel">
-        <div class="menu-item" id="ctx-tc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на канал</div>
-        <div class="menu-item" id="ctx-tc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
-        <div class="menu-item has-submenu">
-            <i class="fa-solid fa-bell-slash"></i>
-            <span style="flex: 1;">Заглушить канал</span>
-            <i class="fa-solid fa-chevron-right"></i>
-            <div class="submenu">
-                <div class="menu-item" onclick="showToast('Заглушено на 15 минут')">На 15 минут</div>
-                <div class="menu-item" onclick="showToast('Заглушено на 1 час')">На 1 час</div>
-                <div class="menu-item" onclick="showToast('Заглушено до включения')">До включения</div>
-            </div>
-        </div>
-        <div class="menu-separator admin-only"></div>
-        <div class="menu-item admin-only" id="ctx-tc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
-        <div class="menu-item danger admin-only" id="ctx-tc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
-        <div class="menu-separator"></div>
-        <div class="menu-item" id="ctx-tc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
-    </div>
-
-    <!-- 7. Меню Голосового Канала -->
-    <div class="context-menu" id="menu-voice-channel">
-        <div class="menu-item" id="ctx-vc-invite"><i class="fa-solid fa-user-plus"></i> Пригласить в голос</div>
-        <div class="menu-item" id="ctx-vc-copy-link"><i class="fa-solid fa-link"></i> Копировать ссылку</div>
-        <div class="menu-separator admin-only"></div>
-        <div class="menu-item admin-only" id="ctx-vc-clone"><i class="fa-solid fa-clone"></i> Клонировать канал</div>
-        <div class="menu-item danger admin-only" id="ctx-vc-delete"><i class="fa-solid fa-trash"></i> Удалить канал</div>
-        <div class="menu-separator"></div>
-        <div class="menu-item" id="ctx-vc-copy-id"><i class="fa-solid fa-copy"></i> Копировать ID канала</div>
-    </div>
-
-    <!-- 8. Меню Сообщения -->
     <div class="context-menu" id="menu-message">
         <div class="menu-item danger" id="ctx-delete-message"><i class="fa-solid fa-trash"></i> Удалить сообщение</div>
     </div>
@@ -1817,6 +2458,19 @@
             <div class="modal-actions">
                 <button class="btn btn-danger" id="modal-confirm-cancel">Отмена</button>
                 <button class="btn" id="modal-confirm-ok">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-change-email">
+        <div class="modal">
+            <h3>Изменить адрес электронной почты</h3>
+            <p style="font-size: 12px; color: var(--text-muted);">Введите новый Email и текущий пароль для отправки письма с подтверждением.</p>
+            <input type="email" class="settings-input" id="input-new-email" placeholder="Новый Email">
+            <input type="password" class="settings-input" id="input-confirm-password-email" placeholder="Текущий пароль">
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="btn-cancel-change-email">Отмена</button>
+                <button class="btn" id="btn-save-email-action">Сохранить и отправить письмо</button>
             </div>
         </div>
     </div>
@@ -1859,6 +2513,30 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-create-category">
+        <div class="modal">
+            <h3>Создать категорию</h3>
+            <input type="text" class="settings-input" id="input-category-name" placeholder="ИМЯ КАТЕГОРИИ">
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="btn-cancel-category">Отмена</button>
+                <button class="btn" id="btn-confirm-category">Создать категорию</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ УЧАСТНИКОВ В РОЛЬ -->
+    <div class="modal-overlay" id="modal-add-role-members">
+        <div class="modal">
+            <h3>Добавить участников в роль</h3>
+            <input type="text" class="settings-input" id="input-search-server-members" placeholder="Поиск участников сервера...">
+            <div id="server-members-to-add-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; margin-top: 10px;"></div>
+            <div class="modal-actions" style="margin-top: 12px;">
+                <button class="btn btn-secondary" id="btn-close-add-role-members">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВКА 2: В СЕРВЕРНОМ ПРОФИЛЕ ПОЛЬЗОВАТЕЛЯ ОТОБРАЖАЮТСЯ РОЛИ ТЕКУЩЕГО СЕРВЕРА -->
     <div class="modal-overlay" id="modal-user-profile">
         <div class="modal">
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -1868,6 +2546,13 @@
                     <div style="color: var(--text-muted); font-size: 14px;" id="modal-profile-tag">#0000</div>
                 </div>
             </div>
+
+            <!-- Блок ролей на текущем сервере -->
+            <div id="modal-profile-roles-container" style="display: none; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 6px;">
+                <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Роли на сервере</div>
+                <div id="modal-profile-roles-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+            </div>
+
             <div class="modal-actions">
                 <button class="btn" id="btn-close-profile">Закрыть</button>
             </div>
@@ -1891,13 +2576,17 @@
             setPersistence,
             browserLocalPersistence,
             browserSessionPersistence,
-            deleteUser
+            deleteUser,
+            EmailAuthProvider,
+            reauthenticateWithCredential,
+            verifyBeforeUpdateEmail
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore,
             doc,
             setDoc,
             getDoc,
+            getDocs,
             collection,
             addDoc,
             deleteDoc,
@@ -1908,7 +2597,6 @@
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase Конфигурация
         const firebaseConfig = {
             apiKey: "AIzaSyBMmbo4_R6dYU_81Dm8-MMyU9OgW_7Ynco",
             authDomain: "ancorde-8c414.firebaseapp.com",
@@ -1924,7 +2612,6 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // Состояние Приложения
         let currentUser = null;
         let currentUserData = null;
         let allUsers = [];
@@ -1941,7 +2628,6 @@
         let selectedContextData = null;
         let pendingUserAuth = null;
 
-        // WebRTC & Audio State
         let peer = null;
         let localStream = null;
         let currentVoiceChannelId = null;
@@ -1952,9 +2638,20 @@
         let isCameraOn = false;
         let isScreenSharing = false;
         let screenStream = null;
+        let cameraStream = null;
         let streamPreviewInterval = null;
 
-        // UI Элементы
+        let audioContext = null;
+        let remoteAudioAnalysers = {};
+        let micSensitivityThreshold = 0.02;
+        let micTestProcessor = null;
+        let micTestStream = null;
+
+        // Дынные редактируемой роли
+        let currentEditingRoleId = null;
+        let currentEditingRoleData = null;
+        let activeServerRoles = [];
+
         const authScreen = document.getElementById('auth-screen');
         const appContainer = document.getElementById('app-container');
         const dynamicServers = document.getElementById('dynamic-servers');
@@ -2004,29 +2701,85 @@
             };
         }
 
+        async function cleanupVoiceOnUnload() {
+            if (currentVoiceChannelId && currentVoiceServerId && currentUser) {
+                const docRef = doc(db, "servers", currentVoiceServerId, "channels", currentVoiceChannelId, "voice_peers", currentUser.uid);
+                await deleteDoc(docRef).catch(() => { });
+            }
+        }
+        window.addEventListener('beforeunload', cleanupVoiceOnUnload);
+        window.addEventListener('pagehide', cleanupVoiceOnUnload);
+
+        function muteChannelTimer(channelId, minutes) {
+            if (!channelId) return;
+
+            if (minutes === 0) {
+                localStorage.removeItem(`muted_channel_${channelId}`);
+                showToast("Уведомления канала включены!", "success");
+            } else {
+                const until = minutes === -1 ? -1 : Date.now() + minutes * 60 * 1000;
+                localStorage.setItem(`muted_channel_${channelId}`, until);
+                showToast("Канал заглушен!", "info");
+            }
+            hideMenus();
+        }
+        window.muteChannelTimer = muteChannelTimer;
+
+        function updateChannelMuteMenuUI(channelId, prefix = 'tc') {
+            const mutedUntil = localStorage.getItem(`muted_channel_${channelId}`);
+            const muteLabel = document.getElementById(`ctx-${prefix}-mute-label`);
+            const muteArrow = document.getElementById(`ctx-${prefix}-mute-arrow`);
+            const muteParent = document.getElementById(`ctx-${prefix}-mute-parent`);
+
+            if (mutedUntil && (mutedUntil === "-1" || parseInt(mutedUntil) > Date.now())) {
+                if (muteLabel) muteLabel.innerText = "Включить оповещения канала";
+                if (muteArrow) muteArrow.style.display = 'none';
+                if (muteParent) muteParent.onclick = () => muteChannelTimer(channelId, 0);
+            } else {
+                if (muteLabel) muteLabel.innerText = "Заглушить канал";
+                if (muteArrow) muteArrow.style.display = 'block';
+                if (muteParent) muteParent.onclick = null;
+            }
+        }
+
+        /* ПРАВКА 2: ПРОВЕРКА ЛОКАЛЬНЫХ АДМИН-ПРАВ НА ТЕКУЩЕМ СЕРВЕРЕ */
+        async function isUserAdminOnServer(serverId, userId) {
+            if (!serverId || !userId) return false;
+            if (activeServerData && activeServerData.ownerId === userId) return true;
+
+            const rolesSnap = await getDocs(collection(db, "servers", serverId, "roles"));
+            let hasAdmin = false;
+            rolesSnap.forEach(docSnap => {
+                const r = docSnap.data();
+                if (r.isAdmin && Array.isArray(r.assignedUsers) && r.assignedUsers.includes(userId)) {
+                    hasAdmin = true;
+                }
+            });
+            return hasAdmin;
+        }
+
         /* ==========================================================================
-           1. ПКМ И КОНТЕКСТНЫЕ МЕНЮ (ПРАВКИ 3, 4, 5)
+           1. ПКМ И КОНТЕКСТНЫЕ МЕНЮ
            ========================================================================== */
-        document.addEventListener('contextmenu', (e) => {
+        document.addEventListener('contextmenu', async (e) => {
             e.preventDefault();
             hideMenus();
 
             const target = e.target;
-            const isOwner = activeServerData && activeServerData.ownerId === currentUser.uid;
+            const isOwnerOrAdmin = activeServerId && currentUser ? await isUserAdminOnServer(activeServerId, currentUser.uid) : false;
 
             document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = isOwner ? 'flex' : 'none';
+                el.style.display = isOwnerOrAdmin ? 'flex' : 'none';
             });
 
-            // Клик ПКМ на Иконку Сервера (ПРАВКА 5)
             const serverEl = target.closest('.context-server');
             if (serverEl) {
                 selectedContextTarget = serverEl.dataset.id;
                 selectedContextData = { name: serverEl.dataset.name };
+                updateServerMuteMenuUI(selectedContextTarget);
                 return showMenu(menus.serverItem, e);
             }
 
-            // Клик ПКМ на Категорию
             const catEl = target.closest('.context-category');
             if (catEl) {
                 selectedContextTarget = catEl.dataset.id;
@@ -2034,21 +2787,20 @@
                 return showMenu(menus.category, e);
             }
 
-            // Клик ПКМ на Текстовый Канал
             const textChanEl = target.closest('.context-text-channel');
             if (textChanEl) {
                 selectedContextTarget = textChanEl.dataset.id;
+                updateChannelMuteMenuUI(selectedContextTarget, 'tc');
                 return showMenu(menus.textChannel, e);
             }
 
-            // Клик ПКМ на Голосовой Канал
             const voiceChanEl = target.closest('.context-voice-channel');
             if (voiceChanEl) {
                 selectedContextTarget = voiceChanEl.dataset.id;
+                updateChannelMuteMenuUI(selectedContextTarget, 'vc');
                 return showMenu(menus.voiceChannel, e);
             }
 
-            // Клик ПКМ на Пользователя
             const userEl = target.closest('.context-user');
             if (userEl) {
                 selectedContextData = {
@@ -2062,7 +2814,6 @@
                 return showMenu(menus.user, e);
             }
 
-            // Клик ПКМ на Сообщение
             const messageEl = target.closest('.context-message');
             if (messageEl) {
                 selectedContextTarget = messageEl.dataset.id;
@@ -2070,12 +2821,46 @@
                 return showMenu(menus.message, e);
             }
 
-            // Клик ПКМ на пустое поле каналов (ПРАВКА 3)
             const channelsArea = target.closest('#channels-bar-container');
             if (channelsArea && activeMode === 'server') {
                 return showMenu(menus.channelsArea, e);
             }
         });
+
+        function muteServerTimer(minutes) {
+            if (!selectedContextTarget) return;
+
+            if (minutes === 0) {
+                localStorage.removeItem(`muted_server_${selectedContextTarget}`);
+                showToast("Уведомления сервера включены!", "success");
+            } else {
+                const until = minutes === -1 ? -1 : Date.now() + minutes * 60 * 1000;
+                localStorage.setItem(`muted_server_${selectedContextTarget}`, until);
+                showToast("Сервер заглушен!", "info");
+            }
+            hideMenus();
+        }
+        window.muteServerTimer = muteServerTimer;
+
+        function updateServerMuteMenuUI(serverId) {
+            const mutedUntil = localStorage.getItem(`muted_server_${serverId}`);
+            const muteLabel = document.getElementById('ctx-srv-mute-label');
+            const muteArrow = document.getElementById('ctx-srv-mute-arrow');
+            const muteSubmenu = document.getElementById('ctx-srv-mute-submenu');
+            const muteParent = document.getElementById('ctx-srv-mute-parent');
+
+            if (mutedUntil && (mutedUntil === "-1" || parseInt(mutedUntil) > Date.now())) {
+                if (muteLabel) muteLabel.innerText = "Включить оповещения сервера";
+                if (muteArrow) muteArrow.style.display = 'none';
+                if (muteSubmenu) muteSubmenu.style.display = 'none';
+                if (muteParent) muteParent.onclick = () => muteServerTimer(0);
+            } else {
+                if (muteLabel) muteLabel.innerText = "Заглушить сервер";
+                if (muteArrow) muteArrow.style.display = 'block';
+                if (muteSubmenu) muteSubmenu.style.display = '';
+                if (muteParent) muteParent.onclick = null;
+            }
+        }
 
         /* ==========================================================================
            2. АВТОРИЗАЦИЯ
@@ -2227,11 +3012,11 @@
             hideVoiceStage();
 
             messagesContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-comments"></i>
-                        <div>Выберите собеседника из списка слева или нажмите "+", чтобы начать диалог!</div>
-                    </div>
-                `;
+                        <div class="empty-state">
+                            <i class="fa-solid fa-comments"></i>
+                            <div>Выберите собеседника из списка слева или нажмите "+", чтобы начать диалог!</div>
+                        </div>
+                    `;
         }
 
         function loadServers() {
@@ -2271,8 +3056,41 @@
             loadChannels(serverId);
         }
 
+        document.getElementById('server-header').addEventListener('click', async (e) => {
+            if (activeMode !== 'server') return;
+            e.stopPropagation();
+
+            const menu = menus.serverDropdown;
+            menu.innerHTML = '';
+
+            const isOwnerOrAdmin = await isUserAdminOnServer(activeServerId, currentUser.uid);
+
+            menu.innerHTML = `
+                        <div class="menu-item" onclick="copyToClipboard('${window.location.href}')"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
+                        ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-server-settings"><i class="fa-solid fa-gear"></i> Настройки сервера</div>` : ''}
+                        ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-add-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>` : ''}
+                        ${isOwnerOrAdmin ? `<div class="menu-item" id="drop-add-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>` : ''}
+                        <div class="menu-item" onclick="showToast('Параметры уведомлений')"><i class="fa-solid fa-bell"></i> Параметры уведомлений</div>
+                        <div class="menu-separator"></div>
+                        <div class="menu-item" onclick="copyToClipboard('${activeServerId}')"><i class="fa-solid fa-copy"></i> Копировать ID сервера</div>
+                    `;
+
+            showMenuAt(menu, 78, 52);
+
+            setTimeout(() => {
+                const addChan = document.getElementById('drop-add-channel');
+                if (addChan) addChan.onclick = () => openChannelModal('text');
+
+                const addCat = document.getElementById('drop-add-category');
+                if (addCat) addCat.onclick = openCategoryModal;
+
+                const setSrv = document.getElementById('drop-server-settings');
+                if (setSrv) setSrv.onclick = openServerSettings;
+            }, 50);
+        });
+
         /* ==========================================================================
-           4. ГОЛОСОВЫЕ КАНАЛЫ (ИСПРАВЛЕНИЕ 2: ВХОД В ГОЛОСОВЫЕ КАНАЛЫ)
+           4. ГОЛОСОВЫЕ КАНАЛЫ И СЦЕНА
            ========================================================================== */
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
@@ -2290,19 +3108,23 @@
             Object.values(unsubscribeVoicePeersListeners).forEach(unsub => unsub());
             unsubscribeVoicePeersListeners = {};
 
-            onSnapshot(collection(db, "servers", serverId, "channels"), (snapshot) => {
+            onSnapshot(collection(db, "servers", serverId, "channels"), async (snapshot) => {
                 textChannelsContainer.innerHTML = '';
                 voiceChannelsContainer.innerHTML = '';
+
+                const isOwnerOrAdmin = await isUserAdminOnServer(serverId, currentUser.uid);
 
                 snapshot.forEach(docSnap => {
                     const chan = docSnap.data();
                     const chanId = docSnap.id;
 
+                    if (chan.isPrivate && !isOwnerOrAdmin) return;
+
                     if (chan.type === 'text') {
                         const chanEl = document.createElement('div');
                         chanEl.className = `channel-item context-text-channel ${activeChannelId === chanId ? 'active' : ''}`;
                         chanEl.dataset.id = chanId;
-                        chanEl.innerHTML = `<i class="fa-solid fa-hashtag"></i> ${chan.name}`;
+                        chanEl.innerHTML = `<i class="fa-solid ${chan.isPrivate ? 'fa-lock' : 'fa-hashtag'}"></i> ${chan.name}`;
                         chanEl.addEventListener('click', () => selectChannel(chanId, chan.name, 'text'));
                         textChannelsContainer.appendChild(chanEl);
                     } else {
@@ -2311,9 +3133,7 @@
                         const chanEl = document.createElement('div');
                         chanEl.className = `channel-item context-voice-channel ${activeChannelId === chanId ? 'active' : ''}`;
                         chanEl.dataset.id = chanId;
-                        chanEl.innerHTML = `<i class="fa-solid fa-volume-high"></i> ${chan.name}`;
-
-                        // Клик входа в голосовой канал
+                        chanEl.innerHTML = `<i class="fa-solid ${chan.isPrivate ? 'fa-lock' : 'fa-volume-high'}"></i> ${chan.name}`;
                         chanEl.addEventListener('click', () => connectVoiceChannel(chanId, chan.name));
 
                         const usersContainer = document.createElement('div');
@@ -2341,20 +3161,63 @@
                     row.id = `vuser-row-${peerData.uid}`;
 
                     let iconsHtml = '';
+                    if (peerData.isCameraOn) iconsHtml += `<i class="fa-solid fa-video" title="Камера включена" style="color: var(--accent);"></i>`;
                     if (peerData.isMuted) iconsHtml += `<i class="fa-solid fa-microphone-slash" title="Заглушен"></i>`;
                     if (peerData.isDeafened) iconsHtml += `<i class="fa-solid fa-headphones" title="Звук отключен"></i>`;
+                    if (peerData.isScreenSharing) iconsHtml += `<span class="badge-live">В ЭФИРЕ</span>`;
 
                     row.innerHTML = `
-                            <div class="voice-user-info">
-                                <div class="voice-user-avatar" id="vuser-avatar-${peerData.uid}">${peerData.username ? peerData.username[0].toUpperCase() : 'U'}</div>
-                                <span>${peerData.username || 'User'}</span>
-                            </div>
-                            <div class="voice-user-icons">${iconsHtml}</div>
-                        `;
+                                <div class="voice-user-info">
+                                    <div class="voice-user-avatar" id="vuser-avatar-${peerData.uid}">${peerData.username ? peerData.username[0].toUpperCase() : 'U'}</div>
+                                    <span>${peerData.username || 'User'}</span>
+                                </div>
+                                <div class="voice-user-icons">${iconsHtml}</div>
+                            `;
+
+                    row.addEventListener('mouseenter', (e) => {
+                        if (peerData.isScreenSharing) {
+                            showStreamPreviewPopover(e, peerData);
+                        }
+                    });
+
+                    row.addEventListener('mouseleave', () => {
+                        document.getElementById('stream-preview-popover').style.display = 'none';
+                    });
+
                     containerEl.appendChild(row);
                 });
             });
         }
+
+        function showStreamPreviewPopover(e, peerData) {
+            const popover = document.getElementById('stream-preview-popover');
+            const cardBody = document.getElementById('stream-preview-card-body');
+
+            popover.style.left = `${e.clientX + 15}px`;
+            popover.style.top = `${Math.min(e.clientY - 40, window.innerHeight - 250)}px`;
+
+            const showPreviewSetting = document.getElementById('set-stream-preview-toggle').checked;
+
+            if (showPreviewSetting && peerData.streamThumbnail) {
+                cardBody.innerHTML = `<img src="${peerData.streamThumbnail}" class="stream-thumb" />`;
+            } else {
+                cardBody.innerHTML = `
+                            <i class="fa-solid fa-desktop stream-placeholder-svg"></i>
+                            <div class="stream-text">Стрим начался. Не пропустите его!</div>
+                        `;
+            }
+
+            popover.style.display = 'flex';
+        }
+
+        document.getElementById('voice-channel-name-display').addEventListener('click', () => {
+            if (currentVoiceServerId && currentVoiceChannelId) {
+                const srvIcon = document.querySelector(`.server-icon[data-id="${currentVoiceServerId}"]`);
+                if (srvIcon) srvIcon.click();
+
+                showVoiceStage(activeChannelName || "Голосовой канал");
+            }
+        });
 
         function selectChannel(channelId, channelName, type) {
             activeChannelId = channelId;
@@ -2414,11 +3277,11 @@
 
                 if (snapshot.empty) {
                     messagesContainer.innerHTML = `
-                            <div class="chat-welcome-banner">
-                                <h2>Добро пожаловать в ${activeMode === 'server' ? '#' + activeChannelName : activeChannelName}!</h2>
-                                <p>Это начало вашей истории сообщений.</p>
-                            </div>
-                        `;
+                                <div class="chat-welcome-banner">
+                                    <h2>Добро пожаловать в ${activeMode === 'server' ? '#' + activeChannelName : activeChannelName}!</h2>
+                                    <p>Это начало вашей истории сообщений.</p>
+                                </div>
+                            `;
                     return;
                 }
 
@@ -2443,6 +3306,28 @@
 
                     let mediaHtml = msg.media ? `<img src="${msg.media}" class="message-media" />` : '';
 
+                    let inviteEmbedHtml = '';
+                    if (msg.text && (msg.text.includes(window.location.host) || msg.text.includes('discord.gg') || msg.text.includes('http'))) {
+                        const srvName = activeServerData ? activeServerData.name : "Сервер";
+                        const desc = activeServerData && activeServerData.description ? activeServerData.description : "Милый общительный проект, заходи будем рады!!!";
+                        const bannerStyle = activeServerData && activeServerData.bannerUrl ? `background-image: url(${activeServerData.bannerUrl});` : '';
+
+                        inviteEmbedHtml = `
+                                    <div class="server-invite-embed">
+                                        <div class="server-invite-banner" style="${bannerStyle}"></div>
+                                        <div class="server-invite-details">
+                                            <div class="server-invite-avatar">${srvName[0].toUpperCase()}</div>
+                                            <div>
+                                                <div style="font-weight: bold; font-size: 15px; color: var(--text-main);">${srvName}</div>
+                                                <div style="font-size: 12px; color: var(--success); font-weight: bold;">● 1 в сети &nbsp;● 1 участник</div>
+                                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${desc}</div>
+                                            </div>
+                                        </div>
+                                        <button class="btn" style="background: var(--success); width: 100%; margin-top: 4px;" onclick="showToast('Вы перешли на сервер!')">Перейти на сервер</button>
+                                    </div>
+                                `;
+                    }
+
                     const msgEl = document.createElement('div');
                     msgEl.className = `message-item context-message ${isCompact ? 'compact' : ''}`;
                     msgEl.dataset.id = docSnap.id;
@@ -2450,23 +3335,25 @@
 
                     if (isCompact) {
                         msgEl.innerHTML = `
-                                <div class="message-content">
-                                    ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
-                                    ${mediaHtml}
-                                </div>
-                            `;
+                                    <div class="message-content">
+                                        ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
+                                        ${mediaHtml}
+                                        ${inviteEmbedHtml}
+                                    </div>
+                                `;
                     } else {
                         msgEl.innerHTML = `
-                                <div class="avatar">${msg.senderName ? msg.senderName[0].toUpperCase() : 'U'}</div>
-                                <div class="message-content">
-                                    <div class="message-header">
-                                        <span class="message-author">${msg.senderName}</span>
-                                        <span class="message-time">${timeStr}</span>
+                                    <div class="avatar">${msg.senderName ? msg.senderName[0].toUpperCase() : 'U'}</div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <span class="message-author">${msg.senderName}</span>
+                                            <span class="message-time">${timeStr}</span>
+                                        </div>
+                                        ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
+                                        ${mediaHtml}
+                                        ${inviteEmbedHtml}
                                     </div>
-                                    ${msg.text ? `<div class="message-text">${msg.text}</div>` : ''}
-                                    ${mediaHtml}
-                                </div>
-                            `;
+                                `;
                     }
 
                     messagesContainer.appendChild(msgEl);
@@ -2514,7 +3401,7 @@
         });
 
         /* ==========================================================================
-           6. WEBRTC ЛОГИКА ГОЛОСА (ПРАВКА 2)
+           6. WEBRTC, ГОЛОСОВАЯ СЦЕНА И СТРИМИНГ
            ========================================================================== */
         function initPeerJS() {
             peer = new Peer(currentUser.uid, {
@@ -2538,15 +3425,18 @@
         function showVoiceStage(channelName) {
             document.getElementById('chat-header-icon').className = "fa-solid fa-volume-high";
             document.getElementById('current-channel-title').innerText = channelName;
+
             voiceStageContainer.style.display = 'flex';
-            btnToggleVoiceStage.style.display = 'flex';
+            messagesContainer.style.display = 'none';
             chatInputArea.style.display = 'none';
+            btnToggleVoiceStage.style.display = 'flex';
 
             subscribeVoiceStagePeers();
         }
 
         function hideVoiceStage() {
             voiceStageContainer.style.display = 'none';
+            messagesContainer.style.display = 'flex';
             btnToggleVoiceStage.style.display = 'none';
             if (unsubscribeStagePeers) unsubscribeStagePeers();
         }
@@ -2554,9 +3444,11 @@
         btnToggleVoiceStage.addEventListener('click', () => {
             if (voiceStageContainer.style.display === 'none') {
                 voiceStageContainer.style.display = 'flex';
+                messagesContainer.style.display = 'none';
                 chatInputArea.style.display = 'none';
             } else {
                 voiceStageContainer.style.display = 'none';
+                messagesContainer.style.display = 'flex';
                 chatInputArea.style.display = 'flex';
             }
         });
@@ -2574,39 +3466,65 @@
                     const pUid = docSnap.id;
                     const pName = pData.username || 'User';
 
-                    const card = document.createElement('div');
-                    card.className = 'voice-stage-card';
-                    card.id = `vstage-card-${pUid}`;
-                    card.style.backgroundColor = getAvatarToneColor(pName);
+                    const cardCamera = document.createElement('div');
+                    cardCamera.className = 'voice-stage-card';
+                    cardCamera.id = `vstage-card-${pUid}`;
 
-                    let statusIcons = '';
-                    if (pData.isMuted) statusIcons += `<i class="fa-solid fa-microphone-slash" style="color: var(--danger);"></i>`;
-                    if (pData.isDeafened) statusIcons += `<i class="fa-solid fa-headphones" style="color: var(--danger);"></i>`;
+                    cardCamera.innerHTML = `
+                                <div class="voice-stage-avatar" id="vstage-avatar-${pUid}">${pName[0].toUpperCase()}</div>
+                                <div class="voice-stage-badge">
+                                    <i class="fa-solid fa-microphone-slash" style="font-size: 11px; opacity: 0.8;"></i>
+                                    <span>${pName}</span>
+                                </div>
+                            `;
 
-                    card.innerHTML = `
-                            <div class="voice-stage-avatar" id="vstage-avatar-${pUid}">${pName[0].toUpperCase()}</div>
-                            <div class="voice-stage-badge">
-                                <span>${pName}</span>
-                                ${statusIcons}
-                            </div>
-                        `;
+                    if (pUid === currentUser.uid && isCameraOn && cameraStream) {
+                        const vid = document.createElement('video');
+                        vid.autoplay = true; vid.playsInline = true; vid.muted = true;
+                        vid.srcObject = cameraStream;
+                        cardCamera.appendChild(vid);
+                    }
 
-                    voiceStageGrid.appendChild(card);
+                    voiceStageGrid.appendChild(cardCamera);
+
+                    if (pData.isScreenSharing) {
+                        const cardScreen = document.createElement('div');
+                        cardScreen.className = 'voice-stage-card';
+                        cardScreen.id = `vstage-screen-card-${pUid}`;
+
+                        cardScreen.innerHTML = `
+                                    <div class="voice-stage-badge">
+                                        <i class="fa-solid fa-desktop" style="font-size: 12px; color: var(--accent);"></i>
+                                        <span>${pName}</span>
+                                        <span class="badge-live">В ЭФИРЕ</span>
+                                    </div>
+                                `;
+
+                        if (pUid === currentUser.uid && isScreenSharing && screenStream) {
+                            const screenVid = document.createElement('video');
+                            screenVid.autoplay = true; screenVid.playsInline = true; screenVid.muted = true;
+                            screenVid.srcObject = screenStream;
+                            cardScreen.appendChild(screenVid);
+                        }
+
+                        voiceStageGrid.appendChild(cardScreen);
+                    }
                 });
 
                 const inviteCard = document.createElement('div');
                 inviteCard.className = 'voice-stage-card invite-card';
                 inviteCard.innerHTML = `
-                        <i class="fa-solid fa-user-plus" style="font-size: 36px; color: var(--accent);"></i>
-                        <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
-                            <i class="fa-solid fa-link"></i> Пригласить в голосовой чат
-                        </button>
-                    `;
+                            <div style="font-size: 32px; color: var(--accent); margin-top: 10px;"><i class="fa-solid fa-trophy"></i></div>
+                            <div class="invite-card-actions">
+                                <button class="invite-card-btn" onclick="copyToClipboard('${window.location.href}')">
+                                    <i class="fa-solid fa-user-plus"></i> Пригласить в голосовой чат
+                                </button>
+                                <button class="invite-card-btn" onclick="showToast('Выбор активности')">
+                                    <i class="fa-solid fa-shapes"></i> Выбрать активность
+                                </button>
+                            </div>
+                        `;
                 voiceStageGrid.appendChild(inviteCard);
-
-                if (localStream && (isCameraOn || isScreenSharing)) {
-                    handleRemoteStream(currentUser.uid, localStream);
-                }
             });
         }
 
@@ -2628,15 +3546,70 @@
             }
         }
 
+        function setupVoiceActivityDetection(peerId, stream) {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                const source = audioContext.createMediaStreamSource(stream);
+                const processor = audioContext.createScriptProcessor(2048, 1, 1);
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                processor.onaudioprocess = (e) => {
+                    const input = e.inputBuffer.getChannelData(0);
+                    let sum = 0;
+                    for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+                    const rms = Math.sqrt(sum / input.length);
+
+                    const isSpeaking = rms > micSensitivityThreshold && !isMuted;
+                    setSpeakingUI(peerId, isSpeaking);
+                };
+
+                remoteAudioAnalysers[peerId] = { source, processor };
+            } catch (e) { console.error("Ошибка детектора голоса:", e); }
+        }
+
+        function setSpeakingUI(peerId, isSpeaking) {
+            const channelAvatar = document.getElementById(`vuser-avatar-${peerId}`);
+            if (channelAvatar) channelAvatar.classList.toggle('speaking', isSpeaking);
+
+            const stageCard = document.getElementById(`vstage-card-${peerId}`);
+            if (stageCard) stageCard.classList.toggle('speaking', isSpeaking);
+
+            if (peerId === currentUser.uid) {
+                document.getElementById('my-avatar').classList.toggle('speaking', isSpeaking);
+            }
+        }
+
         async function getMicrophoneStream() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showToast("Микрофон недоступен. Проверьте протокол HTTPS.", "danger");
+                showToast("Микрофон недоступен. Проверьте HTTPS.", "danger");
                 return null;
             }
             try {
-                return await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const echo = document.getElementById('set-echo-cancellation').checked;
+                const micDeviceId = document.getElementById('set-voice-mic-select').value;
+
+                const constraints = {
+                    audio: {
+                        echoCancellation: echo,
+                        deviceId: micDeviceId && micDeviceId !== 'default' ? { exact: micDeviceId } : undefined
+                    },
+                    video: false
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                localStorage.setItem('media_permission_granted', 'true');
+                return stream;
             } catch (err) {
-                showToast("Доступ к микрофону отклонен браузером!", "danger");
+                showToast("Доступ к микрофону отклонен!", "danger");
                 return null;
             }
         }
@@ -2657,6 +3630,8 @@
             currentVoiceChannelId = channelId;
             currentVoiceServerId = activeServerId;
 
+            setupVoiceActivityDetection(currentUser.uid, localStream);
+
             const voiceBar = document.getElementById('voice-connected-bar');
             voiceBar.style.display = 'flex';
             document.getElementById('voice-channel-name-display').innerText = `${channelName}`;
@@ -2676,6 +3651,8 @@
                     username: currentUserData ? currentUserData.username : 'User',
                     isMuted: isMuted,
                     isDeafened: isDeafened,
+                    isCameraOn: isCameraOn,
+                    isScreenSharing: isScreenSharing,
                     joinedAt: serverTimestamp()
                 });
 
@@ -2699,6 +3676,8 @@
         }
 
         function handleRemoteStream(peerId, stream) {
+            setupVoiceActivityDetection(peerId, stream);
+
             const card = document.getElementById(`vstage-card-${peerId}`);
             if (card && stream.getVideoTracks().length > 0) {
                 let videoEl = card.querySelector('video');
@@ -2740,7 +3719,9 @@
             if (currentVoiceChannelId && currentVoiceServerId) {
                 await updateDoc(doc(db, "servers", currentVoiceServerId, "channels", currentVoiceChannelId, "voice_peers", currentUser.uid), {
                     isMuted: isMuted,
-                    isDeafened: isDeafened
+                    isDeafened: isDeafened,
+                    isCameraOn: isCameraOn,
+                    isScreenSharing: isScreenSharing
                 }).catch(() => { });
             }
         }
@@ -2753,40 +3734,31 @@
         async function toggleCamera() {
             try {
                 if (!isCameraOn) {
-                    if (isScreenSharing) await stopScreenShare();
-
-                    const camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    const videoTrack = camStream.getVideoTracks()[0];
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    const videoTrack = cameraStream.getVideoTracks()[0];
 
                     if (localStream) {
-                        const oldTrack = localStream.getVideoTracks()[0];
-                        if (oldTrack) localStream.removeTrack(oldTrack);
                         localStream.addTrack(videoTrack);
                     } else {
-                        localStream = camStream;
+                        localStream = cameraStream;
                     }
 
                     replaceVideoTrackForPeers(videoTrack);
-                    handleRemoteStream(currentUser.uid, localStream);
                     isCameraOn = true;
                     document.getElementById('btn-voice-camera').classList.add('active');
                     document.getElementById('stage-btn-camera').classList.add('active');
+                    subscribeVoiceStagePeers();
+                    syncAudioStates();
                 } else {
-                    if (localStream) {
-                        localStream.getVideoTracks().forEach(t => {
-                            t.stop();
-                            localStream.removeTrack(t);
-                        });
-                    }
-                    replaceVideoTrackForPeers(null);
-                    const myCard = document.getElementById(`vstage-card-${currentUser.uid}`);
-                    if (myCard) {
-                        const vid = myCard.querySelector('video');
-                        if (vid) vid.remove();
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(t => t.stop());
+                        cameraStream = null;
                     }
                     isCameraOn = false;
                     document.getElementById('btn-voice-camera').classList.remove('active');
                     document.getElementById('stage-btn-camera').classList.remove('active');
+                    subscribeVoiceStagePeers();
+                    syncAudioStates();
                 }
             } catch (err) {
                 showToast("Ошибка камеры: " + err.message, "danger");
@@ -2810,27 +3782,20 @@
 
                     const screenTrack = screenStream.getVideoTracks()[0];
 
-                    if (isCameraOn) {
-                        if (localStream) localStream.getVideoTracks().forEach(t => t.stop());
-                        isCameraOn = false;
-                        document.getElementById('btn-voice-camera').classList.remove('active');
-                        document.getElementById('stage-btn-camera').classList.remove('active');
-                    }
-
                     if (localStream) {
-                        const oldVideoTrack = localStream.getVideoTracks()[0];
-                        if (oldVideoTrack) localStream.removeTrack(oldVideoTrack);
                         localStream.addTrack(screenTrack);
                     } else {
                         localStream = screenStream;
                     }
 
                     replaceVideoTrackForPeers(screenTrack);
-                    handleRemoteStream(currentUser.uid, screenStream);
-
                     isScreenSharing = true;
                     document.getElementById('btn-voice-screenshare').classList.add('active');
                     document.getElementById('stage-btn-screenshare').classList.add('active');
+
+                    startStreamThumbnailGenerator();
+                    subscribeVoiceStagePeers();
+                    syncAudioStates();
 
                     screenTrack.onended = () => { stopScreenShare(); };
 
@@ -2842,32 +3807,41 @@
             }
         }
 
+        function startStreamThumbnailGenerator() {
+            if (streamPreviewInterval) clearInterval(streamPreviewInterval);
+
+            streamPreviewInterval = setInterval(async () => {
+                const videoEl = document.querySelector(`#vstage-screen-card-${currentUser.uid} video`);
+                if (videoEl && isScreenSharing) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 320;
+                    canvas.height = 180;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.4);
+
+                    await updateDoc(doc(db, "servers", currentVoiceServerId, "channels", currentVoiceChannelId, "voice_peers", currentUser.uid), {
+                        streamThumbnail: base64
+                    }).catch(() => { });
+                }
+            }, 10000);
+        }
+
         async function stopScreenShare() {
             if (!isScreenSharing) return;
+
+            if (streamPreviewInterval) clearInterval(streamPreviewInterval);
 
             if (screenStream) {
                 screenStream.getTracks().forEach(track => track.stop());
                 screenStream = null;
             }
 
-            if (localStream) {
-                localStream.getVideoTracks().forEach(track => {
-                    track.stop();
-                    localStream.removeTrack(track);
-                });
-            }
-
-            replaceVideoTrackForPeers(null);
-
-            const myCard = document.getElementById(`vstage-card-${currentUser.uid}`);
-            if (myCard) {
-                const vid = myCard.querySelector('video');
-                if (vid) vid.remove();
-            }
-
             isScreenSharing = false;
             document.getElementById('btn-voice-screenshare').classList.remove('active');
             document.getElementById('stage-btn-screenshare').classList.remove('active');
+            subscribeVoiceStagePeers();
+            syncAudioStates();
         }
 
         document.getElementById('btn-voice-screenshare').addEventListener('click', toggleScreenShare);
@@ -2875,6 +3849,7 @@
 
         async function disconnectVoice() {
             if (isScreenSharing) stopScreenShare();
+            if (isCameraOn) toggleCamera();
 
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
@@ -2899,18 +3874,60 @@
         document.getElementById('stage-btn-disconnect').addEventListener('click', disconnectVoice);
 
         /* ==========================================================================
-           7. НАСТРОЙКИ
+           7. НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ И СЕРВЕРА
            ========================================================================== */
         const overlayUserSettings = document.getElementById('overlay-user-settings');
         const overlayServerSettings = document.getElementById('overlay-server-settings');
+
+        let pttKeyCombination = "Space";
+        let isPttListening = false;
+
+        document.getElementById('set-push-to-talk-switch').addEventListener('change', (e) => {
+            const panel = document.getElementById('push-to-talk-panel');
+            panel.style.display = e.target.checked ? 'flex' : 'none';
+            showToast(e.target.checked ? "Режим рации включен" : "Режим рации выключен");
+        });
+
+        document.getElementById('btn-assign-ptt-key').addEventListener('click', () => {
+            isPttListening = true;
+            document.getElementById('set-ptt-key-input').value = "Нажмите клавишу...";
+            showToast("Нажмите любую клавишу для назначения на рацию");
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (isPttListening) {
+                pttKeyCombination = e.code;
+                document.getElementById('set-ptt-key-input').value = e.code;
+                isPttListening = false;
+                showToast(`Назначена клавиша: ${e.code}`);
+                return;
+            }
+
+            if (document.getElementById('set-push-to-talk-switch').checked && e.code === pttKeyCombination) {
+                isMuted = false; syncAudioStates();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (document.getElementById('set-push-to-talk-switch').checked && e.code === pttKeyCombination) {
+                isMuted = true; syncAudioStates();
+            }
+        });
 
         document.getElementById('btn-user-settings').addEventListener('click', () => {
             if (currentUserData) {
                 document.getElementById('set-username-input').value = currentUserData.username || '';
                 document.getElementById('set-avatar-input').value = currentUserData.avatarUrl || '';
                 document.getElementById('set-banner-color-input').value = currentUserData.bannerColor || '#5865f2';
-                document.getElementById('set-account-email').value = currentUserData.email || currentUser.email || '';
-                document.getElementById('set-account-phone').value = currentUserData.phone || '';
+
+                document.getElementById('acc-display-username').innerText = currentUserData.username || 'User';
+                const emailStr = currentUserData.email || currentUser.email || 'user@gmail.com';
+                const maskedEmail = emailStr.replace(/^(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + "*".repeat(gp3.length));
+                document.getElementById('acc-display-email-masked').innerText = maskedEmail;
+                document.getElementById('acc-display-email-masked').dataset.real = emailStr;
+
+                const phoneStr = currentUserData.phone || '+7 (***) ***-7289';
+                document.getElementById('acc-display-phone-masked').innerText = phoneStr;
                 document.getElementById('set-2fa-toggle').checked = !!currentUserData.is2FAEnabled;
 
                 updateProfilePreview();
@@ -2920,6 +3937,46 @@
 
         document.getElementById('btn-close-user-settings').addEventListener('click', () => {
             overlayUserSettings.style.display = 'none';
+        });
+
+        document.getElementById('btn-toggle-show-email').addEventListener('click', (e) => {
+            const el = document.getElementById('acc-display-email-masked');
+            if (e.target.innerText === "Показать") {
+                el.innerText = el.dataset.real;
+                e.target.innerText = "Скрыть";
+            } else {
+                const real = el.dataset.real;
+                el.innerText = real.replace(/^(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + "*".repeat(gp3.length));
+                e.target.innerText = "Показать";
+            }
+        });
+
+        document.getElementById('btn-edit-email-trigger').addEventListener('click', () => {
+            document.getElementById('modal-change-email').style.display = 'flex';
+        });
+
+        document.getElementById('btn-cancel-change-email').addEventListener('click', () => {
+            document.getElementById('modal-change-email').style.display = 'none';
+        });
+
+        document.getElementById('btn-save-email-action').addEventListener('click', async () => {
+            const newEmail = document.getElementById('input-new-email').value.trim();
+            const password = document.getElementById('input-confirm-password-email').value.trim();
+
+            if (!newEmail || !password) return showToast("Заполните все поля!", "warning");
+
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, password);
+                await reauthenticateWithCredential(currentUser, credential);
+
+                await verifyBeforeUpdateEmail(currentUser, newEmail);
+                await updateDoc(doc(db, "users", currentUser.uid), { email: newEmail });
+
+                document.getElementById('modal-change-email').style.display = 'none';
+                showToast("Письмо подтверждения отправлено на " + newEmail, "success");
+            } catch (err) {
+                showToast("Ошибка смены Email: " + err.message, "danger");
+            }
         });
 
         function updateProfilePreview() {
@@ -2954,6 +4011,12 @@
                 const contentArea = item.closest('.settings-overlay').querySelector('.settings-content');
                 contentArea.querySelectorAll('.settings-section').forEach(sec => sec.classList.remove('active'));
                 document.getElementById(`tab-${tabId}`).classList.add('active');
+
+                if (tabId === 'u-voice') {
+                    loadAudioVideoDevices();
+                } else if (tabId === 's-roles') {
+                    loadServerRoles();
+                }
             });
         });
 
@@ -2975,15 +4038,369 @@
         document.getElementById('set-2fa-toggle').addEventListener('change', async (e) => {
             const enabled = e.target.checked;
             await updateDoc(doc(db, "users", currentUser.uid), { is2FAEnabled: enabled });
-            showToast(enabled ? "2FA включена! Демо-код для входа: 123456" : "2FA отключена");
+            showToast(enabled ? "2FA включена! Демо-код: 123456" : "2FA отключена");
         });
 
+        async function loadAudioVideoDevices() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+
+            try {
+                const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(() => null);
+
+                const devices = await navigator.mediaDevices.enumerateDevices();
+
+                const micSelect = document.getElementById('set-voice-mic-select');
+                const speakerSelect = document.getElementById('set-voice-speaker-select');
+                const camSelect = document.getElementById('set-voice-cam-select');
+
+                micSelect.innerHTML = ''; speakerSelect.innerHTML = ''; camSelect.innerHTML = '';
+
+                let micCount = 0, speakerCount = 0, camCount = 0;
+
+                devices.forEach((d) => {
+                    const opt = document.createElement('option');
+                    opt.value = d.deviceId;
+
+                    if (d.kind === 'audioinput') {
+                        micCount++;
+                        opt.innerText = d.label || `Микрофон ${micCount}`;
+                        micSelect.appendChild(opt);
+                    } else if (d.kind === 'audiooutput') {
+                        speakerCount++;
+                        opt.innerText = d.label || `Динамики ${speakerCount}`;
+                        speakerSelect.appendChild(opt);
+                    } else if (d.kind === 'videoinput') {
+                        camCount++;
+                        opt.innerText = d.label || `Веб-камера ${camCount}`;
+                        camSelect.appendChild(opt);
+                    }
+                });
+
+                if (micCount === 0) micSelect.innerHTML = '<option value="default">Микрофон по умолчанию</option>';
+                if (speakerCount === 0) speakerSelect.innerHTML = '<option value="default">Динамики по умолчанию</option>';
+                if (camCount === 0) camSelect.innerHTML = '<option value="default">Камера не найдена</option>';
+
+                if (tempStream) tempStream.getTracks().forEach(t => t.stop());
+
+            } catch (e) { console.error("Ошибка загрузки устройств:", e); }
+        }
+
+        document.getElementById('btn-test-mic').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-test-mic');
+
+            if (micTestProcessor) {
+                micTestProcessor.disconnect();
+                if (micTestStream) micTestStream.getTracks().forEach(t => t.stop());
+                micTestProcessor = null;
+                micTestStream = null;
+
+                btn.innerText = "Проверка микрофона";
+                btn.classList.remove('btn-danger');
+                document.getElementById('mic-test-bar').style.width = '0%';
+
+                isMuted = false;
+                syncAudioStates();
+                showToast("Проверка микрофона завершена");
+                return;
+            }
+
+            micTestStream = await getMicrophoneStream();
+            if (!micTestStream) return;
+
+            btn.innerText = "Прервать";
+            btn.classList.add('btn-danger');
+
+            isMuted = true;
+            syncAudioStates();
+
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = ctx.createMediaStreamSource(micTestStream);
+            micTestProcessor = ctx.createScriptProcessor(2048, 1, 1);
+
+            src.connect(micTestProcessor);
+            src.connect(ctx.destination);
+            micTestProcessor.connect(ctx.destination);
+
+            micTestProcessor.onaudioprocess = (e) => {
+                const input = e.inputBuffer.getChannelData(0);
+                let sum = 0;
+                for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+                const rms = Math.sqrt(sum / input.length);
+                const percent = Math.min(100, Math.floor(rms * 400));
+                document.getElementById('mic-test-bar').style.width = `${percent}%`;
+            };
+
+            showToast("Вы слышите себя. Нажмите 'Прервать' для завершения.");
+        });
+
+        document.getElementById('btn-delete-account-action').addEventListener('click', () => {
+            showConfirm("Удалить аккаунт?", "ВНИМАНИЕ! Это полностью удалит вашу учетную запись.", async () => {
+                try {
+                    await deleteDoc(doc(db, "users", currentUser.uid));
+                    await deleteUser(currentUser);
+                    showToast("Учетная запись удалена", "danger");
+                } catch (err) {
+                    showToast("Требуется заново авторизоваться!", "danger");
+                }
+            });
+        });
+
+        /* ==========================================================================
+           ПРАВКА 3: ДИНАМИЧЕСКИЙ ПРЕДПРОСМОР СЕРВЕРА ПРИ ИЗМЕНЕНИИ
+           ========================================================================== */
         function openServerSettings() {
             if (!activeServerData) return;
             document.getElementById('server-settings-title-nav').innerText = activeServerData.name;
-            document.getElementById('set-servername-input').value = activeServerData.name;
+            document.getElementById('set-servername-input').value = activeServerData.name || '';
+            document.getElementById('set-serverbanner-input').value = activeServerData.bannerUrl || '';
+            document.getElementById('set-serverdesc-input').value = activeServerData.description || '';
+
+            updateServerPreviewCard();
             overlayServerSettings.style.display = 'flex';
         }
+
+        function updateServerPreviewCard() {
+            const name = document.getElementById('set-servername-input').value.trim() || (activeServerData ? activeServerData.name : "Сервер");
+            const banner = document.getElementById('set-serverbanner-input').value.trim() || (activeServerData ? activeServerData.bannerUrl : "");
+
+            const cardTitle = document.getElementById('preview-card-title');
+            const cardIcon = document.getElementById('preview-card-icon');
+            const cardBanner = document.getElementById('preview-card-banner');
+
+            if (cardTitle) cardTitle.innerText = name;
+            if (cardIcon) cardIcon.innerText = name.substring(0, 2).toUpperCase();
+
+            if (cardBanner) {
+                if (banner) {
+                    cardBanner.style.backgroundImage = `url(${banner})`;
+                } else {
+                    cardBanner.style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.6))`;
+                }
+            }
+        }
+
+        document.getElementById('set-servername-input').addEventListener('input', updateServerPreviewCard);
+        document.getElementById('set-serverbanner-input').addEventListener('input', updateServerPreviewCard);
+
+        /* ==========================================================================
+           ПРАВКА 1: ВКЛАДКИ РЕДАКТИРОВАНИЯ РОЛИ И УПРАВЛЕНИЕ УЧАСТНИКАМИ
+           ========================================================================== */
+        document.querySelectorAll('.role-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.role-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const targetTab = btn.dataset.roletab;
+                document.querySelectorAll('.role-tab-content').forEach(c => c.style.display = 'none');
+                const contentEl = document.getElementById(`roletab-${targetTab}`);
+                if (contentEl) contentEl.style.display = 'flex';
+            });
+        });
+
+        async function loadServerRoles() {
+            if (!activeServerId) return;
+            const rolesListEl = document.getElementById('server-roles-list');
+            rolesListEl.innerHTML = '';
+
+            const rolesSnap = await getDocs(collection(db, "servers", activeServerId, "roles"));
+            if (rolesSnap.empty) {
+                await addDoc(collection(db, "servers", activeServerId, "roles"), {
+                    name: "новая роль",
+                    isAdmin: false,
+                    assignedUsers: []
+                });
+                await addDoc(collection(db, "servers", activeServerId, "roles"), {
+                    name: "@everyone",
+                    isAdmin: false,
+                    assignedUsers: []
+                });
+                return loadServerRoles();
+            }
+
+            activeServerRoles = [];
+
+            rolesSnap.forEach(docSnap => {
+                const role = docSnap.data();
+                const roleId = docSnap.id;
+                activeServerRoles.push({ id: roleId, ...role });
+
+                const roleEl = document.createElement('div');
+                roleEl.className = `settings-nav-item ${currentEditingRoleId === roleId ? 'active' : ''}`;
+                roleEl.style.fontSize = '13px';
+                roleEl.innerHTML = `<i class="fa-solid fa-circle" style="color: ${role.isAdmin ? 'var(--accent)' : 'var(--text-muted)'}; font-size: 10px;"></i> ${role.name}`;
+
+                roleEl.onclick = () => {
+                    selectRoleToEdit(roleId, role);
+                };
+
+                rolesListEl.appendChild(roleEl);
+            });
+
+            if (!currentEditingRoleId && activeServerRoles.length > 0) {
+                selectRoleToEdit(activeServerRoles[0].id, activeServerRoles[0]);
+            }
+        }
+
+        function selectRoleToEdit(roleId, role) {
+            currentEditingRoleId = roleId;
+            currentEditingRoleData = role;
+
+            document.getElementById('set-role-name-input').value = role.name;
+            document.getElementById('set-role-admin-switch').checked = !!role.isAdmin;
+            document.getElementById('role-edit-title').innerText = `РЕДАКТИРОВАТЬ РОЛЬ — ${role.name.toUpperCase()}`;
+
+            const assignedCount = Array.isArray(role.assignedUsers) ? role.assignedUsers.length : 0;
+            document.getElementById('role-tab-members-title').innerText = `Управлять участниками (${assignedCount})`;
+
+            renderRoleAssignedMembersList();
+            loadServerRolesUIActiveItem();
+        }
+
+        function loadServerRolesUIActiveItem() {
+            const rolesListEl = document.getElementById('server-roles-list');
+            if (!rolesListEl) return;
+            Array.from(rolesListEl.children).forEach((el, index) => {
+                const rData = activeServerRoles[index];
+                if (rData && rData.id === currentEditingRoleId) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+        }
+
+        function renderRoleAssignedMembersList() {
+            const container = document.getElementById('role-assigned-members-list');
+            container.innerHTML = '';
+
+            if (!currentEditingRoleData || !Array.isArray(currentEditingRoleData.assignedUsers) || currentEditingRoleData.assignedUsers.length === 0) {
+                container.innerHTML = `
+                            <div style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 20px 0;">
+                                <i class="fa-solid fa-users-slash" style="font-size: 28px; opacity: 0.5; margin-bottom: 8px; display: block;"></i>
+                                Участники не найдены. Назначьте участников на эту роль.
+                            </div>
+                        `;
+                return;
+            }
+
+            const filterText = document.getElementById('input-search-assigned-members').value.toLowerCase().trim();
+
+            currentEditingRoleData.assignedUsers.forEach(uid => {
+                const uObj = allUsers.find(u => u.uid === uid);
+                const username = uObj ? uObj.username : "Пользователь";
+
+                if (filterText && !username.toLowerCase().includes(filterText)) return;
+
+                const row = document.createElement('div');
+                row.className = 'role-member-row';
+                row.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="avatar" style="width: 24px; height: 24px; font-size: 11px;">${username[0].toUpperCase()}</div>
+                                <span style="font-weight: bold; color: var(--text-main);">${username}</span>
+                            </div>
+                            <i class="fa-solid fa-xmark" style="cursor: pointer; color: var(--danger);" title="Удалить из роли"></i>
+                        `;
+
+                row.querySelector('.fa-xmark').onclick = async () => {
+                    currentEditingRoleData.assignedUsers = currentEditingRoleData.assignedUsers.filter(id => id !== uid);
+                    await updateDoc(doc(db, "servers", activeServerId, "roles", currentEditingRoleId), {
+                        assignedUsers: currentEditingRoleData.assignedUsers
+                    });
+                    selectRoleToEdit(currentEditingRoleId, currentEditingRoleData);
+                    showToast("Участник удален из роли");
+                };
+
+                container.appendChild(row);
+            });
+        }
+
+        document.getElementById('input-search-assigned-members').addEventListener('input', renderRoleAssignedMembersList);
+
+        // Открытие модального окна добавления участников в роль
+        const modalAddRoleMembers = document.getElementById('modal-add-role-members');
+        document.getElementById('btn-open-add-role-members').addEventListener('click', () => {
+            if (!currentEditingRoleId) return showToast("Выберите роль!", "warning");
+            renderServerMembersToAddList();
+            modalAddRoleMembers.style.display = 'flex';
+        });
+
+        document.getElementById('btn-close-add-role-members').addEventListener('click', () => {
+            modalAddRoleMembers.style.display = 'none';
+        });
+
+        function renderServerMembersToAddList() {
+            const container = document.getElementById('server-members-to-add-list');
+            container.innerHTML = '';
+
+            const searchFilter = document.getElementById('input-search-server-members').value.toLowerCase().trim();
+            const currentAssigned = (currentEditingRoleData && Array.isArray(currentEditingRoleData.assignedUsers)) ? currentEditingRoleData.assignedUsers : [];
+
+            allUsers.forEach(u => {
+                if (searchFilter && !u.username.toLowerCase().includes(searchFilter)) return;
+
+                const isAlreadyAdded = currentAssigned.includes(u.uid);
+
+                const row = document.createElement('div');
+                row.className = 'role-member-row';
+                row.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="avatar" style="width: 26px; height: 26px; font-size: 11px;">${u.username[0].toUpperCase()}</div>
+                                <span style="font-weight: bold; color: var(--text-main);">${u.username}</span>
+                            </div>
+                            <button class="btn ${isAlreadyAdded ? 'btn-danger' : ''}" style="padding: 4px 10px; font-size: 12px;">
+                                ${isAlreadyAdded ? 'Удалить' : 'Добавить'}
+                            </button>
+                        `;
+
+                row.querySelector('button').onclick = async () => {
+                    if (!currentEditingRoleData.assignedUsers) currentEditingRoleData.assignedUsers = [];
+
+                    if (isAlreadyAdded) {
+                        currentEditingRoleData.assignedUsers = currentEditingRoleData.assignedUsers.filter(id => id !== u.uid);
+                    } else {
+                        currentEditingRoleData.assignedUsers.push(u.uid);
+                    }
+
+                    await updateDoc(doc(db, "servers", activeServerId, "roles", currentEditingRoleId), {
+                        assignedUsers: currentEditingRoleData.assignedUsers
+                    });
+
+                    selectRoleToEdit(currentEditingRoleId, currentEditingRoleData);
+                    renderServerMembersToAddList();
+                };
+
+                container.appendChild(row);
+            });
+        }
+
+        document.getElementById('input-search-server-members').addEventListener('input', renderServerMembersToAddList);
+
+        document.getElementById('btn-add-new-role').addEventListener('click', async () => {
+            if (!activeServerId) return;
+            const newDoc = await addDoc(collection(db, "servers", activeServerId, "roles"), {
+                name: "новая роль",
+                isAdmin: false,
+                assignedUsers: []
+            });
+            await loadServerRoles();
+            showToast("Новая роль создана!", "success");
+        });
+
+        document.getElementById('btn-save-role-settings').addEventListener('click', async () => {
+            if (!currentEditingRoleId || !activeServerId) return showToast("Выберите роль!", "warning");
+
+            const newRoleName = document.getElementById('set-role-name-input').value.trim();
+            const isAdminVal = document.getElementById('set-role-admin-switch').checked;
+
+            if (newRoleName) {
+                await updateDoc(doc(db, "servers", activeServerId, "roles", currentEditingRoleId), {
+                    name: newRoleName,
+                    isAdmin: isAdminVal
+                });
+                await loadServerRoles();
+                showToast("Роль сохранена!", "success");
+            }
+        });
 
         document.getElementById('btn-close-server-settings').addEventListener('click', () => {
             overlayServerSettings.style.display = 'none';
@@ -2991,9 +4408,16 @@
 
         document.getElementById('btn-save-server-overview').addEventListener('click', async () => {
             const newName = document.getElementById('set-servername-input').value.trim();
+            const newBanner = document.getElementById('set-serverbanner-input').value.trim();
+            const newDesc = document.getElementById('set-serverdesc-input').value.trim();
+
             if (newName && activeServerId) {
-                await updateDoc(doc(db, "servers", activeServerId), { name: newName });
-                showToast("Сервер переименован!", "success");
+                await updateDoc(doc(db, "servers", activeServerId), {
+                    name: newName,
+                    bannerUrl: newBanner,
+                    description: newDesc
+                });
+                showToast("Профиль сервера обновлен!", "success");
                 overlayServerSettings.style.display = 'none';
             }
         });
@@ -3012,10 +4436,22 @@
             });
         });
 
+        document.getElementById('btn-set-dark-theme').addEventListener('click', () => {
+            document.body.removeAttribute('data-theme');
+            showToast("Темная тема включена");
+        });
+
+        document.getElementById('btn-set-light-theme').addEventListener('click', () => {
+            document.body.setAttribute('data-theme', 'light');
+            showToast("Светлая тема включена");
+        });
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 overlayUserSettings.style.display = 'none';
                 overlayServerSettings.style.display = 'none';
+                document.getElementById('overlay-channel-settings').style.display = 'none';
+                modalAddRoleMembers.style.display = 'none';
                 hideMenus();
             }
 
@@ -3033,7 +4469,7 @@
         });
 
         /* ==========================================================================
-           8. СПИСОК УЧАСТНИКОВ И ДРУЗЬЯ
+           8. СПИСОК УЧАСТНИКОВ И ПРАВКА 2: ОТОБРАЖЕНИЕ РОЛЕЙ В ПРОФИЛЕ ПОЛЬЗОВАТЕЛЯ
            ========================================================================== */
         function loadGlobalUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
@@ -3048,6 +4484,8 @@
                     allUsers.push(user);
                     const isSelf = user.uid === currentUser.uid;
 
+                    const isServerOwner = activeServerData && activeServerData.ownerId === user.uid;
+
                     const item = document.createElement('div');
                     item.className = 'member-item context-user';
                     item.dataset.uid = user.uid;
@@ -3057,14 +4495,15 @@
                     let avatarStyle = user.avatarUrl ? `background-image: url(${user.avatarUrl});` : '';
 
                     item.innerHTML = `
-                            <div class="avatar-container">
-                                <div class="avatar" style="${avatarStyle}">${user.avatarUrl ? '' : (user.username ? user.username[0].toUpperCase() : 'U')}</div>
-                                <div class="status-indicator"></div>
-                            </div>
-                            <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
-                                ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
-                            </span>
-                        `;
+                                <div class="avatar-container">
+                                    <div class="avatar" style="${avatarStyle}">${user.avatarUrl ? '' : (user.username ? user.username[0].toUpperCase() : 'U')}</div>
+                                    <div class="status-indicator"></div>
+                                </div>
+                                <span style="font-size: 14px; color: var(--text-main); font-weight: bold;">
+                                    ${user.username} ${isSelf ? '<span class="you-badge">(Вы)</span>' : ''}
+                                </span>
+                                ${isServerOwner ? `<i class="fa-solid fa-crown owner-crown" title="Владелец сервера"></i>` : ''}
+                            `;
 
                     item.addEventListener('click', () => openUserProfileModal(user));
                     membersListContainer.appendChild(item);
@@ -3116,7 +4555,8 @@
             selectDmUser(found.uid, found.username);
         });
 
-        function openUserProfileModal(user) {
+        /* ПРАВКА 2: ОТОБРАЖЕНИЕ РОЛЕЙ НА СЕРВЕРЕ В МОДАЛЬНОМ ОКНЕ ПРОФИЛЯ */
+        async function openUserProfileModal(user) {
             document.getElementById('modal-profile-username').innerText = user.username;
             document.getElementById('modal-profile-tag').innerText = user.tag || "#0000";
 
@@ -3129,6 +4569,37 @@
                 av.innerText = user.username ? user.username[0].toUpperCase() : 'U';
             }
 
+            const rolesContainer = document.getElementById('modal-profile-roles-container');
+            const rolesList = document.getElementById('modal-profile-roles-list');
+            rolesList.innerHTML = '';
+
+            if (activeMode === 'server' && activeServerId) {
+                rolesContainer.style.display = 'flex';
+
+                const rolesSnap = await getDocs(collection(db, "servers", activeServerId, "roles"));
+                let userRoles = [];
+
+                rolesSnap.forEach(docSnap => {
+                    const role = docSnap.data();
+                    if (Array.isArray(role.assignedUsers) && role.assignedUsers.includes(user.uid)) {
+                        userRoles.push(role.name);
+                    }
+                });
+
+                if (userRoles.length > 0) {
+                    userRoles.forEach(rName => {
+                        const badge = document.createElement('div');
+                        badge.className = 'role-badge';
+                        badge.innerHTML = `<i class="fa-solid fa-circle" style="color: var(--accent); font-size: 8px;"></i> ${rName}`;
+                        rolesList.appendChild(badge);
+                    });
+                } else {
+                    rolesList.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">Нет ролей на этом сервере</span>`;
+                }
+            } else {
+                rolesContainer.style.display = 'none';
+            }
+
             document.getElementById('modal-user-profile').style.display = 'flex';
         }
 
@@ -3138,6 +4609,7 @@
 
         const modalServer = document.getElementById('modal-create-server');
         const modalChannel = document.getElementById('modal-create-channel');
+        const modalCategory = document.getElementById('modal-create-category');
 
         document.getElementById('btn-add-server').addEventListener('click', () => modalServer.style.display = 'flex');
         document.getElementById('btn-cancel-server').addEventListener('click', () => modalServer.style.display = 'none');
@@ -3171,6 +4643,27 @@
             document.getElementById('select-channel-type').value = defaultType;
             modalChannel.style.display = 'flex';
         }
+
+        function openCategoryModal() {
+            if (!activeServerId) return showToast("Сначала выберите сервер!", "warning");
+            modalCategory.style.display = 'flex';
+        }
+
+        document.getElementById('btn-cancel-category').addEventListener('click', () => modalCategory.style.display = 'none');
+
+        document.getElementById('btn-confirm-category').addEventListener('click', async () => {
+            const catName = document.getElementById('input-category-name').value.trim();
+            if (!catName) return showToast("Введите название категории!", "warning");
+
+            await addDoc(collection(db, "servers", activeServerId, "categories"), {
+                name: catName,
+                createdAt: serverTimestamp()
+            });
+
+            modalCategory.style.display = 'none';
+            document.getElementById('input-category-name').value = '';
+            showToast("Категория создана!", "success");
+        });
 
         document.getElementById('btn-confirm-channel').addEventListener('click', async () => {
             const name = document.getElementById('input-channel-name').value.trim();
@@ -3219,34 +4712,24 @@
         }
         window.copyToClipboard = copyToClipboard;
 
-        /* ОБРАБОТЧИКИ ПКМ ДЕЙСТВИЙ И РЕАЛЬНЫХ ID (ПРАВКА 4 И 5) */
-
-        // 1. ДЕЙСТВИЯ ПКМ ПО СЕРВЕРУ
-        document.getElementById('ctx-srv-read').addEventListener('click', () => showToast("Сервер помечен как прочитанный"));
         document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(window.location.href));
-        document.getElementById('ctx-srv-leave').addEventListener('click', () => {
-            showConfirm("Покинуть сервер?", "", () => {
-                openDmView();
-                showToast("Вы покинули сервер");
-            });
-        });
+        const ctxSrvSettings = document.getElementById('ctx-srv-settings');
+        if (ctxSrvSettings) ctxSrvSettings.addEventListener('click', openServerSettings);
         document.getElementById('ctx-srv-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // 2. ДЕЙСТВИЯ ПКМ ПО ПУСТОМУ ПОЛЮ КАНАЛОВ (ПРАВКА 3)
         document.getElementById('ctx-area-create-channel').addEventListener('click', () => openChannelModal('text'));
-        document.getElementById('ctx-area-create-category').addEventListener('click', () => showToast("Создание категории"));
+        document.getElementById('ctx-area-create-category').addEventListener('click', openCategoryModal);
         document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(window.location.href));
 
-        // 3. ДЕЙСТВИЯ ПКМ ПО КАТЕГОРИИ
         document.getElementById('ctx-cat-read').addEventListener('click', () => showToast("Категория помечена как прочитанная"));
         document.getElementById('ctx-cat-collapse').addEventListener('click', () => document.getElementById('cat-text-header').click());
         document.getElementById('ctx-cat-edit').addEventListener('click', () => showToast("Переименование категории"));
         document.getElementById('ctx-cat-delete').addEventListener('click', () => showToast("Категория удалена"));
         document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // 4. ДЕЙСТВИЯ ПКМ ПО ТЕКСТОВОМУ КАНАЛУ
         document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-tc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
+
         document.getElementById('ctx-tc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
                 const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -3271,9 +4754,9 @@
         });
         document.getElementById('ctx-tc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // 5. ДЕЙСТВИЯ ПКМ ПО ГОЛОСОВОМУ КАНАЛУ
         document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
         document.getElementById('ctx-vc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
+
         document.getElementById('ctx-vc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
                 const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
@@ -3297,7 +4780,6 @@
         });
         document.getElementById('ctx-vc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        // 6. ДЕЙСТВИЯ ПКМ ПО ПОЛЬЗОВАТЕЛЮ
         document.getElementById('ctx-user-profile').addEventListener('click', () => {
             if (selectedContextData && selectedContextData.username) {
                 openUserProfileModal(selectedContextData);
@@ -3313,7 +4795,6 @@
             }
         });
 
-        // 7. ДЕЙСТВИЯ ПКМ ПО СООБЩЕНИЮ
         document.getElementById('ctx-delete-message').addEventListener('click', () => {
             showConfirm("Удалить сообщение?", "", async () => {
                 if (!selectedContextTarget) return;
