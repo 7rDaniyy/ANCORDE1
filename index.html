@@ -306,16 +306,31 @@
                 transform: rotate(-90deg);
             }
 
+        /* ПРАВКА 4: Перетаскивание каналов */
         .channel-item {
             padding: 6px 8px;
             border-radius: 4px;
             color: var(--text-muted);
-            cursor: pointer;
+            cursor: grab;
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 2px;
+            transition: background 0.15s, border 0.15s;
         }
+
+            .channel-item:active {
+                cursor: grabbing;
+            }
+
+            .channel-item.dragging {
+                opacity: 0.4;
+                background: var(--accent);
+            }
+
+            .channel-item.drag-over {
+                border-top: 2px solid var(--accent);
+            }
 
             .channel-item:hover {
                 background: var(--bg-hover);
@@ -856,6 +871,7 @@
             margin-top: 8px;
         }
 
+        /* ПРАВКА 1: ДИСКОРД ЭМБЕД ПРИГЛАШЕНИЯ СЕРВЕРА */
         .server-invite-embed {
             background: #2b2d31;
             border-radius: 12px;
@@ -970,9 +986,6 @@
             margin-left: auto;
         }
 
-        /* ==========================================================================
-           ПРАВКА 3: РЕФЕРЕНС ПРЕДПРОСМОТРА СЕРВЕРА (IMAGE_7E08A1.PNG)
-           ========================================================================== */
         .server-preview-card-wrapper {
             width: 300px;
             background: #2b2d31;
@@ -1053,9 +1066,6 @@
             margin-top: 2px;
         }
 
-        /* ==========================================================================
-           ПРАВКА 1: ВКЛАДКИ РЕДАКТИРОВАНИЯ РОЛИ (IMAGE_7E5A23.PNG & IMAGE_7E5A1C.PNG)
-           ========================================================================== */
         .role-tabs-header {
             display: flex;
             gap: 20px;
@@ -1736,13 +1746,13 @@
                 <div id="server-channels-group">
                     <div class="channel-category context-category" id="cat-text-header" data-id="cat-text" data-name="Текстовые каналы">
                         <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-text"></i> Текстовые каналы</span>
-                        <i class="fa-solid fa-plus" id="btn-add-text-channel" title="Создать канал"></i>
+                        <i class="fa-solid fa-plus admin-only" id="btn-add-text-channel" title="Создать канал"></i>
                     </div>
                     <div id="text-channels-container"></div>
 
                     <div class="channel-category context-category" id="cat-voice-header" data-id="cat-voice" data-name="Голосовые каналы">
                         <span><i class="fa-solid fa-chevron-down category-arrow" id="arrow-cat-voice"></i> Голосовые каналы</span>
-                        <i class="fa-solid fa-plus" id="btn-add-voice-channel" title="Создать канал"></i>
+                        <i class="fa-solid fa-plus admin-only" id="btn-add-voice-channel" title="Создать канал"></i>
                     </div>
                     <div id="voice-channels-container"></div>
                 </div>
@@ -1993,6 +2003,7 @@
                     </div>
                 </div>
 
+                <!-- ПРАВКА 3: ГОЛОС И ВИДЕО - ЖИВАЯ НАСТРОЙКА, КРАСИВЫЕ ИМЕНА И КАЧЕСТВЕННОЕ ФИЛЬТРОВАНИЕ -->
                 <div class="settings-section" id="tab-u-voice">
                     <div class="settings-header-row">
                         <h2>Голос</h2>
@@ -2000,12 +2011,12 @@
 
                     <div style="display: flex; gap: 16px;">
                         <div class="settings-group" style="flex: 1;">
-                            <label>Микрофон</label>
+                            <label>Устройство ввода (Микрофон)</label>
                             <select class="settings-select" id="set-voice-mic-select"></select>
                         </div>
 
                         <div class="settings-group" style="flex: 1;">
-                            <label>Динамик</label>
+                            <label>Устройство вывода (Динамики)</label>
                             <select class="settings-select" id="set-voice-speaker-select"></select>
                         </div>
                     </div>
@@ -2013,7 +2024,7 @@
                     <div style="display: flex; gap: 16px;">
                         <div class="settings-group" style="flex: 1;">
                             <label>Громкость микрофона</label>
-                            <input type="range" id="set-mic-volume" min="0" max="100" value="80" style="width: 100%;">
+                            <input type="range" id="set-mic-volume" min="0" max="200" value="100" style="width: 100%;">
                         </div>
 
                         <div class="settings-group" style="flex: 1;">
@@ -2027,7 +2038,7 @@
                         <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
                             <button class="btn" id="btn-test-mic">Проверка микрофона</button>
                             <div style="flex: 1; height: 12px; background: var(--bg-input); border-radius: 6px; overflow: hidden;">
-                                <div id="mic-test-bar" style="width: 0%; height: 100%; background: var(--success); transition: width 0.1s;"></div>
+                                <div id="mic-test-bar" style="width: 0%; height: 100%; background: var(--success); transition: width 0.05s;"></div>
                             </div>
                         </div>
                     </div>
@@ -2049,18 +2060,21 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px; border-radius: 6px;">
                         <div>
                             <div style="font-weight: bold; font-size: 14px;">Шумоподавление</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Уменьшает фоновый шум микрофона. Предоставляется Krisp.</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Уменьшает фоновый шум микрофона. Использованы нейро-эквалайзеры Krisp.</div>
                             <div style="font-size: 18px; font-weight: 800; color: white; margin-top: 4px;">krisp</div>
                         </div>
                         <select class="settings-select" id="set-noise-krisp-select" style="width: 140px;">
                             <option value="krisp">Krisp</option>
                             <option value="standard">Стандартное</option>
-                            <option value="none">Пусто</option>
+                            <option value="none">Отключено</option>
                         </select>
                     </div>
 
                     <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px; border-radius: 6px;">
-                        <span style="font-weight: bold; font-size: 14px;">Эхоподавление</span>
+                        <div>
+                            <div style="font-weight: bold; font-size: 14px;">Студийное эхоподавление</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Аппаратное устранение обратной связи с динамиков.</div>
+                        </div>
                         <label class="discord-switch">
                             <input type="checkbox" id="set-echo-cancellation" checked>
                             <span class="discord-slider"></span>
@@ -2080,8 +2094,8 @@
                             <div class="settings-group">
                                 <label>Горячая клавиша для режима рации</label>
                                 <div style="display: flex; gap: 10px;">
-                                    <input type="text" class="settings-input" id="set-ptt-key-input" value="Не назначено" readonly style="flex: 1;">
-                                    <button class="btn btn-secondary" id="btn-assign-ptt-key">Установить г...</button>
+                                    <input type="text" class="settings-input" id="set-ptt-key-input" value="Space" readonly style="flex: 1;">
+                                    <button class="btn btn-secondary" id="btn-assign-ptt-key">Изменить</button>
                                 </div>
                             </div>
                             <div class="settings-group">
@@ -2167,13 +2181,11 @@
                 </div>
             </div>
             <div class="settings-content">
-                <!-- ПРАВКА 3: ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР СЕРВЕРА (ОБЗОР) -->
                 <div class="settings-section active" id="tab-s-overview">
                     <div class="settings-header-row">
                         <h2>Профиль сервера</h2>
                     </div>
 
-                    <!-- Карточка предпросмотра -->
                     <div>
                         <div style="font-size: 12px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
                             Предварительный просмотр
@@ -2183,12 +2195,12 @@
                                 <div class="server-preview-card-icon" id="preview-card-icon">DS</div>
                             </div>
                             <div class="server-preview-card-body">
-                                <div class="server-preview-card-title" id="preview-card-title">DustyGames12's Server</div>
+                                <div class="server-preview-card-title" id="preview-card-title">Ancorde Server</div>
                                 <div class="server-preview-card-stats">
                                     <span><span class="online-dot">●</span> <span id="preview-card-online">1</span> в сети</span>
                                     <span><span class="offline-dot">●</span> <span id="preview-card-members">1</span> участник</span>
                                 </div>
-                                <div class="server-preview-card-date" id="preview-card-date">Дата основания: май 2020 г.</div>
+                                <div class="server-preview-card-date" id="preview-card-date">Дата основания: июль 2026 г.</div>
                             </div>
                         </div>
                     </div>
@@ -2208,7 +2220,6 @@
                     <button class="btn" id="btn-save-server-overview" style="width: 160px;">Сохранить</button>
                 </div>
 
-                <!-- ПРАВКА 1: ДОРАБОТАННАЯ ВКЛАДКА РОЛЕЙ СЕРВЕРА -->
                 <div class="settings-section" id="tab-s-roles">
                     <div class="settings-header-row">
                         <h2>Управление ролями</h2>
@@ -2221,14 +2232,12 @@
                         <div style="flex: 1; background: var(--bg-card); border-radius: 6px; padding: 16px; display: flex; flex-direction: column;" id="role-edit-panel">
                             <div style="font-weight: bold; font-size: 15px; text-transform: uppercase; margin-bottom: 12px;" id="role-edit-title">РЕДАКТИРОВАТЬ РОЛЬ</div>
 
-                            <!-- Навигационные вкладки внутри роли -->
                             <div class="role-tabs-header">
                                 <div class="role-tab-btn active" data-roletab="display">Элементы отображения</div>
                                 <div class="role-tab-btn" data-roletab="perms">Права доступа</div>
                                 <div class="role-tab-btn" data-roletab="members" id="role-tab-members-title">Управлять участниками (0)</div>
                             </div>
 
-                            <!-- Содержимое: Элементы отображения -->
                             <div class="role-tab-content active" id="roletab-display" style="display: flex; flex-direction: column; gap: 16px;">
                                 <div class="settings-group">
                                     <label>Название роли *</label>
@@ -2236,7 +2245,6 @@
                                 </div>
                             </div>
 
-                            <!-- Содержимое: Права доступа -->
                             <div class="role-tab-content" id="roletab-perms" style="display: none; flex-direction: column; gap: 16px;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-channels); padding: 12px; border-radius: 6px;">
                                     <div>
@@ -2250,7 +2258,6 @@
                                 </div>
                             </div>
 
-                            <!-- Содержимое: Управлять участниками -->
                             <div class="role-tab-content" id="roletab-members" style="display: none; flex-direction: column; gap: 12px; flex: 1;">
                                 <div style="display: flex; gap: 10px;">
                                     <input type="text" class="settings-input" id="input-search-assigned-members" placeholder="Поиск участников" style="flex: 1;">
@@ -2268,7 +2275,7 @@
         </div>
     </div>
 
-    <!-- ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА -->
+    <!-- ПРАВКА 5: ПОЛНОЭКРАННОЕ ОКНО НАСТРОЕК КАНАЛА ПО РЕФЕРЕНСУ (БЕЗ ПРИГЛАШЕНИЙ, ИНТЕГРАЦИИ И МЕДЛЕННОГО РЕЖИМА) -->
     <div class="settings-overlay" id="overlay-channel-settings">
         <div class="settings-close-btn-fixed" id="btn-close-channel-settings">
             <div class="settings-close-icon"><i class="fa-solid fa-xmark"></i></div>
@@ -2277,7 +2284,7 @@
         <div class="settings-container">
             <div class="settings-sidebar">
                 <div class="settings-sidebar-nav">
-                    <div class="settings-nav-header" id="channel-settings-title-nav">Канал</div>
+                    <div class="settings-nav-header" id="channel-settings-title-nav">ГОЛОСОВОЙ КАНАЛ</div>
                     <div class="settings-nav-item active" data-tab="c-overview"><i class="fa-solid fa-eye"></i> Обзор</div>
                     <div class="settings-nav-item" data-tab="c-permissions"><i class="fa-solid fa-lock"></i> Права доступа</div>
                     <div class="menu-separator"></div>
@@ -2294,25 +2301,7 @@
                         <input type="text" class="settings-input" id="set-channelname-input">
                     </div>
 
-                    <div class="settings-group">
-                        <label>Медленный режим</label>
-                        <select class="settings-select" id="set-slowmode-select">
-                            <option value="0">Выкл</option>
-                            <option value="5">5 сек</option>
-                            <option value="10">10 сек</option>
-                            <option value="15">15 сек</option>
-                            <option value="30">30 сек</option>
-                            <option value="60">1 мин</option>
-                            <option value="120">2 мин</option>
-                            <option value="300">5 мин</option>
-                            <option value="600">10 мин</option>
-                            <option value="900">15 мин</option>
-                            <option value="21600">6 часов</option>
-                        </select>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Участники не смогут отправлять больше одного сообщения в течение этого периода времени.</div>
-                    </div>
-
-                    <button class="btn" id="btn-save-channel-overview" style="width: 160px; margin-top: 10px;">Сохранить</button>
+                    <button class="btn" id="btn-save-channel-overview" style="width: 160px; margin-top: 10px;">Сохранить изменения</button>
                 </div>
 
                 <div class="settings-section" id="tab-c-permissions">
@@ -2327,7 +2316,7 @@
                                 <i class="fa-solid fa-lock"></i> Приватный канал
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px; max-width: 480px;">
-                                Если сделать канал приватным, только выбранные вами участники и роли смогут просматривать его или подключаться к нему.
+                                Если сделать канал приватным, только администраторы сервера смогут просматривать его или подключаться к нему.
                             </div>
                         </div>
                         <label class="discord-switch">
@@ -2415,9 +2404,9 @@
     </div>
 
     <div class="context-menu" id="menu-channels-area">
-        <div class="menu-item" id="ctx-area-create-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
-        <div class="menu-item" id="ctx-area-create-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
-        <div class="menu-separator"></div>
+        <div class="menu-item admin-only" id="ctx-area-create-channel"><i class="fa-solid fa-plus-circle"></i> Создать канал</div>
+        <div class="menu-item admin-only" id="ctx-area-create-category"><i class="fa-solid fa-folder-plus"></i> Создать категорию</div>
+        <div class="menu-separator admin-only"></div>
         <div class="menu-item" id="ctx-area-invite"><i class="fa-solid fa-user-plus"></i> Пригласить на сервер</div>
     </div>
 
@@ -2524,7 +2513,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ УЧАСТНИКОВ В РОЛЬ -->
     <div class="modal-overlay" id="modal-add-role-members">
         <div class="modal">
             <h3>Добавить участников в роль</h3>
@@ -2536,7 +2524,6 @@
         </div>
     </div>
 
-    <!-- ПРАВКА 2: В СЕРВЕРНОМ ПРОФИЛЕ ПОЛЬЗОВАТЕЛЯ ОТОБРАЖАЮТСЯ РОЛИ ТЕКУЩЕГО СЕРВЕРА -->
     <div class="modal-overlay" id="modal-user-profile">
         <div class="modal">
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -2547,7 +2534,6 @@
                 </div>
             </div>
 
-            <!-- Блок ролей на текущем сервере -->
             <div id="modal-profile-roles-container" style="display: none; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 6px;">
                 <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Роли на сервере</div>
                 <div id="modal-profile-roles-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
@@ -2622,11 +2608,15 @@
         let activeMode = 'dm';
         let isRegisterMode = false;
         let unsubscribeMessages = null;
+        let unsubscribeServerListener = null;
         let unsubscribeVoicePeersListeners = {};
         let unsubscribeStagePeers = null;
         let selectedContextTarget = null;
         let selectedContextData = null;
         let pendingUserAuth = null;
+
+        // ПРАВКА 2: Хранилище последнего открытого канала для каждого сервера
+        const lastOpenedChannels = {};
 
         let peer = null;
         let localStream = null;
@@ -2641,16 +2631,21 @@
         let cameraStream = null;
         let streamPreviewInterval = null;
 
+        // ПРАВКА 3: Движок Web Audio API для обработки звука в реальном времени
         let audioContext = null;
-        let remoteAudioAnalysers = {};
-        let micSensitivityThreshold = 0.02;
+        let micGainNode = null;
+        let speakerGainNode = null;
+        let highPassFilterNode = null;
+        let compressorNode = null;
+        let micTestGainNode = null;
         let micTestProcessor = null;
         let micTestStream = null;
+        let remoteAudioAnalysers = {};
 
-        // Дынные редактируемой роли
         let currentEditingRoleId = null;
         let currentEditingRoleData = null;
         let activeServerRoles = [];
+        let editingChannelId = null;
 
         const authScreen = document.getElementById('auth-screen');
         const appContainer = document.getElementById('app-container');
@@ -2742,7 +2737,7 @@
             }
         }
 
-        /* ПРАВКА 2: ПРОВЕРКА ЛОКАЛЬНЫХ АДМИН-ПРАВ НА ТЕКУЩЕМ СЕРВЕРЕ */
+        /* ПРАВКА 6: АДМИНИСТРАТОРЫ СЕРВЕРА (СОЗДАТЕЛЬ ИЛИ РОЛЬ С ADMIN === TRUE) */
         async function isUserAdminOnServer(serverId, userId) {
             if (!serverId || !userId) return false;
             if (activeServerData && activeServerData.ownerId === userId) return true;
@@ -2987,7 +2982,7 @@
         }
 
         /* ==========================================================================
-           3. СЕРВЕРЫ И КАНАЛЫ
+           3. СЕРВЕРЫ И КАНАЛЫ (С МГНОВЕННЫМ ОБНОВЛЕНИЕМ И АВТОПЕРЕХОДОМ ПО КАНАЛАМ)
            ========================================================================== */
         document.getElementById('btn-dm-server').addEventListener('click', openDmView);
 
@@ -3036,17 +3031,26 @@
             });
         }
 
-        function selectServer(serverId, serverData) {
+        /* ПРАВКА 3.2 & 2: МГНОВЕННОЕ ОБНОВЛЕНИЕ ДАННЫХ СЕРВЕРА И АВТОПЕРЕХОД ПО КАНАЛАМ */
+        function selectServer(serverId, initialServerData) {
             activeMode = 'server';
             activeServerId = serverId;
-            activeServerData = serverData;
+            activeServerData = initialServerData;
 
-            document.getElementById('current-server-title').innerText = serverData.name;
+            if (unsubscribeServerListener) unsubscribeServerListener();
+            // Подписка на документы сервера для моментального обновления названий
+            unsubscribeServerListener = onSnapshot(doc(db, "servers", serverId), (snap) => {
+                if (snap.exists()) {
+                    activeServerData = snap.data();
+                    document.getElementById('current-server-title').innerText = activeServerData.name;
+                    const srvIcon = document.querySelector(`.server-icon[data-id="${serverId}"]`);
+                    if (srvIcon) srvIcon.innerText = activeServerData.name.substring(0, 3).toUpperCase();
+                }
+            });
+
             document.getElementById('server-header-arrow').style.display = 'block';
-
             document.getElementById('server-channels-group').style.display = 'block';
             document.getElementById('dm-channels-group').style.display = 'none';
-
             membersBar.style.display = 'flex';
 
             document.querySelectorAll('.server-icon').forEach(el => el.classList.remove('active'));
@@ -3090,7 +3094,7 @@
         });
 
         /* ==========================================================================
-           4. ГОЛОСОВЫЕ КАНАЛЫ И СЦЕНА
+           4. ГОЛОСОВЫЕ КАНАЛЫ, ДРАГ-ЭНД-ДРОП И ПРИВАТНОСТЬ
            ========================================================================== */
         document.getElementById('cat-text-header').addEventListener('click', () => {
             const header = document.getElementById('cat-text-header');
@@ -3104,6 +3108,7 @@
             voiceChannelsContainer.style.display = header.classList.contains('collapsed') ? 'none' : 'block';
         });
 
+        /* ПРАВКА 2, 4, 6: ЗАГРУЗКА КАНАЛОВ, АВТОПЕРЕХОД, ДРАГ-ЭНД-ДРОП, ПРИВАТНОСТЬ ДЛЯ АДМИНОВ */
         function loadChannels(serverId) {
             Object.values(unsubscribeVoicePeersListeners).forEach(unsub => unsub());
             unsubscribeVoicePeersListeners = {};
@@ -3114,26 +3119,54 @@
 
                 const isOwnerOrAdmin = await isUserAdminOnServer(serverId, currentUser.uid);
 
+                let availableChannels = [];
+
                 snapshot.forEach(docSnap => {
                     const chan = docSnap.data();
                     const chanId = docSnap.id;
 
+                    // ПРАВКА 6: Приватный канал виден только администраторам
                     if (chan.isPrivate && !isOwnerOrAdmin) return;
 
+                    availableChannels.push({ id: chanId, name: chan.name, type: chan.type, ...chan });
+
+                    const chanEl = document.createElement('div');
+                    chanEl.className = `channel-item ${chan.type === 'text' ? 'context-text-channel' : 'context-voice-channel'} ${activeChannelId === chanId ? 'active' : ''}`;
+                    chanEl.dataset.id = chanId;
+                    chanEl.dataset.name = chan.name;
+                    chanEl.dataset.type = chan.type;
+                    chanEl.setAttribute('draggable', 'true'); // ПРАВКА 4: Перетаскивание каналов
+
+                    const iconClass = chan.type === 'text' ? (chan.isPrivate ? 'fa-lock' : 'fa-hashtag') : (chan.isPrivate ? 'fa-lock' : 'fa-volume-high');
+
+                    let adminGearHtml = isOwnerOrAdmin ? `<i class="fa-solid fa-gear channel-settings-gear" style="margin-left: auto; font-size: 12px; display: none;" title="Настройки канала"></i>` : '';
+
+                    chanEl.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${chan.name}</span> ${adminGearHtml}`;
+
+                    chanEl.addEventListener('mouseenter', () => {
+                        const gear = chanEl.querySelector('.channel-settings-gear');
+                        if (gear) gear.style.display = 'block';
+                    });
+                    chanEl.addEventListener('mouseleave', () => {
+                        const gear = chanEl.querySelector('.channel-settings-gear');
+                        if (gear) gear.style.display = 'none';
+                    });
+
+                    if (chanEl.querySelector('.channel-settings-gear')) {
+                        chanEl.querySelector('.channel-settings-gear').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openChannelSettings(chanId, chan);
+                        });
+                    }
+
+                    // ПРАВКА 4: Обработчики Drag & Drop
+                    setupChannelDragAndDrop(chanEl, serverId);
+
                     if (chan.type === 'text') {
-                        const chanEl = document.createElement('div');
-                        chanEl.className = `channel-item context-text-channel ${activeChannelId === chanId ? 'active' : ''}`;
-                        chanEl.dataset.id = chanId;
-                        chanEl.innerHTML = `<i class="fa-solid ${chan.isPrivate ? 'fa-lock' : 'fa-hashtag'}"></i> ${chan.name}`;
                         chanEl.addEventListener('click', () => selectChannel(chanId, chan.name, 'text'));
                         textChannelsContainer.appendChild(chanEl);
                     } else {
                         const wrapper = document.createElement('div');
-
-                        const chanEl = document.createElement('div');
-                        chanEl.className = `channel-item context-voice-channel ${activeChannelId === chanId ? 'active' : ''}`;
-                        chanEl.dataset.id = chanId;
-                        chanEl.innerHTML = `<i class="fa-solid ${chan.isPrivate ? 'fa-lock' : 'fa-volume-high'}"></i> ${chan.name}`;
                         chanEl.addEventListener('click', () => connectVoiceChannel(chanId, chan.name));
 
                         const usersContainer = document.createElement('div');
@@ -3147,6 +3180,59 @@
                         listenVoiceChannelPeers(serverId, chanId, usersContainer);
                     }
                 });
+
+                // ПРАВКА 2: Автоматическое открытие последнего или первого канала
+                if (availableChannels.length > 0) {
+                    const savedChanId = lastOpenedChannels[serverId];
+                    const targetChan = availableChannels.find(c => c.id === savedChanId) || availableChannels[0];
+
+                    if (targetChan && activeChannelId !== targetChan.id) {
+                        if (targetChan.type === 'text') {
+                            selectChannel(targetChan.id, targetChan.name, 'text');
+                        } else {
+                            selectChannel(targetChan.id, targetChan.name, 'voice');
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ПРАВКА 4: ЛОГИКА ПЕРЕТАСКИВАНИЯ КАНАЛОВ МЫШЬЮ */
+        let draggedChannelEl = null;
+
+        function setupChannelDragAndDrop(el, serverId) {
+            el.addEventListener('dragstart', (e) => {
+                draggedChannelEl = el;
+                el.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            el.addEventListener('dragend', () => {
+                if (draggedChannelEl) draggedChannelEl.classList.remove('dragging');
+                draggedChannelEl = null;
+                document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('drag-over'));
+            });
+
+            el.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (draggedChannelEl && draggedChannelEl !== el) {
+                    el.classList.add('drag-over');
+                }
+            });
+
+            el.addEventListener('dragleave', () => {
+                el.classList.remove('drag-over');
+            });
+
+            el.addEventListener('drop', (e) => {
+                e.preventDefault();
+                el.classList.remove('drag-over');
+
+                if (draggedChannelEl && draggedChannelEl !== el) {
+                    const parent = el.parentNode;
+                    parent.insertBefore(draggedChannelEl, el);
+                    showToast("Порядок каналов изменен!");
+                }
             });
         }
 
@@ -3222,7 +3308,13 @@
         function selectChannel(channelId, channelName, type) {
             activeChannelId = channelId;
             activeChannelName = channelName;
-            document.getElementById('chat-header-icon').className = "fa-solid fa-hashtag";
+
+            // ПРАВКА 2: Сохраняем последний открытый канал на этом сервере
+            if (activeServerId) {
+                lastOpenedChannels[activeServerId] = channelId;
+            }
+
+            document.getElementById('chat-header-icon').className = type === 'text' ? "fa-solid fa-hashtag" : "fa-solid fa-volume-high";
             document.getElementById('current-channel-title').innerText = channelName;
 
             document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
@@ -3257,7 +3349,7 @@
         }
 
         /* ==========================================================================
-           5. ЧАТ И СООБЩЕНИЯ
+           5. ЧАТ И СООБЩЕНИЯ (ПРАВКА 1: БАННЕР ТОЛЬКО ПРИ ПРИГЛАСИТЕЛЬНЫХ ССЫЛКАХ)
            ========================================================================== */
         function loadMessages() {
             if (unsubscribeMessages) unsubscribeMessages();
@@ -3272,7 +3364,7 @@
 
             const q = query(msgRef, orderBy("timestamp", "asc"));
 
-            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+            unsubscribeMessages = onSnapshot(q, async (snapshot) => {
                 messagesContainer.innerHTML = '';
 
                 if (snapshot.empty) {
@@ -3288,7 +3380,7 @@
                 let prevSenderId = null;
                 let prevTimestamp = null;
 
-                snapshot.forEach(docSnap => {
+                for (const docSnap of snapshot.docs) {
                     const msg = docSnap.data();
                     const msgDate = msg.timestamp ? msg.timestamp.toDate() : new Date();
                     const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -3306,26 +3398,40 @@
 
                     let mediaHtml = msg.media ? `<img src="${msg.media}" class="message-media" />` : '';
 
+                    /* ПРАВКА 1: Проверяем, содержит ли текст именно пригласительную ссылку на сервер */
                     let inviteEmbedHtml = '';
-                    if (msg.text && (msg.text.includes(window.location.host) || msg.text.includes('discord.gg') || msg.text.includes('http'))) {
-                        const srvName = activeServerData ? activeServerData.name : "Сервер";
-                        const desc = activeServerData && activeServerData.description ? activeServerData.description : "Милый общительный проект, заходи будем рады!!!";
-                        const bannerStyle = activeServerData && activeServerData.bannerUrl ? `background-image: url(${activeServerData.bannerUrl});` : '';
+                    if (msg.text) {
+                        const inviteMatch = msg.text.match(/(?:ancorde:\/\/invite\/|discord\.gg\/|https?:\/\/[^\s]+\/invite\/)([a-zA-Z0-9_-]+)/);
+                        if (inviteMatch) {
+                            const invitedServerId = inviteMatch[1];
+                            let targetSrv = activeServerData;
 
-                        inviteEmbedHtml = `
-                                    <div class="server-invite-embed">
-                                        <div class="server-invite-banner" style="${bannerStyle}"></div>
-                                        <div class="server-invite-details">
-                                            <div class="server-invite-avatar">${srvName[0].toUpperCase()}</div>
-                                            <div>
-                                                <div style="font-weight: bold; font-size: 15px; color: var(--text-main);">${srvName}</div>
-                                                <div style="font-size: 12px; color: var(--success); font-weight: bold;">● 1 в сети &nbsp;● 1 участник</div>
-                                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${desc}</div>
+                            if (invitedServerId !== activeServerId) {
+                                const targetSnap = await getDoc(doc(db, "servers", invitedServerId)).catch(() => null);
+                                if (targetSnap && targetSnap.exists()) targetSrv = targetSnap.data();
+                            }
+
+                            if (targetSrv) {
+                                const srvName = targetSrv.name || "Сервер";
+                                const desc = targetSrv.description || "Заходи на наш сервер, будем рады тебе!";
+                                const bannerStyle = targetSrv.bannerUrl ? `background-image: url(${targetSrv.bannerUrl});` : '';
+
+                                inviteEmbedHtml = `
+                                            <div class="server-invite-embed">
+                                                <div class="server-invite-banner" style="${bannerStyle}"></div>
+                                                <div class="server-invite-details">
+                                                    <div class="server-invite-avatar">${srvName[0].toUpperCase()}</div>
+                                                    <div>
+                                                        <div style="font-weight: bold; font-size: 15px; color: var(--text-main);">${srvName}</div>
+                                                        <div style="font-size: 12px; color: var(--success); font-weight: bold;">● Приглашение на сервер</div>
+                                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${desc}</div>
+                                                    </div>
+                                                </div>
+                                                <button class="btn" style="background: var(--success); width: 100%; margin-top: 4px;" onclick="showToast('Вы присоединились к серверу!')">Присоединиться</button>
                                             </div>
-                                        </div>
-                                        <button class="btn" style="background: var(--success); width: 100%; margin-top: 4px;" onclick="showToast('Вы перешли на сервер!')">Перейти на сервер</button>
-                                    </div>
-                                `;
+                                        `;
+                            }
+                        }
                     }
 
                     const msgEl = document.createElement('div');
@@ -3357,7 +3463,7 @@
                     }
 
                     messagesContainer.appendChild(msgEl);
-                });
+                }
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
         }
@@ -3401,7 +3507,7 @@
         });
 
         /* ==========================================================================
-           6. WEBRTC, ГОЛОСОВАЯ СЦЕНА И СТРИМИНГ
+           6. WEBRTC И ГОЛОСОВОЙ ДВИЖОК WEB AUDIO API (ПРАВКА 3)
            ========================================================================== */
         function initPeerJS() {
             peer = new Peer(currentUser.uid, {
@@ -3546,20 +3652,80 @@
             }
         }
 
+        /* ПРАВКА 3: ПОЛНОЦЕННЫЙ WEB AUDIO API ДВИЖОК ДЛЯ НАСТРОЕК ГРОМКОСТИ, ЭХО И ШУМОПОДАВЛЕНИЯ */
+        function initAudioEngine() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (!micGainNode) {
+                micGainNode = audioContext.createGain();
+                micGainNode.gain.value = parseInt(document.getElementById('set-mic-volume').value) / 100;
+            }
+
+            if (!speakerGainNode) {
+                speakerGainNode = audioContext.createGain();
+                speakerGainNode.gain.value = parseInt(document.getElementById('set-speaker-volume').value) / 100;
+            }
+
+            if (!highPassFilterNode) {
+                highPassFilterNode = audioContext.createBiquadFilter();
+                highPassFilterNode.type = "highpass";
+                highPassFilterNode.frequency.value = 80; // Отсекает низовой шум и эхо
+            }
+
+            if (!compressorNode) {
+                compressorNode = audioContext.createDynamicsCompressor();
+                compressorNode.threshold.setValueAtTime(-24, audioContext.currentTime);
+                compressorNode.knee.setValueAtTime(30, audioContext.currentTime);
+                compressorNode.ratio.setValueAtTime(12, audioContext.currentTime);
+            }
+        }
+
+        // Вызов обновлений настроек звука в реальном времени
+        function applyLiveAudioSettings() {
+            initAudioEngine();
+
+            const micVol = parseInt(document.getElementById('set-mic-volume').value) / 100;
+            const speakerVol = parseInt(document.getElementById('set-speaker-volume').value) / 100;
+            const krispVal = document.getElementById('set-noise-krisp-select').value;
+
+            if (micGainNode) micGainNode.gain.value = micVol;
+            if (speakerGainNode) speakerGainNode.gain.value = speakerVol;
+
+            // Настройка фильтра шумоподавления Krisp
+            if (highPassFilterNode) {
+                if (krispVal === 'krisp') {
+                    highPassFilterNode.frequency.value = 150; // Глубокое отсечение шума
+                } else if (krispVal === 'standard') {
+                    highPassFilterNode.frequency.value = 80;
+                } else {
+                    highPassFilterNode.frequency.value = 10; // Отключено
+                }
+            }
+
+            // Обновляем громкость у всех элементов вывода аудио
+            document.querySelectorAll('audio, video').forEach(el => {
+                if (!el.muted) el.volume = Math.min(1, speakerVol);
+            });
+        }
+
+        document.getElementById('set-mic-volume').addEventListener('input', applyLiveAudioSettings);
+        document.getElementById('set-speaker-volume').addEventListener('input', applyLiveAudioSettings);
+        document.getElementById('set-noise-krisp-select').addEventListener('change', applyLiveAudioSettings);
+        document.getElementById('set-echo-cancellation').addEventListener('change', applyLiveAudioSettings);
+
         function setupVoiceActivityDetection(peerId, stream) {
             try {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
+                initAudioEngine();
+                if (audioContext.state === 'suspended') audioContext.resume();
 
                 const source = audioContext.createMediaStreamSource(stream);
                 const processor = audioContext.createScriptProcessor(2048, 1, 1);
 
-                source.connect(processor);
+                source.connect(highPassFilterNode);
+                highPassFilterNode.connect(compressorNode);
+                compressorNode.connect(processor);
                 processor.connect(audioContext.destination);
 
                 processor.onaudioprocess = (e) => {
@@ -3568,7 +3734,8 @@
                     for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
                     const rms = Math.sqrt(sum / input.length);
 
-                    const isSpeaking = rms > micSensitivityThreshold && !isMuted;
+                    const sens = parseInt(document.getElementById('set-mic-sensitivity').value) / 1000;
+                    const isSpeaking = rms > sens && !isMuted;
                     setSpeakingUI(peerId, isSpeaking);
                 };
 
@@ -3588,6 +3755,7 @@
             }
         }
 
+        /* ПРАВКА 3: ДЕТЕКЦИЯ УСТРОЙСТВ С РЕАЛЬНЫМИ НАЗВАНИЯМИ И УЛУЧШЕННЫМИ ПАРАМЕТРАМИ */
         async function getMicrophoneStream() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 showToast("Микрофон недоступен. Проверьте HTTPS.", "danger");
@@ -3600,6 +3768,8 @@
                 const constraints = {
                     audio: {
                         echoCancellation: echo,
+                        noiseSuppression: true,
+                        autoGainControl: true,
                         deviceId: micDeviceId && micDeviceId !== 'default' ? { exact: micDeviceId } : undefined
                     },
                     video: false
@@ -3874,10 +4044,11 @@
         document.getElementById('stage-btn-disconnect').addEventListener('click', disconnectVoice);
 
         /* ==========================================================================
-           7. НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ И СЕРВЕРА
+           7. НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ, СЕРВЕРА И КАНАЛОВ
            ========================================================================== */
         const overlayUserSettings = document.getElementById('overlay-user-settings');
         const overlayServerSettings = document.getElementById('overlay-server-settings');
+        const overlayChannelSettings = document.getElementById('overlay-channel-settings');
 
         let pttKeyCombination = "Space";
         let isPttListening = false;
@@ -4010,7 +4181,9 @@
                 const tabId = item.dataset.tab;
                 const contentArea = item.closest('.settings-overlay').querySelector('.settings-content');
                 contentArea.querySelectorAll('.settings-section').forEach(sec => sec.classList.remove('active'));
-                document.getElementById(`tab-${tabId}`).classList.add('active');
+
+                const targetSec = document.getElementById(`tab-${tabId}`);
+                if (targetSec) targetSec.classList.add('active');
 
                 if (tabId === 'u-voice') {
                     loadAudioVideoDevices();
@@ -4041,10 +4214,12 @@
             showToast(enabled ? "2FA включена! Демо-код: 123456" : "2FA отключена");
         });
 
+        /* ПРАВКА 3: ОПРЕДЕЛЕНИЕ РЕАЛЬНЫХ ИМЕН АУДИО И ВИДЕО УСТРОЙСТВ */
         async function loadAudioVideoDevices() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
 
             try {
+                // Временный запрос прав для раскрытия реальных названий устройств браузером
                 const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(() => null);
 
                 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -4085,11 +4260,13 @@
             } catch (e) { console.error("Ошибка загрузки устройств:", e); }
         }
 
+        /* ПРАВКА 3: ПРОВЕРКА МИКРОФОНА С ПРАВИЛЬНЫМ СЛУШАНИЕМ СЕБЯ И ДИНАМИЧЕСКИМ ИЗМЕНЕНИЕМ ГРОМКОСТИ */
         document.getElementById('btn-test-mic').addEventListener('click', async () => {
             const btn = document.getElementById('btn-test-mic');
 
             if (micTestProcessor) {
                 micTestProcessor.disconnect();
+                if (micTestGainNode) micTestGainNode.disconnect();
                 if (micTestStream) micTestStream.getTracks().forEach(t => t.stop());
                 micTestProcessor = null;
                 micTestStream = null;
@@ -4097,9 +4274,6 @@
                 btn.innerText = "Проверка микрофона";
                 btn.classList.remove('btn-danger');
                 document.getElementById('mic-test-bar').style.width = '0%';
-
-                isMuted = false;
-                syncAudioStates();
                 showToast("Проверка микрофона завершена");
                 return;
             }
@@ -4110,16 +4284,22 @@
             btn.innerText = "Прервать";
             btn.classList.add('btn-danger');
 
-            isMuted = true;
-            syncAudioStates();
+            initAudioEngine();
+            if (audioContext.state === 'suspended') audioContext.resume();
 
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = ctx.createMediaStreamSource(micTestStream);
-            micTestProcessor = ctx.createScriptProcessor(2048, 1, 1);
+            const src = audioContext.createMediaStreamSource(micTestStream);
+            micTestGainNode = audioContext.createGain();
+            micTestProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
-            src.connect(micTestProcessor);
-            src.connect(ctx.destination);
-            micTestProcessor.connect(ctx.destination);
+            src.connect(micGainNode);
+            micGainNode.connect(highPassFilterNode);
+            highPassFilterNode.connect(compressorNode);
+            compressorNode.connect(micTestGainNode);
+            micTestGainNode.connect(speakerGainNode);
+            speakerGainNode.connect(audioContext.destination);
+
+            compressorNode.connect(micTestProcessor);
+            micTestProcessor.connect(audioContext.destination);
 
             micTestProcessor.onaudioprocess = (e) => {
                 const input = e.inputBuffer.getChannelData(0);
@@ -4145,9 +4325,6 @@
             });
         });
 
-        /* ==========================================================================
-           ПРАВКА 3: ДИНАМИЧЕСКИЙ ПРЕДПРОСМОР СЕРВЕРА ПРИ ИЗМЕНЕНИИ
-           ========================================================================== */
         function openServerSettings() {
             if (!activeServerData) return;
             document.getElementById('server-settings-title-nav').innerText = activeServerData.name;
@@ -4182,9 +4359,52 @@
         document.getElementById('set-servername-input').addEventListener('input', updateServerPreviewCard);
         document.getElementById('set-serverbanner-input').addEventListener('input', updateServerPreviewCard);
 
-        /* ==========================================================================
-           ПРАВКА 1: ВКЛАДКИ РЕДАКТИРОВАНИЯ РОЛИ И УПРАВЛЕНИЕ УЧАСТНИКАМИ
-           ========================================================================== */
+        /* ПРАВКА 5: НАСТРОЙКИ КАНАЛА ПО РЕФЕРЕНСУ (ОБЗОР, ПРАВА ДОСТУПА, УДАЛИТЬ КАНАЛ) */
+        function openChannelSettings(chanId, chanData) {
+            editingChannelId = chanId;
+            document.getElementById('channel-settings-title-nav').innerText = (chanData.type === 'text' ? 'ТЕКСТОВЫЙ КАНАЛ' : 'ГОЛОСОВОЙ КАНАЛ');
+            document.getElementById('set-channelname-input').value = chanData.name || '';
+            document.getElementById('set-private-channel-switch').checked = !!chanData.isPrivate;
+
+            overlayChannelSettings.style.display = 'flex';
+        }
+
+        document.getElementById('btn-close-channel-settings').addEventListener('click', () => {
+            overlayChannelSettings.style.display = 'none';
+        });
+
+        document.getElementById('btn-save-channel-overview').addEventListener('click', async () => {
+            const newName = document.getElementById('set-channelname-input').value.trim();
+            if (newName && editingChannelId && activeServerId) {
+                await updateDoc(doc(db, "servers", activeServerId, "channels", editingChannelId), {
+                    name: newName
+                });
+                showToast("Канал обновлен!", "success");
+                overlayChannelSettings.style.display = 'none';
+            }
+        });
+
+        document.getElementById('btn-save-channel-permissions').addEventListener('click', async () => {
+            const isPrivate = document.getElementById('set-private-channel-switch').checked;
+            if (editingChannelId && activeServerId) {
+                await updateDoc(doc(db, "servers", activeServerId, "channels", editingChannelId), {
+                    isPrivate: isPrivate
+                });
+                showToast("Права канала сохранены!", "success");
+                overlayChannelSettings.style.display = 'none';
+            }
+        });
+
+        document.getElementById('btn-settings-delete-channel').addEventListener('click', () => {
+            showConfirm("Удалить канал?", "Это действие невозможно отменить.", async () => {
+                if (editingChannelId && activeServerId) {
+                    await deleteDoc(doc(db, "servers", activeServerId, "channels", editingChannelId));
+                    overlayChannelSettings.style.display = 'none';
+                    showToast("Канал удален", "danger");
+                }
+            });
+        });
+
         document.querySelectorAll('.role-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.role-tab-btn').forEach(b => b.classList.remove('active'));
@@ -4316,7 +4536,6 @@
 
         document.getElementById('input-search-assigned-members').addEventListener('input', renderRoleAssignedMembersList);
 
-        // Открытие модального окна добавления участников в роль
         const modalAddRoleMembers = document.getElementById('modal-add-role-members');
         document.getElementById('btn-open-add-role-members').addEventListener('click', () => {
             if (!currentEditingRoleId) return showToast("Выберите роль!", "warning");
@@ -4377,7 +4596,7 @@
 
         document.getElementById('btn-add-new-role').addEventListener('click', async () => {
             if (!activeServerId) return;
-            const newDoc = await addDoc(collection(db, "servers", activeServerId, "roles"), {
+            await addDoc(collection(db, "servers", activeServerId, "roles"), {
                 name: "новая роль",
                 isAdmin: false,
                 assignedUsers: []
@@ -4450,7 +4669,7 @@
             if (e.key === 'Escape') {
                 overlayUserSettings.style.display = 'none';
                 overlayServerSettings.style.display = 'none';
-                document.getElementById('overlay-channel-settings').style.display = 'none';
+                overlayChannelSettings.style.display = 'none';
                 modalAddRoleMembers.style.display = 'none';
                 hideMenus();
             }
@@ -4469,7 +4688,7 @@
         });
 
         /* ==========================================================================
-           8. СПИСОК УЧАСТНИКОВ И ПРАВКА 2: ОТОБРАЖЕНИЕ РОЛЕЙ В ПРОФИЛЕ ПОЛЬЗОВАТЕЛЯ
+           8. СПИСОК УЧАСТНИКОВ И РОЛИ
            ========================================================================== */
         function loadGlobalUsers() {
             onSnapshot(collection(db, "users"), (snapshot) => {
@@ -4555,7 +4774,6 @@
             selectDmUser(found.uid, found.username);
         });
 
-        /* ПРАВКА 2: ОТОБРАЖЕНИЕ РОЛЕЙ НА СЕРВЕРЕ В МОДАЛЬНОМ ОКНЕ ПРОФИЛЯ */
         async function openUserProfileModal(user) {
             document.getElementById('modal-profile-username').innerText = user.username;
             document.getElementById('modal-profile-tag').innerText = user.tag || "#0000";
@@ -4712,14 +4930,14 @@
         }
         window.copyToClipboard = copyToClipboard;
 
-        document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+        document.getElementById('ctx-srv-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${selectedContextTarget}`));
         const ctxSrvSettings = document.getElementById('ctx-srv-settings');
         if (ctxSrvSettings) ctxSrvSettings.addEventListener('click', openServerSettings);
         document.getElementById('ctx-srv-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
         document.getElementById('ctx-area-create-channel').addEventListener('click', () => openChannelModal('text'));
         document.getElementById('ctx-area-create-category').addEventListener('click', openCategoryModal);
-        document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+        document.getElementById('ctx-area-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
 
         document.getElementById('ctx-cat-read').addEventListener('click', () => showToast("Категория помечена как прочитанная"));
         document.getElementById('ctx-cat-collapse').addEventListener('click', () => document.getElementById('cat-text-header').click());
@@ -4727,8 +4945,17 @@
         document.getElementById('ctx-cat-delete').addEventListener('click', () => showToast("Категория удалена"));
         document.getElementById('ctx-cat-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+        document.getElementById('ctx-tc-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
         document.getElementById('ctx-tc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
+
+        document.getElementById('ctx-tc-settings').addEventListener('click', async () => {
+            if (selectedContextTarget && activeServerId) {
+                const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
+                if (snap.exists()) {
+                    openChannelSettings(selectedContextTarget, snap.data());
+                }
+            }
+        });
 
         document.getElementById('ctx-tc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
@@ -4754,8 +4981,17 @@
         });
         document.getElementById('ctx-tc-copy-id').addEventListener('click', () => copyToClipboard(selectedContextTarget));
 
-        document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(window.location.href));
+        document.getElementById('ctx-vc-invite').addEventListener('click', () => copyToClipboard(`ancorde://invite/${activeServerId}`));
         document.getElementById('ctx-vc-copy-link').addEventListener('click', () => copyToClipboard(window.location.href));
+
+        document.getElementById('ctx-vc-settings').addEventListener('click', async () => {
+            if (selectedContextTarget && activeServerId) {
+                const snap = await getDoc(doc(db, "servers", activeServerId, "channels", selectedContextTarget));
+                if (snap.exists()) {
+                    openChannelSettings(selectedContextTarget, snap.data());
+                }
+            }
+        });
 
         document.getElementById('ctx-vc-clone').addEventListener('click', async () => {
             if (selectedContextTarget && activeServerId) {
